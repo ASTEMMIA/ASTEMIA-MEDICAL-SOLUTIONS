@@ -125,3 +125,13 @@ def test_no_gp_in_catalogue_service_names() -> None:
     _, services = template_rows()
     assert not [s["name"] for s in services if "GP" in s["name"].split()]
     assert "Medical doctor out of hours" in {s["name"] for s in services}
+
+
+@pytest.mark.parametrize("directory", ["kch", "nhsggc"])
+def test_no_gp_or_nhs_in_directory_listing_names(directory: str) -> None:
+    """ASTEMIA naming applies to the directory crosswalks too, without exceptions."""
+    import re
+
+    banned = re.compile(r"(?<![A-Za-z])(GP|NHS)(?![A-Za-z])")
+    listings = [e["listing"] for e in load_crosswalk(directory)["entries"]]
+    assert [x for x in listings if banned.search(x)] == []

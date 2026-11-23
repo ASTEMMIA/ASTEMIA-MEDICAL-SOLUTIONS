@@ -118,10 +118,12 @@ ZETTER medical doctor columns (migration 0005). The CDS suffix `VGP`
 (variant grouping) is not a GP field and is unchanged. The extract dictionary
 keeps the original label in `source_label`.
 
-The NHSGGC directory listings "GP Service" and "GP Out of Hours" are kept
-verbatim in the crosswalk, because they record what that public page says.
-They remain search aliases, so a search for "GP" still finds the right
-service, but the service itself is named medical doctor.
+The rule has no exceptions. The NHSGGC directory listings are renamed too:
+"GP Service" becomes "Medical Doctor Service", "GP Out of Hours" becomes
+"Medical Doctor Out of Hours", and "Out of Hours GP Service" becomes "Out of
+Hours Medical Doctor Service" (migration 0006, including tenant search
+aliases). Only the listing URLs keep "gp", because they are NHSGGC's own web
+addresses and changing them would break the links.
 
 ## Decisions for the data architect
 

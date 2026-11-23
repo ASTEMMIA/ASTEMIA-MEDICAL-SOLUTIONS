@@ -292,13 +292,13 @@
   },
   {
    "position": 49,
-   "listing": "GP Out of Hours",
+   "listing": "Medical Doctor Out of Hours",
    "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/gp-out-of-hours/",
    "service_code": "D36-07"
   },
   {
    "position": 50,
-   "listing": "GP Service",
+   "listing": "Medical Doctor Service",
    "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/",
    "service_code": "D36-01"
   },
@@ -664,7 +664,7 @@
   },
   {
    "position": 111,
-   "listing": "Out of Hours GP Service",
+   "listing": "Out of Hours Medical Doctor Service",
    "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/",
    "service_code": "D36-07"
   },
@@ -1034,5 +1034,6 @@
    "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-city-youth-health-service/",
    "service_code": "D36-08"
   }
- ]
+ ],
+ "naming": "Listing names follow ASTEMIA naming: NHS becomes NIN, GP becomes medical doctor. URLs are the publisher's own addresses and are unchanged."
 }

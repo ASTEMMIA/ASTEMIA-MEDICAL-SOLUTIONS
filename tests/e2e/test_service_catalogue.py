@@ -210,3 +210,10 @@ def test_directory_listing_names_are_search_aliases(api: Api) -> None:
     assert "Diabetes disordered eating and psychological support" in {
         s["name"] for s in find(api, "T1DE")
     }
+
+
+def test_medical_doctor_naming_in_search(api: Api) -> None:
+    """GP is named medical doctor everywhere, directory aliases included."""
+    provision(api, ["D36"])
+    assert {s["code"] for s in find(api, "Medical Doctor Out of Hours")} == {"D36-07"}
+    assert find(api, "GP") == []

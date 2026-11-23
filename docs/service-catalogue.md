@@ -1480,8 +1480,8 @@ Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 202
 | 46 | Food takeaway facilities | D50-10 Visitor amenities |
 | 47 | Free Condoms | D29-02 Contraception |
 | 48 | Family Wellbeing Hub | D39-04 Child and adolescent mental health |
-| 49 | GP Out of Hours | D36-07 Medical doctor out of hours |
-| 50 | GP Service | D36-01 Primary and preventive care |
+| 49 | Medical Doctor Out of Hours | D36-07 Medical doctor out of hours |
+| 50 | Medical Doctor Service | D36-01 Primary and preventive care |
 | 51 | GIRFEC – Getting it right for every child | D29-04 Safeguarding |
 | 52 | Glasgow City Youth Health Service | D36-08 Youth health service |
 | 53 | Gynaecology Clinics | D26-01 General and endocrine gynaecology |
@@ -1542,7 +1542,7 @@ Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 202
 | 108 | Optometrist | D16-08 Community optometry |
 | 109 | Orthopaedics North | D15-01 Trauma and orthopaedics |
 | 110 | Outpatient Clinics | D34-03 Outpatient booking |
-| 111 | Out of Hours GP Service | D36-07 Medical doctor out of hours |
+| 111 | Out of Hours Medical Doctor Service | D36-07 Medical doctor out of hours |
 | 112 | Orthopaedics | D15-01 Trauma and orthopaedics |
 | 113 | Orthoptics | D16-05 Orthoptics |
 | 114 | Orthotics | D48-02 Orthotics |
