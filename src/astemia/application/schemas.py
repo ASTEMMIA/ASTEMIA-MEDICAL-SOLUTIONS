@@ -223,3 +223,50 @@ class ChartOut(BaseModel):
     open_reviews: list[ReviewOut]
     masked_fields: list[str]
     withheld_records: int
+
+
+# --- service catalogue (Annex A16) ---------------------------------------------
+
+
+class ProvisionCatalogue(Strict):
+    facility_id: uuid.UUID
+    group_codes: list[Annotated[str, StringConstraints(pattern=r"^D\d{2}$")]] | None = Field(
+        default=None, description="Department groups to provision; all when omitted."
+    )
+
+
+class ActivateService(Strict):
+    facility_id: uuid.UUID
+    owner_id: uuid.UUID
+    approval_reference: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=3, max_length=100)
+    ]
+    queue_roles: list[str] = Field(
+        default_factory=lambda: ["clinician"], min_length=1, max_length=10
+    )
+
+
+class RetireService(Strict):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class ServiceOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    code: str
+    name: str
+    group_code: str | None
+    group_name: str | None
+    division: str | None
+    age_policy: str
+    care_settings: list[str]
+    status: str
+    owner_id: uuid.UUID | None = None
+    facilities: list[uuid.UUID] = []
+
+
+class ProvisionOut(BaseModel):
+    facility_id: uuid.UUID
+    groups: int
+    services_created: int
+    services_existing: int

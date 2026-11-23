@@ -46,9 +46,11 @@ def cstrings(blob: bytes) -> Iterator[tuple[int, int, str]]:
             end = p + 2 * n
             if n and end <= len(blob):
                 try:
-                    yield i, end, blob[p:end].decode("utf-16le")
+                    text: str | None = blob[p:end].decode("utf-16le")
                 except UnicodeDecodeError:
-                    pass
+                    text = None  # not a string record
+                if text is not None:
+                    yield i, end, text
         i = blob.find(CSTRING, i + 1)
 
 

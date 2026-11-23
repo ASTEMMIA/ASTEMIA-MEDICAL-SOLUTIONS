@@ -15,7 +15,7 @@ from astemia.application.context import RequestContext
 # Capability grants per role. Platform and tenant administrators get no
 # clinical capability: clinical access requires a separate approved grant.
 ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
-    "registrar": frozenset({"patient:register", "encounter:admit"}),
+    "registrar": frozenset({"patient:register", "encounter:admit", "catalogue:read"}),
     "clinician": frozenset(
         {
             "encounter:admit",
@@ -23,11 +23,13 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "order:create",
             "result:acknowledge",
             "identifier:read",
+            "catalogue:read",
         }
     ),
-    "nurse": frozenset({"chart:read"}),
-    "lab_scientist": frozenset({"result:release"}),
-    "tenant_admin": frozenset(),
+    "nurse": frozenset({"chart:read", "catalogue:read"}),
+    "lab_scientist": frozenset({"result:release", "catalogue:read"}),
+    # Tenant administrators configure the catalogue but hold no clinical capability.
+    "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
     "sensitive_reader": frozenset({"sensitive:mental_health", "sensitive:sexual_health"}),
 }
 

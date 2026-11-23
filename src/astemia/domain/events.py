@@ -10,6 +10,7 @@ class EventType(StrEnum):
     RESULT_RELEASED = "result.released"
     RESULT_AMENDED = "result.amended"
     RESULT_ACKNOWLEDGED = "result.acknowledged"
+    SERVICE_CATALOGUE_CHANGED = "service_catalogue.changed"
 
 
 SCHEMA_VERSION: dict[EventType, int] = dict.fromkeys(EventType, 1)

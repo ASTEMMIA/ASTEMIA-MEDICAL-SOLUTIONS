@@ -28,6 +28,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application import views
+from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.errors import Conflict, Unprocessable
 from astemia.application.schemas import (
     Acknowledge,
@@ -197,6 +198,7 @@ class Commands:
             if patient.status in (idn.PatientStatus.MERGED, idn.PatientStatus.DECEASED):
                 raise Conflict(f"patient is {patient.status}", code="patient_not_admissible")
             u.get(OrganisationSite, cmd.facility_id)
+            clinical_service_id = resolve_service_for_admission(u, cmd.service, cmd.facility_id)
             u.get(Practitioner, cmd.responsible_practitioner_id)
             if cmd.admitted_at > u.ctx.now:
                 raise Unprocessable("admission time is in the future", code="future_admission")
@@ -217,6 +219,7 @@ class Commands:
                 visit_number=cmd.visit_number,
                 encounter_class=cmd.encounter_class.value,
                 service=cmd.service,
+                clinical_service_id=clinical_service_id,
                 state=state.value,
                 admission_route=cmd.admission_route,
                 period_start=cmd.admitted_at,

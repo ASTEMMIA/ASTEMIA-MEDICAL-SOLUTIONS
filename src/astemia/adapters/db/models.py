@@ -784,6 +784,170 @@ class CareProvision(Envelope, Base):
     end_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
 
+# --- Service catalogue (AMS-002 Annex A15-A16, CAT-01..05) ----------------------
+
+
+class ServiceTemplateGroup(Base):
+    """ASTEMIA standard department group (D01-D36 from Annex A15, D37+ ASTEMIA
+    extensions). Global reference data; tenants instantiate from it."""
+
+    __tablename__ = "service_template_group"
+    __table_args__ = (TABLE_OPTS,)
+
+    code: Mapped[str] = mapped_column(String(8), primary_key=True)
+    division: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    workflow: Mapped[str] = mapped_column(String(1000), nullable=False)
+    requirement_refs: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    canonical_records: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    security_checks: Mapped[str] = mapped_column(String(1000), nullable=False)
+    acceptance: Mapped[str] = mapped_column(String(1000), nullable=False)
+    kch_positions: Mapped[list[int]] = mapped_column(JSON, nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    catalogue_version: Mapped[str] = mapped_column(String(16), nullable=False)
+
+
+class ServiceTemplate(Base):
+    __tablename__ = "service_template"
+    __table_args__ = (fk(["group_code"], "service_template_group", ["code"]), TABLE_OPTS)
+
+    code: Mapped[str] = mapped_column(String(12), primary_key=True)
+    group_code: Mapped[str] = mapped_column(String(8), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    age_policy: Mapped[str] = mapped_column(String(12), nullable=False)
+    care_settings: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+
+
+class ServiceDirectoryListing(Base):
+    """Public services A-Z directory listings mapped to catalogue services
+    (King's College Hospital, NHS Greater Glasgow and Clyde). Listing names
+    become search aliases when a tenant provisions the catalogue (CAT-02)."""
+
+    __tablename__ = "service_directory_listing"
+    __table_args__ = (fk(["service_code"], "service_template", ["code"]), TABLE_OPTS)
+
+    directory: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, primary_key=True)
+    listing: Mapped[str] = mapped_column(String(200), nullable=False)
+    url: Mapped[str] = mapped_column(String(500), nullable=False)
+    service_code: Mapped[str] = mapped_column(String(12), nullable=False)
+    snapshot: Mapped[date] = mapped_column(Date, nullable=False)
+
+
+class OrgUnit(Envelope, EffectivePeriod, Base):
+    """Division, department and subdepartment hierarchy. Parents are in the same
+    tenant (composite FK); cycles are rejected by the catalogue command."""
+
+    __tablename__ = "org_unit"
+    __table_args__ = (
+        fk(["tenant_id"], "tenant", ["id"]),
+        fk(["tenant_id", "parent_id"], "org_unit"),
+        UniqueConstraint("tenant_id", "code"),
+        TABLE_OPTS,
+    )
+
+    code: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    unit_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+
+
+class ClinicalService(Envelope, EffectivePeriod, Base):
+    __tablename__ = "clinical_service"
+    __table_args__ = (
+        fk(["tenant_id", "department_id"], "org_unit"),
+        fk(["tenant_id", "owner_id"], "practitioner"),
+        fk(["template_code"], "service_template", ["code"]),
+        UniqueConstraint("tenant_id", "code"),
+        Index(None, "tenant_id", "status"),
+        TABLE_OPTS,
+    )
+
+    code: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    department_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    template_code: Mapped[str | None] = mapped_column(String(12))
+    age_policy: Mapped[str] = mapped_column(String(12), nullable=False)
+    care_settings: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False)  # draft | active | retired
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    description: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ServiceAlias(Envelope, Base):
+    __tablename__ = "service_alias"
+    __table_args__ = (
+        fk(["tenant_id", "service_id"], "clinical_service"),
+        UniqueConstraint("tenant_id", "alias", "service_id"),
+        Index(None, "tenant_id", "alias"),
+        TABLE_OPTS,
+    )
+
+    service_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    alias: Mapped[str] = mapped_column(String(200), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class FacilityService(Envelope, EffectivePeriod, Base):
+    """Where a service is offered, in which care settings and for which ages."""
+
+    __tablename__ = "facility_service"
+    __table_args__ = (
+        fk(["tenant_id", "service_id"], "clinical_service"),
+        fk(["tenant_id", "facility_id"], "organisation_site"),
+        UniqueConstraint("tenant_id", "service_id", "facility_id"),
+        TABLE_OPTS,
+    )
+
+    service_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    facility_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    care_settings: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    accepts_referrals: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    contact_channel: Mapped[str | None] = mapped_column(String(100))
+
+
+class WorkQueue(Envelope, Base):
+    __tablename__ = "work_queue"
+    __table_args__ = (
+        fk(["tenant_id", "service_id"], "clinical_service"),
+        fk(["tenant_id", "facility_id"], "organisation_site"),
+        UniqueConstraint("tenant_id", "code"),
+        TABLE_OPTS,
+    )
+
+    service_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    facility_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    code: Mapped[str] = mapped_column(String(48), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    eligible_roles: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    accepting: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class ServiceChange(Base):
+    """Catalogue change provenance (Annex A16 ServiceChange and Provenance)."""
+
+    __tablename__ = "service_change"
+    __table_args__ = (
+        fk(["tenant_id"], "tenant", ["id"]),
+        Index(None, "tenant_id", "recorded_at"),
+        TABLE_OPTS,
+    )
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    change_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    service_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    requester: Mapped[str] = mapped_column(String(255), nullable=False)
+    approver: Mapped[str | None] = mapped_column(String(255))
+    reason: Mapped[str] = mapped_column(String(500), nullable=False)
+    previous_status: Mapped[str | None] = mapped_column(String(12))
+    new_status: Mapped[str | None] = mapped_column(String(12))
+    catalogue_version: Mapped[str] = mapped_column(String(16), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    correlation_id: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
 # --- Encounter ----------------------------------------------------------------
 
 
@@ -793,6 +957,7 @@ class Encounter(Envelope, Base):
         fk(["tenant_id", "patient_id"], "patient"),
         fk(["tenant_id", "facility_id"], "organisation_site"),
         fk(["tenant_id", "responsible_practitioner_id"], "practitioner"),
+        fk(["tenant_id", "clinical_service_id"], "clinical_service"),
         UniqueConstraint("tenant_id", "visit_authority", "visit_number"),
         Index(None, "tenant_id", "patient_id"),
         TABLE_OPTS,
@@ -805,6 +970,7 @@ class Encounter(Envelope, Base):
     visit_number: Mapped[str] = mapped_column(String(64), nullable=False)
     encounter_class: Mapped[str] = mapped_column(String(16), nullable=False)
     service: Mapped[str] = mapped_column(String(64), nullable=False)
+    clinical_service_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
     state: Mapped[str] = mapped_column(String(24), nullable=False)
     admission_route: Mapped[str | None] = mapped_column(String(32))
     administrative_category: Mapped[str | None] = mapped_column(String(8))

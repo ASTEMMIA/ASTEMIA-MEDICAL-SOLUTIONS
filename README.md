@@ -36,8 +36,8 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
 
 ## What is built
 
-* **Schema:** 119 tables with 159 foreign keys, each including `tenant_id`.
-  That is 53 canonical and platform tables and 66 verbatim staging tables. A
+* **Schema:** 128 tables with 173 foreign keys. Every foreign key between tenant-owned tables includes `tenant_id`.
+  That is 62 canonical, catalogue and platform tables and 66 verbatim staging tables. A
   national-extract dictionary holds 1,705 fields across 8 extracts.
 * **Write path** (CEDA 10.3): identity, then policy, then Idempotency-Key,
   then expected version, then domain transition. State, revision, audit and
@@ -52,6 +52,48 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/orders` | Place an order |
   | `POST /v1/diagnostic-reports` | Release a result. A second release is an amendment that reopens exactly one review |
   | `POST /v1/result-reviews/{id}/acknowledge` | Acknowledge a result. Needs `If-Match` |
+
+## Hospital service catalogue
+
+50 department groups and 359 services. The full list, with both directory
+crosswalks, is in [docs/service-catalogue.md](docs/service-catalogue.md).
+
+* **King's College Hospital A to Z:** all 281 listings map to a specific
+  service. D01-D36 follow AMS-002 Annex A15.
+* **NHS Greater Glasgow and Clyde A to Z:** all 172 listings map to a
+  specific service. That includes non-clinical listings such as chaplaincy,
+  interpreting, patient transport and visitor amenities, which go to D50
+  Patient, family and visitor support.
+* **D37-D50 ASTEMIA extensions,** awaiting clinical-owner approval:
+  * ENT and audiology
+  * burns and plastics
+  * mental health and addiction
+  * tropical and communicable diseases (malaria, TB, Lassa fever)
+  * child nutrition
+  * clinical genetics
+  * radiotherapy
+  * pre-hospital EMS
+  * mortuary and medico-legal
+  * occupational health
+  * blood donor services
+  * orthotics and prosthetics
+  * virtual wards
+  * patient, family and visitor support
+
+Tests fail if any directory listing is unmapped. Listing names such as
+"The Havens", "SACU", "T1DE" and "WestMARC" become search aliases.
+
+Tenants provision the catalogue as drafts and activate services per facility
+with a named owner, an approval reference and a work queue (CAT-01/05).
+Admissions must name an active service offered at that facility, and unknown
+or retired codes are refused (CAT-03/04).
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /v1/control/catalogue/provision` | Instantiate the catalogue as drafts (tenant admin) |
+| `POST /v1/control/services/{id}/activate` | Activate a service at a facility. Needs `If-Match` |
+| `POST /v1/control/services/{id}/retire` | Retire a service. Needs `If-Match` |
+| `GET /v1/services` | Search by name or alias, with `facility_id`, `age` and `care_setting` filters |
 
 ## Run it
 

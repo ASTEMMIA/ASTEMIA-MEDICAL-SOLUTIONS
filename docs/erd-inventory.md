@@ -98,4 +98,4 @@ Do not edit by hand.
 | NHS_NUMBER_PSEUD | NIN_PSEUD |
 | NHS_NUMBER_STATUS_IND | NIN_STATUS_IND |
 
-Totals: 119 tables (53 canonical/platform, 66 staging); 8 extracts with 1705 dictionary fields.
+Totals: 128 tables (62 canonical/platform, 66 staging); 8 extracts with 1705 dictionary fields.

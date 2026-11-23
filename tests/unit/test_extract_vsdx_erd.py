@@ -75,5 +75,5 @@ def test_nested_entities_split_and_keys_are_flagged() -> None:
 
 
 def test_non_ascii_labels_and_unrelated_strings() -> None:
-    blob = entity("AE") + field("A+E Diagnosis – Second") + cs("has") + cs("}{ywusq")
-    assert parse(blob) == [("AE", ["A+E Diagnosis – Second"], [])]
+    blob = entity("AE") + field("A+E Diagnosis \u2013 Second") + cs("has") + cs("}{ywusq")
+    assert parse(blob) == [("AE", ["A+E Diagnosis \u2013 Second"], [])]
