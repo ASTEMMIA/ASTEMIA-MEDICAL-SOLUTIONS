@@ -1,0 +1,30 @@
+# Source documents
+
+The originals this codebase is built from. Change them here, then regenerate
+what is derived from them.
+
+| File | What it is | Derived in the code |
+|---|---|---|
+| `AMS-002_CEDA.docx` | AMS-002 Canonical Enterprise Data Architecture, with the ASTEMIA Health SaaS Functional Specification v1.2 merged in as Annex A (23 November 2026) | Architecture, write path, API-03 slice, service catalogue D01-D36 (Annex A15-A16) |
+| `erd/AMS_MASTER_SCHEMA_WIP_ERP.vsdx` | AMS master schema ERD | `src/astemia/adapters/db/erd/ams_master_schema_wip_erp.json` |
+| `erd/ZETTER_AMS_SCHEMA_ERD.vsdx` | ZETTER AMS schema ERD | `.../erd/zetter_ams_erd.json` |
+| `erd/PDi_AMS_SCHEMA_ERP.vsdx` | Patient demographics (PDi) schema ERD | `.../erd/pdi_ams_schema_erp.json` |
+| `erd/AHIS_MASTER_ERD.vsdx` | AHIS master ERD | `.../erd/ahis_master_erd.json` |
+| `erd/AE_AMS_SCHEMA_ERD.vsdx` | A&E AMS schema ERD | `.../erd/ae_ams_erd.json` |
+
+`tests/unit/test_erd_sources.py` re-extracts every ERD here and fails if the
+committed JSON no longer matches. After editing an ERD, regenerate its JSON:
+
+```bash
+uv run python tools/extract_vsdx_erd.py docs/source/erd/AHIS_MASTER_ERD.vsdx src/astemia/adapters/db/erd/ahis_master_erd.json
+```
+
+Then regenerate the inventory and create a migration for the schema change:
+
+```bash
+uv run python tools/erd_inventory.py
+```
+
+```bash
+uv run alembic revision --autogenerate -m "describe the ERD change"
+```

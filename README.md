@@ -6,6 +6,10 @@ Reference implementation of **AMS-002 Canonical Enterprise Data Architecture
 CEDA section 3 and the five AMS ERDs. See
 [docs/erd-schema-mapping.md](docs/erd-schema-mapping.md).
 
+The source documents (the CEDA document and the five Visio ERDs) are stored
+in [docs/source](docs/source). A test fails if an ERD and its committed
+extraction disagree.
+
 ## Stack (CEDA 10.1)
 
 | Concern | Choice |
