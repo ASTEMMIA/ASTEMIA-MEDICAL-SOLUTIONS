@@ -149,7 +149,10 @@
     "HES_ID_D",
     "DURATION_OF SPELL_D"
    ],
-   "relationship_labels": 0
+   "primary_key": [
+    "GENERATED_RECORD_ID",
+    "LOADED_STD_DATE"
+   ]
   },
   {
    "name": "Legitmate Relationship",
@@ -164,7 +167,7 @@
     "LR Creation Reason Code",
     "LR Creation Reason Text"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Workgroup Team",
@@ -176,7 +179,7 @@
     "Workgroup End Date",
     "Workgroup End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Department",
@@ -184,7 +187,7 @@
     "Department Code",
     "Department Name"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Workgroup Team Service",
@@ -194,7 +197,7 @@
     "Role Start Date",
     "Role EndDate"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Business Clinical Service",
@@ -203,7 +206,7 @@
     "NHS BS Name",
     "Category Bag"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Business Action",
@@ -212,7 +215,7 @@
     "Action Name",
     "End Point URL"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Messaging Contract Properties",
@@ -227,7 +230,7 @@
     "Duplicate Elimination",
     "Actor"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Workgroup Team Membership",
@@ -239,7 +242,7 @@
     "Membership End Date",
     "Membership End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Healthcare Professional",
@@ -255,7 +258,7 @@
     "Password",
     "Forti Token ID"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Care Provision",
@@ -265,7 +268,7 @@
     "Effective Time",
     "NHS Number"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Patient/Service User",
@@ -303,7 +306,7 @@
     "Registering Organisation ID",
     "Registering Person ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person",
@@ -316,7 +319,7 @@
     "Mobile Number",
     "Consent to Call Centre"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Party",
@@ -324,7 +327,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Organisation",
@@ -334,7 +337,7 @@
     "Organisation Type",
     "Close Date"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Organisation  Site",
@@ -342,7 +345,7 @@
     "Site Identifier",
     "Site Name"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address",
@@ -363,7 +366,7 @@
     "Address Line 6",
     "Address Description"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address Type",
@@ -371,7 +374,7 @@
     "Address Type ID",
     "Address Type Description"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Address Party",
@@ -380,7 +383,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Organisation /Person",
@@ -388,7 +391,7 @@
     "Organisation ID",
     "Person ID"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Role Profile",
@@ -398,7 +401,7 @@
     "Workgroups",
     "Job Role"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Telecom  Communication",
@@ -410,7 +413,7 @@
     "Communication Type",
     "Communication Value"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Person/Person",
@@ -421,7 +424,7 @@
     "NMC Registration Code",
     "Relationship Type"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Contact",
@@ -430,7 +433,7 @@
     "Contact End Time",
     "Contact Method"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Contact",
@@ -439,7 +442,7 @@
     "Contact End Time",
     "Contact Method"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Person Name",
@@ -458,7 +461,7 @@
     "Date Name Valid To",
     "Update Date"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Name Type",
@@ -466,7 +469,7 @@
     "Name Type",
     "Name Type Description"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Consent",
@@ -478,7 +481,7 @@
     "Consent Status",
     "Consent Comment"
    ],
-   "relationship_labels": 14
+   "primary_key": []
   },
   {
    "name": "Care Provision",
@@ -488,7 +491,7 @@
     "Effective Time",
     "NHS Number"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Patient/Service User",
@@ -526,7 +529,7 @@
     "Registering Organisation ID",
     "Registering Person ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person",
@@ -539,7 +542,7 @@
     "Mobile Number",
     "Consent to Call Centre"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Party",
@@ -547,7 +550,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Telecom  Communication",
@@ -559,7 +562,7 @@
     "Communication Type",
     "Communication Value"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Address /Party",
@@ -568,7 +571,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address",
@@ -589,7 +592,7 @@
     "Address Line 6",
     "Address Description"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address Type",
@@ -597,7 +600,7 @@
     "Address Type ID",
     "Address Type Description"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Organisation / Person",
@@ -605,7 +608,7 @@
     "Organisation ID",
     "Person ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Role Profile",
@@ -615,7 +618,7 @@
     "Workgroups",
     "Job Role"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Person Name",
@@ -634,7 +637,7 @@
     "Date Name Valid To",
     "Update Date"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Name Type",
@@ -642,7 +645,7 @@
     "Name Type",
     "Name Type Description"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Person/Person",
@@ -653,7 +656,7 @@
     "NMC Registration Code",
     "Relationship Type"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Contact",
@@ -662,7 +665,7 @@
     "Contact End Time",
     "Contact Method"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Healthcare Professional",
@@ -678,7 +681,7 @@
     "Password",
     "Forti Token ID"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Consent",
@@ -690,7 +693,7 @@
     "Consent Status",
     "Consent Comment"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Legitmate Relationship",
@@ -703,7 +706,7 @@
     "LR Creation Reason code",
     "LR Creation Reason Text"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Healthcare Professional",
@@ -719,7 +722,7 @@
     "Password",
     "Forti Token ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person ( LRS LOGICAL DATA MODEL)",
@@ -732,7 +735,7 @@
     "Mobile Number",
     "Consent to Call Centre"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Patient/Service User",
@@ -770,7 +773,7 @@
     "Registering Organisation ID",
     "Registering Person ID"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Person/Person",
@@ -781,7 +784,7 @@
     "NMC Registration Code",
     "Relationship Type"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Workgroup Team",
@@ -793,7 +796,7 @@
     "Workgroup End Date",
     "Workgroup End Time"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Workgroup Team",
@@ -805,7 +808,7 @@
     "Workgroup End Date",
     "Workgroup End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address",
@@ -826,7 +829,7 @@
     "Address Line 6",
     "Address Description"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Address Type",
@@ -834,7 +837,7 @@
     "Address Type ID",
     "Address Type Description"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Address Party",
@@ -843,7 +846,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Party",
@@ -851,7 +854,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   }
  ]
 }

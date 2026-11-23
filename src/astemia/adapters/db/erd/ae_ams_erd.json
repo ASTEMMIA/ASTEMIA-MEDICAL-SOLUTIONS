@@ -40,7 +40,7 @@
     "ACTIVITY_TYPE_",
     "TOTAL_PREV_PREG"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "STG_010_AE_TRANSACTION",
@@ -214,22 +214,19 @@
     "A+E Staff Member Code",
     "Diagnosis Scheme in Use",
     "A+E Diagnosis - First",
-    "A+E Diagnosis",
-    "Second",
+    "A+E Diagnosis \u2013 Second",
     "Investigation Scheme in Use",
     "A+E Investigation - First",
-    "A+E Investigation",
-    "Second",
+    "A+E Investigation \u2013 Second",
     "Procedure Scheme in Use",
     "A+E Treatment - First",
-    "A+E Treatment",
-    "Second",
+    "A+E Treatment \u2013 Second",
     "Healthcare Resource Group Code",
     "Healthcare Resource Group Version Number",
     "Procedure Scheme in Use",
     "HRG Dominant Grouping Variable Procedure"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "STG_999_COM_DIAG",
@@ -243,7 +240,7 @@
     "ORG_CODE_SCHEMA_VGP",
     "DIAG_VGP"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "STG_999_ALL_COPY_RECIPIENT",
@@ -259,7 +256,7 @@
     "SUS_FLAG",
     "LOGICALLY_DELETED_DATE"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "STG_999_COM_LPI",
@@ -274,7 +271,7 @@
     "ORG_CODE",
     "ORG_CODE_TYPE"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "STG_999_COM_CE_PROC",
@@ -288,10 +285,9 @@
     "PROC_CODE",
     "PROC_START_DATE",
     "PROC_CODE_SCHEME_VGP",
-    "PROC_VGP",
-    "OMKIGECA?=;97531/-+)'%#!"
+    "PROC_VGP"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   }
  ]
 }

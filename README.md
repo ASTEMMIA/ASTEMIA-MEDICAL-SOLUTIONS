@@ -38,7 +38,7 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
 
 * **Schema:** 119 tables with 159 foreign keys, each including `tenant_id`.
   That is 53 canonical and platform tables and 66 verbatim staging tables. A
-  national-extract dictionary holds 1,708 fields across 8 extracts.
+  national-extract dictionary holds 1,705 fields across 8 extracts.
 * **Write path** (CEDA 10.3): identity, then policy, then Idempotency-Key,
   then expected version, then domain transition. State, revision, audit and
   outbox are committed in one transaction.

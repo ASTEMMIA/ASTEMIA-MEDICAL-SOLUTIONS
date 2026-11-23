@@ -73,3 +73,20 @@ class TestResults:
     def test_acknowledged_review_cannot_reopen(self) -> None:
         with pytest.raises(InvalidTransition):
             dx.move_review(dx.ReviewState.ACKNOWLEDGED, dx.ReviewState.ACKNOWLEDGED)
+
+
+class TestMedicareRetired:
+    def test_medicare_cannot_be_a_current_identifier(self) -> None:
+        from astemia.domain.identity import IdentifierType, check_issuer_allowed
+
+        for kind in (IdentifierType.CURRENT, IdentifierType.TEMPORARY, IdentifierType.OLD_STYLE):
+            with pytest.raises(InvariantViolation) as err:
+                check_issuer_allowed("NG-MEDICARE", kind)
+            assert err.value.code == "medicare_number_retired"
+
+    def test_medicare_is_kept_as_a_previous_identifier_that_never_binds(self) -> None:
+        from astemia.domain.identity import IdentifierType, binds_actively, check_issuer_allowed
+
+        check_issuer_allowed("NG-MEDICARE", IdentifierType.PREVIOUS)
+        assert binds_actively("NG-NIN") is True
+        assert binds_actively("NG-MEDICARE") is False

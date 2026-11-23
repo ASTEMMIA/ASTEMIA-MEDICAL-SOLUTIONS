@@ -61,3 +61,28 @@ def unique_names(labels: list[str]) -> list[tuple[str, str, int]]:
         n = seen[base]
         out.append((label, base if n == 1 else f"{base[:52]}_{n}", n))
     return out
+
+
+# National-extract fields that carry the patient's identifier. medicare_number
+# is retired in favour of the NIN, so outbound returns populate these from the
+# NIN. Matched on exact labels: "MEDICARE Service Agreement ...", "MEDICARE
+# Site" and similar name the Medicare programme, not a person, and stay unmapped.
+NIN_VALUE = "patient_identifier[issuer=NG-NIN].value"
+NIN_STATUS = "patient_identifier[issuer=NG-NIN].verification_status"
+NIN_PSEUDONYM = "pseudonymise(patient_identifier[issuer=NG-NIN].value)"
+_IDENTIFIER_FIELDS = {
+    "medicare number": NIN_VALUE,
+    "medicare_number": NIN_VALUE,
+    "medicare_id": NIN_VALUE,
+    "nin": NIN_VALUE,
+    "medicare number status indicator": NIN_STATUS,
+    "medicare_number_status_ind": NIN_STATUS,
+    "status of medicare no": NIN_STATUS,
+    "nin_status_ind": NIN_STATUS,
+    "medicare_number_pseud": NIN_PSEUDONYM,
+    "nin_pseud": NIN_PSEUDONYM,
+}
+
+
+def identifier_mapping(label: str) -> str | None:
+    return _IDENTIFIER_FIELDS.get(label.strip().lower())

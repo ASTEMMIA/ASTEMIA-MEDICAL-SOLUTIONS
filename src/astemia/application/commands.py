@@ -64,6 +64,12 @@ class Commands:
                     cmd.birth_date, cmd.birth_date_precision, u.ctx.now.date()
                 )
             )
+            for i in cmd.identifiers:
+                _domain(
+                    lambda i=i: idn.check_issuer_allowed(
+                        i.issuer, idn.IdentifierType(i.identifier_type)
+                    )
+                )
             identifiers = [
                 (
                     i.issuer,
@@ -132,7 +138,7 @@ class Commands:
                             else idn.VerificationStatus.UNVERIFIED
                         ).value,
                         valid_from=u.ctx.now,
-                        active_marker=1,
+                        active_marker=1 if idn.binds_actively(issuer) else None,
                         **envelope,
                     )
                 )

@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-11-23 21:27:52.359622
+Create Date: 2026-11-23 21:41:57.687665
 """
 
 from collections.abc import Sequence
@@ -390,7 +390,6 @@ def upgrade() -> None:
         sa.Column("proc_start_date", sa.Text(), nullable=True),
         sa.Column("proc_code_scheme_vgp", sa.Text(), nullable=True),
         sa.Column("proc_vgp", sa.Text(), nullable=True),
-        sa.Column("omkigeca_97531_plus", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["tenant_id"], ["tenant.id"], name=op.f("fk_stg_999_com_ce_proc_tenant_tenant_id")
         ),

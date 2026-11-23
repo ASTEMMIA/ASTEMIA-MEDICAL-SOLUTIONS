@@ -542,7 +542,7 @@ class PatientIdentifier(Envelope, Base):
     verification_status: Mapped[str] = mapped_column(String(16), nullable=False)
     valid_from: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
     valid_to: Mapped[datetime | None] = mapped_column(UTCDateTime)
-    active_marker: Mapped[int | None] = mapped_column(TINYINT, default=1)
+    active_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
 
 
 class PatientDisability(Envelope, EffectivePeriod, Base):

@@ -60,3 +60,21 @@ def test_credentials_from_the_erd_are_not_canonical_columns() -> None:
     ]
     cols = {c.name for t in canonical for c in t.columns}
     assert not cols & {"password", "shared_secret", "logon_name", "forti_token_id"}
+
+
+@pytest.mark.parametrize(
+    ("label", "mapped"),
+    [
+        ("MEDICARE Number", "patient_identifier[issuer=NG-NIN].value"),
+        ("MEDICARE_ID", "patient_identifier[issuer=NG-NIN].value"),
+        ("NIN", "patient_identifier[issuer=NG-NIN].value"),
+        ("Status of medicare No", "patient_identifier[issuer=NG-NIN].verification_status"),
+        ("MEDICARE_NUMBER_PSEUD", "pseudonymise(patient_identifier[issuer=NG-NIN].value)"),
+        ("MEDICARE Service Agreement Line Number", None),
+        ("Day Care Attendance (Mental Health MEDICARE Site)", None),
+    ],
+)
+def test_extract_identifier_fields_map_to_nin(label: str, mapped: str | None) -> None:
+    from astemia.adapters.db.legacy_names import identifier_mapping
+
+    assert identifier_mapping(label) == mapped

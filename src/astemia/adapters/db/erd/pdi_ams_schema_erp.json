@@ -107,7 +107,7 @@
     "Spell Definition Type (Assembler MHCS)",
     "Mental Health Care and Legal Status History"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Ward Attenders",
@@ -183,7 +183,7 @@
     "Code of MD Practice (Registered NMP)",
     "Organisation Code Type"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Elective Admissions - Events",
@@ -254,7 +254,7 @@
     "Healthcare Resource Group Version Number",
     "HRG Dominant Grouping Variable Procedure"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Elective Admissions - Census",
@@ -321,7 +321,7 @@
     "Healthcare Resource Group Version Number",
     "HRG Dominant Grouping Variable Procedure"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person Name",
@@ -338,7 +338,7 @@
     "Date Name Valis To",
     "Update Date"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Name Type",
@@ -346,7 +346,7 @@
     "Name Type",
     "Name Type Discription"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Person",
@@ -372,7 +372,7 @@
     "Mobile Number",
     "Consent to Call Centre"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Party",
@@ -380,7 +380,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "TELECOM COMMUNICATION",
@@ -390,7 +390,7 @@
     "End Date",
     "Communication Type"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "ADDRESS/PARTY",
@@ -399,7 +399,7 @@
     "Person ID",
     "Organisation ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "ADDRESS",
@@ -420,7 +420,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "ADDRESS TYPE",
@@ -428,7 +428,7 @@
     "Address Typs ID",
     "Address Typs Description"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "ORGANISATION SITE",
@@ -436,7 +436,7 @@
     "Site Identifier",
     "Site Name"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "ORGANISATION",
@@ -446,7 +446,7 @@
     "Organisation Type",
     "Close Date"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "ORGANISATION PERSON",
@@ -457,7 +457,7 @@
     "Close Date",
     "PersonID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "ROLE PROFILE",
@@ -472,7 +472,7 @@
     "Speciality Area",
     "Departmental code"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Patient / Service User",
@@ -511,7 +511,7 @@
     "Registering Organisation ID",
     "Registering Person ID"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Legitmate Relationship",
@@ -525,7 +525,7 @@
     "Legitmate Relationship Creation Reason Code",
     "Legitmate Relationship Creation Reason Text"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "WORKGROUP TEAM",
@@ -537,7 +537,7 @@
     "Workgroup End Date",
     "Workgroup End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "DEPARTMENT",
@@ -545,7 +545,7 @@
     "Department Code",
     "Department Name"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "WORKGROUP TEAM MEMBERSHIP",
@@ -558,7 +558,7 @@
     "Membership  End Date",
     "Membership  End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "HealthProfessional",
@@ -570,7 +570,7 @@
     "Logon Name",
     "Password"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Care Provision",
@@ -583,7 +583,7 @@
     "Logon Name",
     "Password"
    ],
-   "relationship_labels": 10
+   "primary_key": []
   },
   {
    "name": "WORKGROUP TEAM SERVICE",
@@ -595,7 +595,7 @@
     "Role End Date",
     "Role End Time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "BUSINESS (CLINICAL) SERVICE",
@@ -604,7 +604,7 @@
     "Medicare BS Name",
     "Category Bag"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "BUSINESS ACTION",
@@ -613,7 +613,7 @@
     "Action Name",
     "End Point URL"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "MESSAGING CONTRACT PROPERTIES",
@@ -628,7 +628,7 @@
     "Duplicte Elimination",
     "Actor"
    ],
-   "relationship_labels": 12
+   "primary_key": []
   },
   {
    "name": "CONSENT",
@@ -666,7 +666,7 @@
     "consent_comment",
     "Identity confirmation"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Contact",
@@ -693,7 +693,7 @@
     "contact start time",
     "contact end time"
    ],
-   "relationship_labels": 16
+   "primary_key": []
   },
   {
    "name": "Person/Person",
@@ -724,7 +724,7 @@
     "User Identifier",
     "Person Identifier"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Person_History",
@@ -746,14 +746,14 @@
     "preferred_contact_times",
     "comment"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Disability_Code",
    "fields": [
     "code"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person",
@@ -775,7 +775,7 @@
     "preferred_contact_times",
     "comment"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person_Telecom_History",
@@ -785,7 +785,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Transaction",
@@ -799,7 +799,7 @@
     "Country of Transaction",
     "transaction_time"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "CONSENT_HISTORY",
@@ -812,7 +812,7 @@
     "consent_date_last_changed",
     "consent_comment"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Person_Address",
@@ -833,7 +833,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Person_Address_History",
@@ -854,7 +854,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Person_Telecom",
@@ -864,7 +864,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Person_Address_Future",
@@ -885,7 +885,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "CONSENT",
@@ -923,7 +923,7 @@
     "consent_comment",
     "Identity confirmation"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Duplicates",
@@ -934,7 +934,7 @@
     "resolved",
     "resolved_date"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Manage_Trans",
@@ -944,7 +944,7 @@
     "unmerged1_record_id",
     "unmerged2_record_id"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Nominated_Pharmacy",
@@ -952,7 +952,7 @@
     "nominated_pharmacy_type",
     "nominated_pharmacy_code"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Nominated_Pharmacy_History",
@@ -960,7 +960,7 @@
     "nominated_pharmacy_type",
     "nominated_pharmacy_code"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Primary_Care",
@@ -970,7 +970,7 @@
     "effective_from_date",
     "effective_to_date"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Primary_Care_History",
@@ -980,7 +980,7 @@
     "effective_from_date",
     "effective_to_date"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Name_History",
@@ -995,7 +995,7 @@
     "title",
     "suffix"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Name",
@@ -1010,7 +1010,7 @@
     "title",
     "suffix"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Person_Telecom_Future",
@@ -1020,7 +1020,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "Primary_Care_Future",
@@ -1030,7 +1030,7 @@
     "effective_from_date",
     "effective_to_date"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Alternative_Contact_Future",
@@ -1049,7 +1049,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Telecom_Future",
@@ -1059,14 +1059,14 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Disability_Code_Future",
    "fields": [
     "code"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Address_Future",
@@ -1087,7 +1087,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 8
+   "primary_key": []
   },
   {
    "name": "Alternative_Contact_History",
@@ -1106,14 +1106,14 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Disability_Code_History",
    "fields": [
     "code"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Address_History",
@@ -1134,7 +1134,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Telecom_History",
@@ -1144,21 +1144,21 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 6
+   "primary_key": []
   },
   {
    "name": "Disability_Code_History",
    "fields": [
     "code"
    ],
-   "relationship_labels": 10
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Disability_Code",
    "fields": [
     "code"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Alternative_Contact",
@@ -1177,7 +1177,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Telecom",
@@ -1187,7 +1187,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 2
+   "primary_key": []
   },
   {
    "name": "Alt_Cont_Address",
@@ -1208,7 +1208,7 @@
     "effective_from",
     "effective_to"
    ],
-   "relationship_labels": 4
+   "primary_key": []
   },
   {
    "name": "ADMITTED PATIENT CARE",
@@ -1947,7 +1947,7 @@
     "HRG DGVP",
     "HRG DGVP Procedure Scheme in Use"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   },
   {
    "name": "OUTPATIENTS",
@@ -2303,7 +2303,7 @@
     "HRG DGVP",
     "HRG DGVP Procedure Scheme in Use"
    ],
-   "relationship_labels": 0
+   "primary_key": []
   }
  ]
 }

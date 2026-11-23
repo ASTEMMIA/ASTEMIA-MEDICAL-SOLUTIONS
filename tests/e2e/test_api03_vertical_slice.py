@@ -318,3 +318,50 @@ def test_ae_attendance_requires_emergency_class(api: Api) -> None:
     )
     assert r.status_code == 422 and r.json()["error"]["code"] == "ae_needs_emergency"
     admit(api, pid, visit="AE-V2", encounter_class="emergency", ae=ae)
+
+
+def test_medicare_number_is_retired_in_favour_of_nin(api: Api) -> None:
+    base = {
+        "family_name": "Bello",
+        "given_names": "Musa",
+        "birth_date": "1961-07-02",
+        "administrative_sex": "male",
+    }
+    current = api.post(
+        "registrar",
+        "/v1/patients",
+        {**base, "identifiers": [{"issuer": "NG-MEDICARE", "value": "MED-1001"}]},
+    )
+    assert current.status_code == 422
+    assert current.json()["error"]["code"] == "medicare_number_retired"
+
+    # Migrated history: the old number is kept as a previous identifier next to the NIN.
+    # It never holds the active binding, so it cannot block another record.
+    for nin in ("44444444444", "55555555555"):
+        r = api.post(
+            "registrar",
+            "/v1/patients",
+            {
+                **base,
+                "identifiers": [
+                    {"issuer": "NG-NIN", "value": nin, "verified": True},
+                    {"issuer": "NG-MEDICARE", "value": "MED-1001", "identifier_type": "previous"},
+                ],
+            },
+        )
+        assert r.status_code == 201, r.text
+        kinds = {(i["issuer"], i["identifier_type"]) for i in r.json()["identifiers"]}
+        assert kinds == {("NG-NIN", "current")}  # only active bindings are listed
+
+
+def test_parents_names_are_stored_but_not_disclosed_in_the_chart(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    from astemia.adapters.db.models import Patient
+
+    pid = register(api)  # registers mother_name="Bisi Adeyemi"
+    admit(api, pid)
+    with factory() as s:
+        assert s.get(Patient, (api.tenant.tenant_id, uuid.UUID(pid))).mother_name == "Bisi Adeyemi"  # type: ignore[union-attr]
+    chart = api.get("clinician", f"/v1/patients/{pid}/chart")
+    assert "Bisi" not in chart.text

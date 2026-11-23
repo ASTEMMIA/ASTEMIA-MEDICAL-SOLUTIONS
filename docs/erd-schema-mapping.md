@@ -13,7 +13,10 @@ list is generated in [erd-inventory.md](erd-inventory.md).
 
 `tools/extract_vsdx_erd.py` reads the Visio database-model store embedded in
 each file (`VisDBEngrData/.../MAPInfo`), which holds every entity and field,
-not just the ones drawn on the page.
+not just the ones drawn on the page. Each name in that store is followed by a
+record tag that says whether it is an entity, a field or a primary-key field.
+The extractor classifies by those tags, so it needs no hand-maintained lists
+and handles fields that repeat inside the national extracts.
 
 ## Three layers
 
@@ -105,12 +108,17 @@ check-digit rule were removed.
 1. **Name and address type values.** The ERDs define the tables but not their
    values. Migration 0002 seeds proposed defaults (usual, preferred, maiden,
    alias, previous; home, correspondence, temporary, work, billing, site).
-2. **medicare_number.** Treated as a separate identifier (`NG-MEDICARE`) next
-   to the NIN. Confirm whether it is being retired in favour of the NIN.
-3. **Mother and father name** (AHIS Person Name) are stored on `patient` for
-   identity verification. Confirm they are needed, since they are personal data
-   about third parties.
-4. **Extractor heuristics.** Visio stores some repeated field labels as if they
-   started new groups. `tools/extract_vsdx_erd.py` lists them explicitly
-   (`FLAT_GROUPS`, `CONTINUATIONS`). Re-run the tool when an ERD changes and
-   check the generated inventory diff.
+
+## Decided
+
+* **medicare_number is retired in favour of the NIN** (23 November 2026).
+  New registrations cannot bind a Medicare number (`422 medicare_number_retired`).
+  Migrated Medicare numbers are kept as `previous` identifiers that never hold
+  the active binding, so legacy records can still be matched. Migration 0003
+  maps the national-extract identifier fields (MEDICARE Number, MEDICARE_ID,
+  their status indicators and pseudonyms) to the NIN. Fields naming the
+  Medicare programme (service agreements, Medicare sites) are unchanged.
+  Staging keeps the source column names.
+* **Mother's and father's names are kept** (23 November 2026). They are
+  stored on `patient` for identity verification only. They are not returned
+  in the chart and never written to audit records or events.

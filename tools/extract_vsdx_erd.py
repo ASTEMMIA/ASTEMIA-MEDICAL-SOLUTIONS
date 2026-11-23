@@ -1,109 +1,89 @@
 """Extract the entity/field catalogue from a Visio database-model (.vsdx) file.
 
-Visio's Database Modeling engine keeps the model in an embedded OLE store
-(VisDBEngrData/.../MAPInfo). Each mapping group is an entity; its field names
-follow as UTF-16 strings. Relationship labels ("has", "is of") are separated
-out. Usage:
+Visio's Database Modeling engine keeps the full model, including entities that
+are not drawn on the page, in an embedded OLE store
+(VisDBEngrData/VisDBEngrModelEngData/MAPInfo). Names there are MFC CStrings:
+the marker FF FE FF, a length, then UTF-16LE text. The bytes that follow each
+string say what kind of record it is:
+
+    entity  <name> 01 FF FE FF 00 00 FF FE FF <len> <name again>
+    field   <name> 01 FF FE FF 00 00 00 00 <key>    (<key> 01 = primary-key column)
+
+Every field belongs to the entity record before it. Classifying records by
+these tags, rather than by the text, means nothing is maintained by hand: a
+field that legitimately appears twice in a national extract (two records) is
+never mistaken for an entity, and nested sub-model entities are found wherever
+they sit. Usage:
 
     uv run --group tools python tools/extract_vsdx_erd.py ERD.vsdx out.json
 """
 
 import io
 import json
-import re
 import sys
 import zipfile
+from collections.abc import Iterator
 
 import olefile
 
 STREAM = "VisDBEngrData/VisDBEngrModelEngData/MAPInfo"
-REL_LABELS = {"has", "is of"}
-# Flat national extracts. Their fields legitimately repeat back to back
-# (repeating groups), so inside them only an UPPER_SNAKE table name such as
-# STG_999_COM_DIAG starts a nested entity.
-FLAT_GROUPS = re.compile(
-    r"^(Mental Health Extract|Ward Attenders|Elective Admissions|ADMITTED PATIENT CARE|"
-    r"OUTPATIENTS|STG_010_AE_TRANSACTION|AE_TRANSACTION|LND_010_AE_MK)",
-    re.I,
-)
-# Field labels that some ERDs store as if they started a new group, although
-# they sit inside a flat extract (seen in PDi_AMS and ZETTER_AMS).
-CONTINUATIONS = {
-    "Contract serial no",
-    "No. organ systems supported",
-    "Sheltered Work Attendance Indicator",
-}
+CSTRING = b"\xff\xfe\xff"
+ENTITY_TAG = b"\x01" + CSTRING + b"\x00\x00" + CSTRING
+FIELD_TAG = b"\x01" + CSTRING + b"\x00\x00\x00\x00"
 
 
-def strings(blob: bytes) -> list[tuple[str, str]]:
-    out = []
-    for m in re.finditer(rb"((?:[\x20-\x7e]\x00){3,})|([\x20-\x7e]{3,})", blob):
-        if m.group(1):
-            out.append(("W", m.group(1).decode("utf-16le")))
-        else:
-            out.append(("A", m.group(2).decode()))
-    return out
+def cstrings(blob: bytes) -> Iterator[tuple[int, int, str]]:
+    """Yield (start, end, text) for every UTF-16 CString in the stream."""
+    i = blob.find(CSTRING)
+    while i != -1:
+        p = i + 3
+        if p < len(blob):
+            n = blob[p]
+            p += 1
+            if n == 0xFF and p + 2 <= len(blob):  # long string: 16-bit length
+                n = int.from_bytes(blob[p : p + 2], "little")
+                p += 2
+            end = p + 2 * n
+            if n and end <= len(blob):
+                try:
+                    yield i, end, blob[p:end].decode("utf-16le")
+                except UnicodeDecodeError:
+                    pass
+        i = blob.find(CSTRING, i + 1)
+
+
+def classify(blob: bytes, end: int, text: str) -> str | None:
+    if blob[end : end + len(ENTITY_TAG)] == ENTITY_TAG:
+        # The physical name repeats the logical one for every entity.
+        n = len(text)
+        at = end + len(ENTITY_TAG)
+        if blob[at] == n and blob[at + 1 : at + 1 + 2 * n].decode("utf-16le", "replace") == text:
+            return "entity"
+    if blob[end : end + len(FIELD_TAG)] == FIELD_TAG:
+        flag = blob[end + len(FIELD_TAG)]
+        if flag in (0, 1):
+            return "key" if flag else "field"
+    return None
 
 
 def extract(path: str) -> dict[str, object]:
     with zipfile.ZipFile(path) as z:
         ole_name = next(n for n in z.namelist() if n.startswith("visio/embeddings/oleObject"))
         ole = olefile.OleFileIO(io.BytesIO(z.read(ole_name)))
-    rows = strings(ole.openstream(STREAM).read())
-    starts = [
-        i
-        for i in range(1, len(rows) - 1)
-        if rows[i][0] == "W" and rows[i + 1] == rows[i] and rows[i - 1][0] == "A"
-    ]
+    blob = ole.openstream(STREAM).read()
     entities: list[dict[str, object]] = []
-    for k, i in enumerate(starts):
-        end = starts[k + 1] - 1 if k + 1 < len(starts) else len(rows)
-        texts = [t.strip() for kind, t in rows[i + 2 : end] if kind == "W"]
-        # A nested entity (drawn inside a sub-model) is introduced by its name
-        # written twice in a row. Inside a flat extract the known repeated field
-        # labels (CONTINUATIONS) do not start an entity.
-        name = rows[i][1].strip()
-        previous = entities[-1] if entities else None
-        if previous is not None and previous.get("flat") and name in CONTINUATIONS:
-            current = previous  # Visio stored a repeated extract label as a group start
-            current["fields"].append(name)  # type: ignore[attr-defined]
-        else:
-            current = {
-                "name": name,
-                "fields": [],
-                "relationship_labels": 0,
-                "flat": bool(FLAT_GROUPS.match(name)),
-            }
-            entities.append(current)
-        j = 0
-        while j < len(texts):
-            t = texts[j]
-            if (
-                j + 1 < len(texts)
-                and texts[j + 1] == t
-                and t not in REL_LABELS
-                and t not in CONTINUATIONS
-            ):
-                current = {
-                    "name": t,
-                    "fields": [],
-                    "relationship_labels": 0,
-                    "flat": bool(FLAT_GROUPS.match(t)),
-                }
-                entities.append(current)
-                j += 2
-                continue
-            if t in REL_LABELS:
-                current["relationship_labels"] += 1  # type: ignore[operator]
-            elif (
-                re.match(r"[A-Za-z0-9(]", t)
-                and re.search(r"[A-Za-z]{2}", t)
-                and not re.search(r"[{}\[\]]", t)
-            ):
-                current["fields"].append(t)  # type: ignore[attr-defined]
-            j += 1
-    for e in entities:
-        e.pop("flat", None)
+    skip_until = -1
+    for start, end, text in cstrings(blob):
+        if start < skip_until:
+            continue  # the repeated physical name of the entity just read
+        kind = classify(blob, end, text)
+        if kind == "entity":
+            entities.append({"name": text.strip(), "fields": [], "primary_key": []})
+            skip_until = end + len(ENTITY_TAG) + 1 + 2 * len(text)
+        elif kind in ("field", "key") and entities:
+            entities[-1]["fields"].append(text.strip())  # type: ignore[attr-defined]
+            if kind == "key":
+                entities[-1]["primary_key"].append(text.strip())  # type: ignore[attr-defined]
     return {"source": path.rsplit("/", 1)[-1], "entities": entities}
 
 

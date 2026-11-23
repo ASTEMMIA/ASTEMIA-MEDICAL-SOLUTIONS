@@ -64,7 +64,7 @@ Do not edit by hand.
 | `stg_product` | PRODUCT | ams_master_schema_wip_erp | 6 |
 | `stg_role_profile` | ROLE PROFILE, Role Profile | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 9 |
 | `stg_999_all_copy_recipient` | STG_999_ALL_COPY_RECIPIENT | ams_master_schema_wip_erp, ae_ams_erd | 10 |
-| `stg_999_com_ce_proc` | STG_999_COM_CE_PROC | ams_master_schema_wip_erp, ae_ams_erd | 11 |
+| `stg_999_com_ce_proc` | STG_999_COM_CE_PROC | ams_master_schema_wip_erp, ae_ams_erd | 10 |
 | `stg_999_com_diag` | STG_999_COM_DIAG | ams_master_schema_wip_erp, ae_ams_erd | 8 |
 | `stg_999_com_lpi` | STG_999_COM_LPI | ams_master_schema_wip_erp, ae_ams_erd | 9 |
 | `stg_telecom_communication` | TELECOM COMMUNICATION, Telecom  Communication | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 7 |
@@ -78,7 +78,7 @@ Do not edit by hand.
 
 | Extract code | ERD entity names | Source ERDs | Fields |
 |---|---|---|---|
-| `stg_010_ae_transaction` | STG_010_AE_TRANSACTION | ams_master_schema_wip_erp | ae_ams_erd | 183 |
+| `stg_010_ae_transaction` | STG_010_AE_TRANSACTION | ams_master_schema_wip_erp | ae_ams_erd | 180 |
 | `admitted_patient_care` | ADMITTED PATIENT CARE | ams_master_schema_wip_erp | zetter_ams_erd | pdi_ams_schema_erp | 733 |
 | `outpatients` | OUTPATIENTS | ams_master_schema_wip_erp | zetter_ams_erd | pdi_ams_schema_erp | 350 |
 | `mental_health_extract_mhmds` | Mental Health Extract (MHMDS) | zetter_ams_erd | pdi_ams_schema_erp | 102 |
@@ -98,4 +98,4 @@ Do not edit by hand.
 | NHS_NUMBER_PSEUD | NIN_PSEUD |
 | NHS_NUMBER_STATUS_IND | NIN_STATUS_IND |
 
-Totals: 119 tables (53 canonical/platform, 66 staging); 8 extracts with 1708 dictionary fields.
+Totals: 119 tables (53 canonical/platform, 66 staging); 8 extracts with 1705 dictionary fields.

@@ -41,7 +41,8 @@ class VerificationStatus(StrEnum):
 IDENTIFIER_FORMATS: dict[str, re.Pattern[str]] = {
     # National Identification Number issued by NIMC: 11 digits.
     "NG-NIN": re.compile(r"^\d{11}$"),
-    # Medicare number from the legacy PDI (ERD medicare_number).
+    # Medicare number from the legacy PDI (ERD medicare_number). Retired in
+    # favour of the NIN: kept only as a previous identifier on migrated records.
     "NG-MEDICARE": re.compile(r"^[A-Z0-9-]{4,20}$"),
     # Local patient identifier, scoped by the issuing organisation.
     "LOCAL-MRN": re.compile(r"^[A-Z0-9-]{3,32}$"),
@@ -53,6 +54,25 @@ class IdentifierType(StrEnum):
     TEMPORARY = "temporary"
     OLD_STYLE = "old_style"
     PREVIOUS = "previous"
+
+
+# Issuers that may no longer be bound as a live identifier. Their values are
+# kept as previous identifiers so legacy records can still be matched.
+RETIRED_ISSUERS: dict[str, str] = {"NG-MEDICARE": "NG-NIN"}
+
+
+def check_issuer_allowed(issuer: str, identifier_type: IdentifierType) -> None:
+    if issuer in RETIRED_ISSUERS and identifier_type is not IdentifierType.PREVIOUS:
+        raise InvariantViolation(
+            f"{issuer} is retired in favour of {RETIRED_ISSUERS[issuer]}; "
+            "record it only as a previous identifier",
+            code="medicare_number_retired",
+        )
+
+
+def binds_actively(issuer: str) -> bool:
+    """A retired issuer's number never holds the active, unique binding."""
+    return issuer not in RETIRED_ISSUERS
 
 
 def validate_identifier(issuer: str, value: str) -> str:
