@@ -32,7 +32,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.schema import SchemaItem
 
-from astemia.adapters.db.legacy_names import column_name, entity_key, nhs_to_nin, unique_names
+from astemia.adapters.db.legacy_names import column_name, entity_key, localise, unique_names
 from astemia.adapters.db.types import BinaryUUID, UTCDateTime
 
 ERD_FILES = (
@@ -168,7 +168,7 @@ def extract_dictionary_rows() -> tuple[list[dict[str, Any]], list[dict[str, Any]
         extracts.append(
             {
                 "code": code,
-                "name": nhs_to_nin(entity.names[0]),
+                "name": localise(entity.names[0]),
                 "source_entities": " | ".join(entity.names),
                 "source_erd": " | ".join(entity.sources),
                 "field_count": len(entity.fields),
@@ -180,7 +180,7 @@ def extract_dictionary_rows() -> tuple[list[dict[str, Any]], list[dict[str, Any]
                     "extract_code": code,
                     "position": pos,
                     "field_key": key,
-                    "label": nhs_to_nin(label),
+                    "label": localise(label),
                     "source_label": label,
                     "occurrence": n,
                 }

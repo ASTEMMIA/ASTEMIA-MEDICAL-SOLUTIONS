@@ -44,7 +44,7 @@ def main() -> None:
     )
     lines += [
         "",
-        "## NHS to NIN renames in the extract dictionary",
+        "## Renamed labels in the extract dictionary (NHS to NIN, GP to medical doctor)",
         "",
         "| ERD label | Stored as |",
         "|---|---|",

@@ -103,6 +103,26 @@ The extract dictionary keeps the original label in `source_label` for lineage.
 The canonical issuer is `NG-NIN` (11 digits). The UK NHS issuer and its
 check-digit rule were removed.
 
+## GP renamed to medical doctor
+
+As instructed, GP (general practitioner) is named **medical doctor**, the term
+the ZETTER ERD already uses:
+
+* `Registered GP Number` becomes `registered_medical_doctor_number`.
+* `GP_CODE` becomes `MEDICAL_DOCTOR_CODE`.
+* `ORG_CODE_GP` becomes `ORG_CODE_MEDICAL_DOCTOR`.
+* Catalogue service D36-07 is **Medical doctor out of hours**.
+
+The AHIS GP columns in `stg_patient_service_user` merge into the existing
+ZETTER medical doctor columns (migration 0005). The CDS suffix `VGP`
+(variant grouping) is not a GP field and is unchanged. The extract dictionary
+keeps the original label in `source_label`.
+
+The NHSGGC directory listings "GP Service" and "GP Out of Hours" are kept
+verbatim in the crosswalk, because they record what that public page says.
+They remain search aliases, so a search for "GP" still finds the right
+service, but the service itself is named medical doctor.
+
 ## Decisions for the data architect
 
 1. **Name and address type values.** The ERDs define the tables but not their

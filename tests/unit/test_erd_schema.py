@@ -78,3 +78,31 @@ def test_extract_identifier_fields_map_to_nin(label: str, mapped: str | None) ->
     from astemia.adapters.db.legacy_names import identifier_mapping
 
     assert identifier_mapping(label) == mapped
+
+
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        ("Registered GP Number", "Registered Medical Doctor Number"),
+        ("GP Practice Registration Number", "Medical Doctor Practice Registration Number"),
+        ("GP_CODE", "MEDICAL_DOCTOR_CODE"),
+        ("ORG_CODE_GP", "ORG_CODE_MEDICAL_DOCTOR"),
+        ("HCA_724_HEADER_VGP", "HCA_724_HEADER_VGP"),  # VGP is not a GP field
+    ],
+)
+def test_gp_becomes_medical_doctor(before: str, after: str) -> None:
+    from astemia.adapters.db.legacy_names import localise
+
+    assert localise(before) == after
+
+
+def test_no_gp_names_in_the_schema_or_dictionary() -> None:
+    import re
+
+    gp = re.compile(r"(^|[^a-z])gp([^a-z]|$)")
+    names = [t.name for t in models.Base.metadata.tables.values()]
+    names += [c.name for t in models.Base.metadata.tables.values() for c in t.columns]
+    assert [n for n in names if gp.search(n.lower())] == []
+    _, fields = extract_dictionary_rows()
+    assert [f["label"] for f in fields if gp.search(f["label"].lower())] == []
+    assert any(gp.search(f["source_label"].lower()) for f in fields)  # lineage kept

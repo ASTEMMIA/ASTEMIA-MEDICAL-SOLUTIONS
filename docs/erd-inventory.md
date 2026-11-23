@@ -47,7 +47,7 @@ Do not edit by hand.
 | `stg_organisation_person` | ORGANISATION PERSON, Organisation /Person, Organisation / Person | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 6 |
 | `stg_organisation_site` | ORGANISATION SITE, Organisation  Site | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 2 |
 | `stg_party` | Party | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 2 |
-| `stg_patient_service_user` | Patient / Service User, Patient/Service User | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 48 |
+| `stg_patient_service_user` | Patient / Service User, Patient/Service User | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 44 |
 | `stg_person` | Person, Person ( LRS LOGICAL DATA MODEL) | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 31 |
 | `stg_person_address` | Person_Address | ams_master_schema_wip_erp, zetter_ams_erd, pdi_ams_schema_erp | 20 |
 | `stg_person_address_future` | Person_Address_Future | ams_master_schema_wip_erp, zetter_ams_erd, pdi_ams_schema_erp | 17 |
@@ -87,15 +87,24 @@ Do not edit by hand.
 | `elective_admissions_census` | Elective Admissions - Census | zetter_ams_erd | pdi_ams_schema_erp | 61 |
 | `ae_transaction` | AE_TRANSACTION | ahis_master_erd | 144 |
 
-## NHS to NIN renames in the extract dictionary
+## Renamed labels in the extract dictionary (NHS to NIN, GP to medical doctor)
 
 | ERD label | Stored as |
 |---|---|
+| GP_CODE | MEDICAL_DOCTOR_CODE |
+| GP_CODE_TYPE | MEDICAL_DOCTOR_CODE_TYPE |
+| GP_POSTCODE_PCT_D | MEDICAL_DOCTOR_POSTCODE_PCT_D |
+| GP_VGP | MEDICAL_DOCTOR_VGP |
+| GP_VMD | MEDICAL_DOCTOR_VMD |
+| GP_ZIPCODE_PCT_D | MEDICAL_DOCTOR_ZIPCODE_PCT_D |
+| GP_ZIPCODE_PCT_TYPE_D | MEDICAL_DOCTOR_ZIPCODE_PCT_TYPE_D |
 | NHS_ID | NIN |
 | NHS_ID_PSEUD | NIN_PSEUD |
 | NHS_ID_STATUS_IND | NIN_STATUS_IND |
 | NHS_NUMBER | NIN |
 | NHS_NUMBER_PSEUD | NIN_PSEUD |
 | NHS_NUMBER_STATUS_IND | NIN_STATUS_IND |
+| ORG_CODE_GP | ORG_CODE_MEDICAL_DOCTOR |
+| ORG_CODE_TYPE_GP | ORG_CODE_TYPE_MEDICAL_DOCTOR |
 
 Totals: 128 tables (62 canonical/platform, 66 staging); 8 extracts with 1705 dictionary fields.

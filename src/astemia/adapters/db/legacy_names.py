@@ -31,9 +31,31 @@ def nhs_to_nin(label: str) -> str:
     return _NHS.sub(same_case, label)
 
 
+# GP (general practitioner) is named "medical doctor", the term the ZETTER ERD
+# already uses ("Registered Medical Doctor Number"). GP only as a word of its
+# own: the CDS suffix VGP (variant grouping) is untouched.
+_GP = re.compile(r"(?<![A-Za-z])(GP|gp|Gp)(?![A-Za-z])")
+
+
+def gp_to_medical_doctor(label: str) -> str:
+    def replace(m: re.Match[str]) -> str:
+        text, start, end = m.group(0), m.start(), m.end()
+        snake = (start > 0 and label[start - 1] == "_") or (end < len(label) and label[end] == "_")
+        if snake:
+            return "MEDICAL_DOCTOR" if text.isupper() else "medical_doctor"
+        return "Medical Doctor" if text.isupper() else "medical doctor"
+
+    return _GP.sub(replace, label)
+
+
+def localise(label: str) -> str:
+    """ASTEMIA naming for a legacy ERD label: NHS becomes NIN, GP becomes medical doctor."""
+    return gp_to_medical_doctor(nhs_to_nin(label))
+
+
 def column_name(label: str) -> str:
     """'Date Name Valis To' -> 'date_name_valis_to'; 'A+E Arrival Mode' -> 'ae_arrival_mode'."""
-    label = nhs_to_nin(label).replace("A+E", "AE").replace("+", " plus ")
+    label = localise(label).replace("A+E", "AE").replace("+", " plus ")
     slug = re.sub(r"[^0-9A-Za-z]+", "_", label).strip("_").lower()
     slug = re.sub(r"_+", "_", slug)
     if not slug or slug[0].isdigit():

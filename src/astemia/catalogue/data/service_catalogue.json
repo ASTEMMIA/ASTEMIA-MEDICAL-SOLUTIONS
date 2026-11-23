@@ -1,6 +1,6 @@
 {
  "catalogue": "ASTEMIA hospital service catalogue",
- "version": "2026.11.2",
+ "version": "2026.11.3",
  "coverage_template": "the King's College Hospital Services A to Z directory (https://www.kch.nhs.uk/services/services-a-to-z/, snapshot 18 November 2026)",
  "groups": [
   {
@@ -3525,7 +3525,7 @@
     },
     {
      "code": "D36-07",
-     "name": "GP out of hours",
+     "name": "Medical doctor out of hours",
      "age_policy": "all",
      "care_settings": [
       "community"

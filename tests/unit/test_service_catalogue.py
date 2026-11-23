@@ -119,3 +119,9 @@ def test_crosswalk_examples(directory: str, listing: str, service: str) -> None:
         if e["listing"] == listing
     ]
     assert hits and set(hits) == {service}
+
+
+def test_no_gp_in_catalogue_service_names() -> None:
+    _, services = template_rows()
+    assert not [s["name"] for s in services if "GP" in s["name"].split()]
+    assert "Medical doctor out of hours" in {s["name"] for s in services}
