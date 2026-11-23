@@ -119,6 +119,9 @@ check-digit rule were removed.
   their status indicators and pseudonyms) to the NIN. Fields naming the
   Medicare programme (service agreements, Medicare sites) are unchanged.
   Staging keeps the source column names.
+* **All service catalogue groups D01-D50 are in pilot scope** (23 November
+  2026), including the ASTEMIA extension groups D37-D50. Each service is
+  still activated per facility under CAT-05.
 * **Mother's and father's names are kept** (23 November 2026). They are
   stored on `patient` for identity verification only. They are not returned
   in the chart and never written to audit records or events.

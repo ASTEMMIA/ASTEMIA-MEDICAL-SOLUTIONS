@@ -64,7 +64,9 @@ crosswalks, is in [docs/service-catalogue.md](docs/service-catalogue.md).
   specific service. That includes non-clinical listings such as chaplaincy,
   interpreting, patient transport and visitor amenities, which go to D50
   Patient, family and visitor support.
-* **D37-D50 ASTEMIA extensions,** awaiting clinical-owner approval:
+* **D37-D50 ASTEMIA extensions,** confirmed in pilot scope on 23 November
+  2026. Each service is still activated per facility with a named owner and
+  an approval reference (CAT-05):
   * ENT and audiology
   * burns and plastics
   * mental health and addiction
