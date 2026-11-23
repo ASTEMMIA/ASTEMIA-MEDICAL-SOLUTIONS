@@ -1,0 +1,116 @@
+# AMS ERDs to the CEDA schema
+
+How the five Visio ERDs became the MySQL 26.10 schema. The full per-entity
+list is generated in [erd-inventory.md](erd-inventory.md).
+
+| ERD file | Extracted to |
+|---|---|
+| `AMS_MASTER_SCHEMA_WIP_ERP.vsdx` | `src/astemia/adapters/db/erd/ams_master_schema_wip_erp.json` |
+| `ZETTER_AMS_SCHEMA_ERD.vsdx` | `.../erd/zetter_ams_erd.json` |
+| `PDi_AMS_SCHEMA_ERP.vsdx` | `.../erd/pdi_ams_schema_erp.json` |
+| `AHIS_MASTER_ERD.vsdx` | `.../erd/ahis_master_erd.json` |
+| `AE_AMS_SCHEMA_ERD.vsdx` | `.../erd/ae_ams_erd.json` |
+
+`tools/extract_vsdx_erd.py` reads the Visio database-model store embedded in
+each file (`VisDBEngrData/.../MAPInfo`), which holds every entity and field,
+not just the ones drawn on the page.
+
+## Three layers
+
+1. **Canonical** (CEDA section 3): every party, identity, directory and A&E
+   entity, with the CEDA envelope (`tenant_id`, opaque UUID `id`, `version`,
+   provenance, sensitivity), composite foreign keys that include `tenant_id`,
+   and UTC `DATETIME(6)`.
+2. **Verbatim staging** (`stg_*`, MIG-01): each ERD entity with up to 60 fields,
+   field names exactly as drawn (snake_case, NHS renamed to NIN), values as raw
+   `TEXT`, plus lineage: batch, source system and row key, SHA-256 row digest,
+   mapping version, reconciliation status and exception owner. A unique key on
+   the digest means a re-run batch adds zero duplicates (MIG-02).
+3. **National extracts**: A&E transactions, Admitted Patient Care (733 fields),
+   Outpatients (350), MHMDS (102), Ward Attenders and Elective Admissions.
+   MySQL 26.10 rejects these as tables: even as `TEXT`, 230 columns exceed
+   InnoDB's 8126-byte row limit. Their fields live in `national_extract_field`
+   (position, key, label, original label, occurrence for repeating groups) and
+   their rows as JSON in `stg_extract_record` (inbound) and
+   `national_extract_record` (outbound returns).
+
+## Canonical mapping
+
+| ERD entity (all files) | Canonical table(s) |
+|---|---|
+| Party | `party` (supertype; patient, practitioner, organisation and alternative contact share its key) |
+| Person, Patient / Service User, Person_History | `patient` |
+| Person Name, Name, Name_History, Name Type | `person_name`, `name_type` |
+| medicare_number, NIN (ERD nhs_number), old-style and temporary numbers, Local Patient Identifier, STG_999_COM_LPI | `patient_identifier` (unique while active per tenant, issuer and value) |
+| ADDRESS, Address, Person_Address(+_History, +_Future), Alt_Cont_Address(+_History, +_Future) | `address` + `party_address` (effective-dated; address lines 1–6, state, LGA, postcode, PAF key, gazetteer) |
+| ADDRESS/PARTY, Address Party | `party_address` |
+| Address Type | `address_type` |
+| TELECOM COMMUNICATION, Person_Telecom(+_History, +_Future), Alt_Cont_Telecom(+…) | `telecom` |
+| TELECOM SERVICE PROVIDER, IT SERVICE | `service_provider` |
+| PRODUCT | `it_product` |
+| Disability_Code(+_History), Alt_Cont_Disability_Code(+…) | `party_disability` |
+| Primary_Care(+_History, +_Future), registered doctor fields | `primary_care_registration` |
+| Nominated_Pharmacy(+_History) | `nominated_pharmacy` |
+| Alternative_Contact(+_History, +_Future), Contact, Person/Person | `alternative_contact` (+ its own party addresses and telecoms), `guardian_authority` |
+| CONSENT, CONSENT_HISTORY | `consent` (superseding rows) |
+| Duplicates | `duplicate_candidate` |
+| Manage_Trans | `merge_link` |
+| Transaction | `demographic_transaction` |
+| ORGANISATION, ORGANISATION SITE, DEPARTMENT | `organisation`, `organisation_site`, `department` |
+| ROLE PROFILE, ORGANISATION PERSON | `role_profile`, `practitioner_role` |
+| HealthProfessional, Healthcare Professional | `practitioner` |
+| Care Provision | `care_provision` |
+| Legitmate Relationship | `legitimate_relationship` (practitioner or workgroup) |
+| WORKGROUP TEAM, …MEMBERSHIP, …SERVICE | `workgroup_team`, `workgroup_team_membership`, `workgroup_team_service` |
+| BUSINESS (CLINICAL) SERVICE, BUSINESS ACTION, MESSAGING CONTRACT PROPERTIES | `business_service`, `business_action`, `messaging_contract` |
+| STG_010_AE_TRANSACTION, AE_TRANSACTION, LND_010_AE_MK (A&E fields) | `encounter` + `ae_attendance` |
+| STG_999_COM_DIAG, STG_999_COM_CE_PROC, A&E diagnosis/investigation/treatment lists | `encounter_coding` |
+| STG_999_ALL_COPY_RECIPIENT | `encounter_copy_recipient` |
+
+`_History` and `_Future` tables are not copied: each canonical row carries
+`effective_from`/`effective_to`, so past, current and future versions are rows
+of one table.
+
+## Deliberately not carried into the canonical schema
+
+| ERD field | Why | Where it lives instead |
+|---|---|---|
+| Password, Logon Name, Registered Smart Card Number, Forti Token ID | Credentials belong in the identity provider (CEDA 7, SEC controls) | Identity provider; `membership.subject` links the login |
+| shared_secret | Same | Identity provider |
+| Age | Derived from date of birth | Computed on read |
+| Demographic copies on CONSENT and Contact (names, address lines, DOB) | Duplicates of the patient record | Read from `patient`, `person_name`, `address` |
+| `*_PSEUD` columns | Pseudonymised values are produced for secondary use (CEDA 7.3), not stored beside the real value | Warehouse pseudonymisation |
+
+All of these remain in the `stg_*` tables, because staging must hold source
+rows exactly as received. Access to staging is restricted to the migration role.
+
+## NHS renamed to NIN
+
+As instructed, every NHS identifier is named NIN (Nigerian National
+Identification Number): `nhs_number` becomes `nin`, `NHS_NUMBER_STATUS_IND`
+becomes `NIN_STATUS_IND`, "Previous NHS Number" becomes "Previous NIN", and so
+on. Exceptions:
+
+* **NHS BS Code / Name** (business clinical service) becomes **Medicare BS
+  Code / Name**, which the AMS master ERD already uses. It is a service code,
+  not a person identifier.
+* **NHAIS** (the NHS registration system) becomes **NIMC**, the NIN issuer.
+
+The extract dictionary keeps the original label in `source_label` for lineage.
+The canonical issuer is `NG-NIN` (11 digits). The UK NHS issuer and its
+check-digit rule were removed.
+
+## Decisions for the data architect
+
+1. **Name and address type values.** The ERDs define the tables but not their
+   values. Migration 0002 seeds proposed defaults (usual, preferred, maiden,
+   alias, previous; home, correspondence, temporary, work, billing, site).
+2. **medicare_number.** Treated as a separate identifier (`NG-MEDICARE`) next
+   to the NIN. Confirm whether it is being retired in favour of the NIN.
+3. **Mother and father name** (AHIS Person Name) are stored on `patient` for
+   identity verification. Confirm they are needed, since they are personal data
+   about third parties.
+4. **Extractor heuristics.** Visio stores some repeated field labels as if they
+   started new groups. `tools/extract_vsdx_erd.py` lists them explicitly
+   (`FLAT_GROUPS`, `CONTINUATIONS`). Re-run the tool when an ERD changes and
+   check the generated inventory diff.

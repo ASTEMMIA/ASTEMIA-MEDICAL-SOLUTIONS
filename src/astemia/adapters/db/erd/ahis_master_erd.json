@@ -1,0 +1,857 @@
+{
+ "source": "0c8261ef-AHIS_MASTER_ERD.vsdx",
+ "entities": [
+  {
+   "name": "AE_TRANSACTION",
+   "fields": [
+    "GENERATED_RECORD_ID",
+    "LOADED_STD_DATE",
+    "INTERCHNAGE_ID",
+    "EXTRACTED_WRH_DATE",
+    "RECORD_EXTRACTION_IND",
+    "CDS_VERSION",
+    "CDS_TYPE",
+    "PROTOCOL_IDENTIFIER",
+    "UNIQUE_CDS_IDENTIFIER",
+    "UPDATE_TYPE",
+    "BULK_REPLACEMENT_CDS_GROUP",
+    "TEST_INDICATOR",
+    "APPLICABLE_DATE_TIME",
+    "CENSUS_DATE",
+    "EXTRACT_DTAE_TIME",
+    "REPORT_PERIOD_START_DATE",
+    "REPORT_PERIOD_END_DATE",
+    "ORG_CODE_SENDER",
+    "ORG_CODE_TYPE_SENDER",
+    "ORG_CODE_PRIME_RECIPIENT",
+    "ORG_CODE_TYPE_PRIME_RECIPIENT",
+    "NHS_ID",
+    "NHS_ID_PSEUD",
+    "NHS_ID_STATUS_IND",
+    "DATE_OF_BIRTH",
+    "DATE_OF_BIRTH_PSEUD",
+    "SEX",
+    "CARER_SUPPORT_IND",
+    "PATIENT_SURNAME",
+    "PATIENT_NAME1",
+    "PATIENT_NAME2",
+    "PATIENT_NAME3",
+    "PATIENT_NAME4",
+    "PATIENT_NAME5",
+    "PATIENT_PREFERRED_NAME",
+    "PATIENT_SURNAME_PSEUD",
+    "PATIENT_NAME1_PSEUD",
+    "PATIENT_NAME2_PSEUD",
+    "PATIENT_NAME3_PSEUD",
+    "PATIENT_NAME4_PSEUD",
+    "PATIENT_NAME5_PSEUD",
+    "PATIENT_PREFERRED_NAME_PSEUD",
+    "USUAL_ADDRESS",
+    "ADDRESS_LINE1",
+    "ADDRESS_LINE2",
+    "ADDRESS_LINE3",
+    "ADDRESS_LINE4",
+    "ADDRESS_LINE5",
+    "PRIME_PROCODE_READ_VGP",
+    "PARTITION_DATE",
+    "STATE",
+    "LOCAL_GOVERNMENT",
+    "ZIPCODE",
+    "USUAL_ADDRESS_PSEUD",
+    "ADDRESS_LINE1_PSEUD",
+    "ADDRESS_LINE2_PSEUD",
+    "ADDRESS_LINE3_PSEUD",
+    "ADDRESS_LINE4_PSEUD",
+    "ADDRESS_LINE5_PSEUD",
+    "ZIPCODE_PSEUD",
+    "ORG_CODE_PCT_OF_RES",
+    "ORG_CODE_TYEP_PCT_OF_RES",
+    "AE_ATTENDANCE_ID",
+    "AE_ARRIVAL_MODE",
+    "AE_ATTENDANCE_CATEGORY",
+    "AE_ATTENDANCE_DISPOSAL",
+    "AE_INCIDENT_LOCATION_TYPE",
+    "AE_PATIENT_GROUP",
+    "AE_REFERRAL_SOURCE",
+    "AE_ARRIVAL_DATE_TIME",
+    "AE_ATTENDANCE_CONCLUTION_TIME",
+    "AE_DEPARTURE_TIME",
+    "AE_INITIAL_ASSESSMENT_TIME",
+    "AE_TIME_SEEN_FOR_TREATMENT",
+    "AE_STAFF_MEMBER_CODE",
+    "CONSULTANT_CODE_TYPE",
+    "CONSULTANT_CODE",
+    "ORG_CODE_CONSULTANT",
+    "ORG_CODE_TYPE_CONSULTANT",
+    "CONSULTANT_SPECIALITY_CODE",
+    "SPECIALTY_FUNCTION_CODE",
+    "HCA_715_OCCURENCE_IDENTIFIER",
+    "GP_CODE_TYPE",
+    "GP_CODE",
+    "ORG_CODE_GP",
+    "ORG_CODE_TYPE_GP",
+    "HCA_724_OCCURRENCE_IDENTIFIER",
+    "HRG_CODE",
+    "HRG_CODE_VERSION_NO",
+    "HRG_PROC_SCHEME",
+    "HRG_DOMINANT_GROUPING_VARIABLE",
+    "AGREEMENT_NO",
+    "AGREEMENT_LINE_NO",
+    "COMMISSIONER_REF_NO",
+    "PROVIDER_REF_NO",
+    "ORG_CODE_TYPE_COMMISSIONER",
+    "ORG_CODE_COMMISSIONER",
+    "ORG_CODE_TYPE_PROVIDER",
+    "ORG_CODE_PROVIDER",
+    "YEAR_OF_BIRTH_D",
+    "MONTH_OF_BIRTH_D",
+    "AGE_AT_START_OF_EPISODE_D",
+    "AGE_AT_END_OF_EPISODE_D",
+    "AGE_RANGE_D",
+    "AREA_STATE_OF_ORIGIN",
+    "AREA_ZIPCODE",
+    "PATIENT_ZIPCODE_PCT_TYPE_D",
+    "PATIENT_ZIPCODE_ELEC_WARD",
+    "AREA_CODE_D",
+    "GP_ZIPCODE_PCT_TYPE_D",
+    "PATIENT_ZIPCODE_SHA_D",
+    "GP_ZIPCODE_PCT_D",
+    "PATIENT_ZIPCODE_PCT_D",
+    "TRANSACTION_VGP",
+    "PATIENT_VGP",
+    "ADDRESS_VGP",
+    "HCA_707_HEADER_VGP",
+    "CLINICIAN_VGP",
+    "HCA_715_HEADER_VGP",
+    "GP_VGP",
+    "HCA_724_HEADER_VGP",
+    "HRG_PROC_SCHEME_VGP",
+    "SA_VGP",
+    "LOGICALLY_DELETED_DATE",
+    "PATIENT_ZIPCODE_SHA_TYPE_D",
+    "PRIME_DIACODE_SCHEME_ICD_VGP",
+    "PRIME_DIACODE_ICD",
+    "PRIME_DIACODE_ICD_VGP",
+    "PRIME_DIACODE_SCHEME_READ",
+    "PRIME_DIACODE_SCHEME_READ_VGP",
+    "PRIME_DIACODE_READ",
+    "PRIME_DIACODE_READ_VGP",
+    "PRIME_PROCODE_SCHEME_OPCS",
+    "PRIME_PROCODE_SCHEME_OPCS_VGP",
+    "PRIME_PROCODE_OPCS",
+    "PRIME_PROC_START_DATE_OPCS",
+    "PRIME_PROCODE_OPCS_VGP",
+    "PRIME_PROCODE_SCHEME_READ",
+    "PRIME_PROCODE_SCHEME_READ_VGP",
+    "PRIME_PROCODE_READ",
+    "PRIME_PROC_START_DATE_READ",
+    "PRIME_PROCODE_READ",
+    "HES_ID_D",
+    "DURATION_OF SPELL_D"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Legitmate Relationship",
+   "fields": [
+    "LR Start Date",
+    "LR Start Time",
+    "LR End Date",
+    "LR End Time",
+    "LR Author Identifier",
+    "Termination Reason code",
+    "PR Creator Person Identifier",
+    "LR Creation Reason Code",
+    "LR Creation Reason Text"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Workgroup Team",
+   "fields": [
+    "Workgroup Identifier",
+    "Workgroup Name",
+    "Workgoup Start Date",
+    "Workgroup Start Time",
+    "Workgroup End Date",
+    "Workgroup End Time"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Department",
+   "fields": [
+    "Department Code",
+    "Department Name"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Workgroup Team Service",
+   "fields": [
+    "Workgroup Identifier",
+    "Role Identifier",
+    "Role Start Date",
+    "Role EndDate"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Business Clinical Service",
+   "fields": [
+    "NHS BS Code",
+    "NHS BS Name",
+    "Category Bag"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Business Action",
+   "fields": [
+    "Action Identifier",
+    "Action Name",
+    "End Point URL"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Messaging Contract Properties",
+   "fields": [
+    "CPAId",
+    "Is Authenticated",
+    "Persit Duration",
+    "Retries",
+    "Retry Interval",
+    "Sync Reply Mode",
+    "Acknowledge Requested",
+    "Duplicate Elimination",
+    "Actor"
+   ],
+   "relationship_labels": 8
+  },
+  {
+   "name": "Workgroup Team Membership",
+   "fields": [
+    "Membership Identifier",
+    "Membership Name",
+    "Membership Start Date",
+    "Membership Start Time",
+    "Membership End Date",
+    "Membership End Time"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Healthcare Professional",
+   "fields": [
+    "HCP ID",
+    "Authorisation Status",
+    "Date of Birth",
+    "Age",
+    "Gender",
+    "Registered Date",
+    "Registered Smart Card Number",
+    "Logon Name",
+    "Password",
+    "Forti Token ID"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Care Provision",
+   "fields": [
+    "HCP ID",
+    "Effective Date",
+    "Effective Time",
+    "NHS Number"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Patient/Service User",
+   "fields": [
+    "NHS Number (Temporary NHS Number/NHAIS)",
+    "Previous NHS Number",
+    "Current Carer ID",
+    "Current Location",
+    "Curent Medical Summary",
+    "Date of NHS Exit",
+    "Initial Registration Source",
+    "Senstivity /Confidentiality",
+    "Validy From Date",
+    "Registered GP Number",
+    "GP Practice Registration Number",
+    "Registered GP Name",
+    "Registered GP Information",
+    "Patient Comments",
+    "Registration Date",
+    "Behaviour",
+    "Current NHS Status",
+    "NHS Status",
+    "Date of Birth",
+    "Time of Birth",
+    "Date of Death",
+    "Time of Death",
+    "Death Notification",
+    "Gender",
+    "Certificate Text",
+    "Disability code",
+    "Preferred language",
+    "Stop Note Indicator",
+    "Primary Care ID",
+    "Registering Authority Type",
+    "Registering Organisation ID",
+    "Registering Person ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Person",
+   "fields": [
+    "Person ID (UserID NMC Registration Code)",
+    "NMC Registration Code",
+    "NHS Number",
+    "Date of Birth",
+    "Age",
+    "Mobile Number",
+    "Consent to Call Centre"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Party",
+   "fields": [
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Organisation",
+   "fields": [
+    "Organisation ID",
+    "Organisation Name",
+    "Organisation Type",
+    "Close Date"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Organisation  Site",
+   "fields": [
+    "Site Identifier",
+    "Site Name"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address",
+   "fields": [
+    "Person ID",
+    "Organisation ID",
+    "Address Type",
+    "Address Start Date",
+    "Address Start Time",
+    "State",
+    "Local Government Area",
+    "Zip Code",
+    "Address Line 1",
+    "Address Line 2",
+    "Address Line 3",
+    "Address Line 4",
+    "Address Line 5",
+    "Address Line 6",
+    "Address Description"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address Type",
+   "fields": [
+    "Address Type ID",
+    "Address Type Description"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Address Party",
+   "fields": [
+    "Address No",
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 8
+  },
+  {
+   "name": "Organisation /Person",
+   "fields": [
+    "Organisation ID",
+    "Person ID"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Role Profile",
+   "fields": [
+    "Business Functions",
+    "Area of Work",
+    "Workgroups",
+    "Job Role"
+   ],
+   "relationship_labels": 8
+  },
+  {
+   "name": "Telecom  Communication",
+   "fields": [
+    "Start Date",
+    "Start Time",
+    "End Date",
+    "End Time",
+    "Communication Type",
+    "Communication Value"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Person/Person",
+   "fields": [
+    "Person Identifier",
+    "User Identifier",
+    "NMS Registration Code",
+    "NMC Registration Code",
+    "Relationship Type"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Contact",
+   "fields": [
+    "Contact Start Time",
+    "Contact End Time",
+    "Contact Method"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Contact",
+   "fields": [
+    "Contact Start Time",
+    "Contact End Time",
+    "Contact Method"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Person Name",
+   "fields": [
+    "Name Number",
+    "Forename",
+    "Other Names",
+    "Surname",
+    "Mother Name",
+    "Father Name",
+    "Maiden Name",
+    "Title",
+    "Suffix",
+    "Part Name",
+    "Date Name Valid From",
+    "Date Name Valid To",
+    "Update Date"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Name Type",
+   "fields": [
+    "Name Type",
+    "Name Type Description"
+   ],
+   "relationship_labels": 6
+  },
+  {
+   "name": "Consent",
+   "fields": [
+    "Start Date",
+    "Start Time",
+    "Consent Type",
+    "Relashionship",
+    "Consent Status",
+    "Consent Comment"
+   ],
+   "relationship_labels": 14
+  },
+  {
+   "name": "Care Provision",
+   "fields": [
+    "HCP ID",
+    "Effective Date",
+    "Effective Time",
+    "NHS Number"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Patient/Service User",
+   "fields": [
+    "NHS Number (Temporary NHS Number/NHAIS)",
+    "Previous NHS Number",
+    "Current Carer ID",
+    "Current Location",
+    "Curent Medical Summary",
+    "Date of NHS Exit",
+    "Initial Registration Source",
+    "Senstivity /Confidentiality",
+    "Validy From Date",
+    "Registered GP Number",
+    "GP Practice Registration Number",
+    "Registered GP Name",
+    "Registered GP Information",
+    "Patient Comments",
+    "Registration Date",
+    "Behaviour",
+    "Current NHS Status",
+    "NHS Status",
+    "Date of Birth",
+    "Time of Birth",
+    "Date of Death",
+    "Time of Death",
+    "Death Notification",
+    "Gender",
+    "Certificate Text",
+    "Disability code",
+    "Preferred language",
+    "Stop Note Indicator",
+    "Primary Care ID",
+    "Registering Authority Type",
+    "Registering Organisation ID",
+    "Registering Person ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Person",
+   "fields": [
+    "Person ID (UserID NMC Registration Code)",
+    "NMC Registration Code",
+    "NHS Number",
+    "Date of Birth",
+    "Age",
+    "Mobile Number",
+    "Consent to Call Centre"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Party",
+   "fields": [
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Telecom  Communication",
+   "fields": [
+    "Start Date",
+    "Start Time",
+    "End Date",
+    "End Time",
+    "Communication Type",
+    "Communication Value"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Address /Party",
+   "fields": [
+    "Address No",
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address",
+   "fields": [
+    "Person ID",
+    "Organisation ID",
+    "Address Type",
+    "Address Start Date",
+    "Address Start Time",
+    "State",
+    "Local Government Area",
+    "Zip Code",
+    "Address Line 1",
+    "Address Line 2",
+    "Address Line 3",
+    "Address Line 4",
+    "Address Line 5",
+    "Address Line 6",
+    "Address Description"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address Type",
+   "fields": [
+    "Address Type ID",
+    "Address Type Description"
+   ],
+   "relationship_labels": 8
+  },
+  {
+   "name": "Organisation / Person",
+   "fields": [
+    "Organisation ID",
+    "Person ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Role Profile",
+   "fields": [
+    "Business Functions",
+    "Area of Work",
+    "Workgroups",
+    "Job Role"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Person Name",
+   "fields": [
+    "Name Number",
+    "Forename",
+    "Other Names",
+    "Surname",
+    "Mother Name",
+    "Father Name",
+    "Maiden Name",
+    "Title",
+    "Suffix",
+    "Part Name",
+    "Date Name Valid From",
+    "Date Name Valid To",
+    "Update Date"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Name Type",
+   "fields": [
+    "Name Type",
+    "Name Type Description"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Person/Person",
+   "fields": [
+    "Person Identifier",
+    "User Identifier",
+    "NMS Registration Code",
+    "NMC Registration Code",
+    "Relationship Type"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Contact",
+   "fields": [
+    "Contact Start Time",
+    "Contact End Time",
+    "Contact Method"
+   ],
+   "relationship_labels": 6
+  },
+  {
+   "name": "Healthcare Professional",
+   "fields": [
+    "HCP ID",
+    "Authorisation Status",
+    "Date of Birth",
+    "Age",
+    "Gender",
+    "Registered Date",
+    "Registered Smart Card Number",
+    "Logon Name",
+    "Password",
+    "Forti Token ID"
+   ],
+   "relationship_labels": 6
+  },
+  {
+   "name": "Consent",
+   "fields": [
+    "Start Date",
+    "Start Time",
+    "Consent Type",
+    "Relashionship",
+    "Consent Status",
+    "Consent Comment"
+   ],
+   "relationship_labels": 4
+  },
+  {
+   "name": "Legitmate Relationship",
+   "fields": [
+    "LR Start Date",
+    "LR Start Time",
+    "LR Author Identifier",
+    "Termination Reason Code",
+    "PR Creator Person Identifier",
+    "LR Creation Reason code",
+    "LR Creation Reason Text"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Healthcare Professional",
+   "fields": [
+    "HCP ID",
+    "Authorisation Status",
+    "Date of Birth",
+    "Age",
+    "Gender",
+    "Registered Date",
+    "Registered Smart Card Number",
+    "Logon Name",
+    "Password",
+    "Forti Token ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Person ( LRS LOGICAL DATA MODEL)",
+   "fields": [
+    "Person ID (UserID NMC Registration Code)",
+    "NMC Registration Code",
+    "NHS Number",
+    "Date of Birth",
+    "Age",
+    "Mobile Number",
+    "Consent to Call Centre"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Patient/Service User",
+   "fields": [
+    "NHS Number (Temporary NHS Number/NHAIS)",
+    "Previous NHS Number",
+    "Current Carer ID",
+    "Current Location",
+    "Curent Medical Summary",
+    "Date of NHS Exit",
+    "Initial Registration Source",
+    "Senstivity /Confidentiality",
+    "Validy From Date",
+    "Registered GP Number",
+    "GP Practice Registration Number",
+    "Registered GP Name",
+    "Registered GP Information",
+    "Patient Comments",
+    "Registration Date",
+    "Behaviour",
+    "Current NHS Status",
+    "NHS Status",
+    "Date of Birth",
+    "Time of Birth",
+    "Date of Death",
+    "Time of Death",
+    "Death Notification",
+    "Gender",
+    "Certificate Text",
+    "Disability code",
+    "Preferred language",
+    "Stop Note Indicator",
+    "Primary Care ID",
+    "Registering Authority Type",
+    "Registering Organisation ID",
+    "Registering Person ID"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Person/Person",
+   "fields": [
+    "Person Identifier",
+    "User Identifier",
+    "NMS Registration Code",
+    "NMC Registration Code",
+    "Relationship Type"
+   ],
+   "relationship_labels": 8
+  },
+  {
+   "name": "Workgroup Team",
+   "fields": [
+    "Workgroup Identifier",
+    "Workgroup Name",
+    "Workgoup Start Date",
+    "Workgroup Start Time",
+    "Workgroup End Date",
+    "Workgroup End Time"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Workgroup Team",
+   "fields": [
+    "Workgroup Identifier",
+    "Workgroup Name",
+    "Workgoup Start Date",
+    "Workgroup Start Time",
+    "Workgroup End Date",
+    "Workgroup End Time"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address",
+   "fields": [
+    "Person ID",
+    "Organisation ID",
+    "Address Type",
+    "Address Start Date",
+    "Address Start Time",
+    "State",
+    "Local Government Area",
+    "Zip Code",
+    "Address Line 1",
+    "Address Line 2",
+    "Address Line 3",
+    "Address Line 4",
+    "Address Line 5",
+    "Address Line 6",
+    "Address Description"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Address Type",
+   "fields": [
+    "Address Type ID",
+    "Address Type Description"
+   ],
+   "relationship_labels": 2
+  },
+  {
+   "name": "Address Party",
+   "fields": [
+    "Address No",
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 0
+  },
+  {
+   "name": "Party",
+   "fields": [
+    "Person ID",
+    "Organisation ID"
+   ],
+   "relationship_labels": 4
+  }
+ ]
+}
