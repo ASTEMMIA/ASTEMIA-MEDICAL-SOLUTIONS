@@ -365,3 +365,34 @@ def test_parents_names_are_stored_but_not_disclosed_in_the_chart(
         assert s.get(Patient, (api.tenant.tenant_id, uuid.UUID(pid))).mother_name == "Bisi Adeyemi"  # type: ignore[union-attr]
     chart = api.get("clinician", f"/v1/patients/{pid}/chart")
     assert "Bisi" not in chart.text
+
+
+def test_acknowledge_audit_uses_a_stable_action_and_names_the_review(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    """A refusal is audited under the plain action name, so it is found with the
+    successes, and the review it concerned is the audited resource."""
+    pid = register(api)
+    enc = admit(api, pid)
+    first = release(api, order(api, pid, enc["id"])["id"])
+    second = release(api, order(api, pid, enc["id"])["id"])
+    path = "/v1/result-reviews/{}/acknowledge"
+    refused = api.post(
+        "clinician2", path.format(first["review_id"]), {"note": "x"}, **{"If-Match": '"1"'}
+    )
+    assert refused.status_code == 404
+    with factory() as s:
+        row = s.execute(
+            select(AuditEvent.action, AuditEvent.resource_type, AuditEvent.resource_id).where(
+                AuditEvent.tenant_id == api.tenant.tenant_id, AuditEvent.outcome == "denied"
+            )
+        ).one()
+    assert row == ("result.acknowledge", "result_review", uuid.UUID(first["review_id"]))
+    # The Idempotency-Key still belongs to one review: reusing it for another is refused.
+    key = {"key": "ack-key-1", "If-Match": '"1"'}
+    ok = api.post("clinician", path.format(first["review_id"]), {"note": "seen"}, **key)
+    assert ok.status_code == 200
+    again = api.post("clinician", path.format(first["review_id"]), {"note": "seen"}, **key)
+    assert again.headers["Idempotent-Replay"] == "true"
+    other = api.post("clinician", path.format(second["review_id"]), {"note": "seen"}, **key)
+    assert other.json()["error"]["code"] == "idempotency_key_reused"

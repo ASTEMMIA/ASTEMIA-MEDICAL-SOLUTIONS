@@ -274,11 +274,12 @@ class Catalogue:
 
         return self.wp.run(
             ctx,
-            operation=f"catalogue.activate:{service_id}",
+            operation="catalogue.activate",
             capability="catalogue:manage",
             idempotency_key=key,
-            payload=cmd.model_dump(mode="json") | {"v": expected},
+            payload=cmd.model_dump(mode="json") | {"service_id": str(service_id), "v": expected},
             handler=handle,
+            resource=("clinical_service", service_id),
         )
 
     # -- CAT-03: retirement blocks new work and keeps history --------------------
@@ -332,11 +333,12 @@ class Catalogue:
 
         return self.wp.run(
             ctx,
-            operation=f"catalogue.retire:{service_id}",
+            operation="catalogue.retire",
             capability="catalogue:manage",
             idempotency_key=key,
-            payload=cmd.model_dump(mode="json") | {"v": expected},
+            payload=cmd.model_dump(mode="json") | {"service_id": str(service_id), "v": expected},
             handler=handle,
+            resource=("clinical_service", service_id),
         )
 
     # -- CAT-02: search by name or alias within the caller's scope ---------------
