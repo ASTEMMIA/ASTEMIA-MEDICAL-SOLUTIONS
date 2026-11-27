@@ -39,6 +39,7 @@ ROLES = {
     "scientist": ["lab_scientist"],
     "admin": ["tenant_admin"],
     "psychiatrist": ["clinician", "sensitive_reader"],
+    "steward": ["identity_steward"],
 }
 # Members with no practitioner record (e.g. service accounts) and one with no
 # catalogue access, for the negative authorisation paths.
@@ -46,6 +47,7 @@ UNLINKED = {
     "unlinked_clinician": ["clinician"],
     "unlinked_scientist": ["lab_scientist"],
     "no_catalogue": ["sensitive_reader"],
+    "unlinked_steward": ["identity_steward"],
 }
 
 

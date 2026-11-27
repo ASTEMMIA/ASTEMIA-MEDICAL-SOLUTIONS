@@ -8,18 +8,21 @@ from sqlalchemy.orm import Session, sessionmaker
 from astemia.adapters.db.models import (
     DiagnosticReport,
     Encounter,
+    MergeLink,
     Patient,
     ResultReview,
     ServiceRequest,
 )
 from astemia.application import views
 from astemia.application.context import RequestContext
-from astemia.application.errors import AccessDenied
+from astemia.application.errors import AccessDenied, Conflict
+from astemia.application.lineage import merged_family
 from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import ChartOut
 from astemia.application.write_path import read_path
 from astemia.domain.common import Sensitivity
 from astemia.domain.diagnostics import ReviewState
+from astemia.domain.identity import MergeAction, PatientStatus
 
 
 class Queries:
@@ -35,6 +38,20 @@ class Queries:
             ).scalar_one_or_none()
             if patient is None:  # pragma: no cover - the relationship check implies the patient
                 raise AccessDenied("not found", code="not_found", conceal=True)
+            if patient.status == PatientStatus.MERGED:
+                survivor = session.execute(
+                    select(MergeLink.survivor_id).where(
+                        MergeLink.tenant_id == tid,
+                        MergeLink.prior_id == patient_id,
+                        MergeLink.action == MergeAction.MERGE.value,
+                    )
+                ).scalar_one()
+                raise Conflict(
+                    "this record was merged; read the surviving record",
+                    code="patient_merged",
+                    details={"survivor_id": str(survivor)},
+                )
+            family = merged_family(session, tid, patient_id)
             masks = decision.masks
             withheld = 0
 
@@ -49,7 +66,7 @@ class Queries:
                 e
                 for e in session.execute(
                     select(Encounter)
-                    .where(Encounter.tenant_id == tid, Encounter.patient_id == patient_id)
+                    .where(Encounter.tenant_id == tid, Encounter.patient_id.in_(family))
                     .order_by(Encounter.period_start.desc())
                 ).scalars()
                 if visible(e.sensitivity)
@@ -58,7 +75,7 @@ class Queries:
                 o
                 for o in session.execute(
                     select(ServiceRequest)
-                    .where(ServiceRequest.tenant_id == tid, ServiceRequest.patient_id == patient_id)
+                    .where(ServiceRequest.tenant_id == tid, ServiceRequest.patient_id.in_(family))
                     .order_by(ServiceRequest.recorded_at.desc())
                 ).scalars()
                 if visible(o.sensitivity)
@@ -68,7 +85,7 @@ class Queries:
                 for r in session.execute(
                     select(DiagnosticReport)
                     .where(
-                        DiagnosticReport.tenant_id == tid, DiagnosticReport.patient_id == patient_id
+                        DiagnosticReport.tenant_id == tid, DiagnosticReport.patient_id.in_(family)
                     )
                     .order_by(DiagnosticReport.released_at.desc())
                 ).scalars()
@@ -77,7 +94,7 @@ class Queries:
             reviews = session.execute(
                 select(ResultReview).where(
                     ResultReview.tenant_id == tid,
-                    ResultReview.patient_id == patient_id,
+                    ResultReview.patient_id.in_(family),
                     ResultReview.state.in_([ReviewState.OPEN.value, ReviewState.ESCALATED.value]),
                 )
             ).scalars()
@@ -89,6 +106,7 @@ class Queries:
                 open_reviews=[views.review(r) for r in reviews if visible(r.sensitivity)],
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
+                merged_records=family[1:],
             )
 
         return read_path(

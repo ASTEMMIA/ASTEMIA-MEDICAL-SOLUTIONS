@@ -50,9 +50,14 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
 
   | Endpoint | Purpose |
   |---|---|
-  | `POST /v1/patients` | Register a patient |
+  | `POST /v1/patients` | Register a patient. A likely duplicate returns 409 `possible_duplicate` with candidates until they are listed in `acknowledged_candidates` with a `distinct_reason` |
+  | `POST /v1/patients/match` | Search for possible duplicates before registering: scored, explained, masked and audited |
+  | `GET /v1/identity-review-tasks` | Open (or, with `resolved=true`, closed) identity review tasks (identity steward) |
+  | `POST /v1/identity-review-tasks/{id}/resolve` | Record that a pair are different people. Needs `If-Match` |
+  | `POST /v1/patients/{id}/merge` | Merge this record into `survivor_id`, keeping lineage. Needs `If-Match` |
+  | `POST /v1/merge-links/{id}/unmerge` | Reverse a merge from its lineage. Needs `If-Match` |
   | `POST /v1/encounters` | Admit, with optional A&E detail |
-  | `GET /v1/patients/{id}/chart` | Read the chart: masked, audited before return, concealed 404 without a legitimate relationship |
+  | `GET /v1/patients/{id}/chart` | Read the chart: masked, audited before return, concealed 404 without a legitimate relationship. Includes records merged into this one; a merged record returns 409 `patient_merged` naming the survivor |
   | `POST /v1/orders` | Place an order |
   | `POST /v1/diagnostic-reports` | Release a result. A second release is an amendment that reopens exactly one review |
   | `POST /v1/result-reviews/{id}/acknowledge` | Acknowledge a result. Needs `If-Match` |

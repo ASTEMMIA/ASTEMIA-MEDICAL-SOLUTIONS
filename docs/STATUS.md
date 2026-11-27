@@ -14,8 +14,9 @@ references are to AMS-002 CEDA section 11.2.
 | Access control | Role capabilities, legitimate relationships (direct and workgroup), concealed 404s, identifier masking, sensitive-record withholding, audited denials | `tests/e2e/` |
 | API-03 vertical slice | Register, admit (with A&E detail), chart read, order, result release and amendment, acknowledgement by owner or backup | `tests/e2e/test_api03_vertical_slice.py` |
 | Medicare to NIN | NIN binds; Medicare kept only as previous identifier | same |
+| Identity stewardship (UG02, WF01 steps 1 and 4, E3, HS02) | Explainable duplicate search (masked candidates, audited); a likely duplicate holds registration until acknowledged with a reason; ambiguous matches open steward review tasks; merge with lineage (identifiers moved with their source and author, names kept as aliases, clinical records left in place and followed by reads, policy and orders); reversible unmerge; merge chains. Search is tenant-wide: facility scoping is not built | `tests/e2e/test_identity_stewardship.py`, `tests/unit/test_identity_matching.py` |
 | Outbox (DATA-03) | Relay with backoff on broker failure; consumer deduplication | `tests/db_integration/` |
-| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0006 apply, reverse and match the models | `alembic check`, migration tests |
+| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0007 apply, reverse and match the models | `alembic check`, migration tests |
 | Migration staging (MIG-01 tables) | 66 verbatim `stg_*` tables with lineage; a re-run batch adds zero duplicates | `tests/db_integration/test_integrity.py` |
 | Service catalogue (CAT-01..05) | 50 groups, 359 services; provision, activate, retire, search; admissions bound to active services per facility | `tests/e2e/test_service_catalogue.py` |
 | Directory coverage | All 281 KCH and 172 NHSGGC listings mapped to a service | `tests/unit/test_service_catalogue.py` |
@@ -30,7 +31,7 @@ code reads or writes them yet. They are not features until listed above.
 |---|---|---|
 | Legacy migration loaders and reconciliation | MIG-01 to MIG-03, weeks 17-20 | Yes (`stg_*`, `stg_extract_record`) |
 | National returns (APC, Outpatients, A&E, MHMDS) | section 9.3 | Yes (`national_extract_record`) |
-| Identity stewardship: duplicates, merge and unmerge | WF01, E3 | Yes |
+| Downstream merge reconciliation (merge links stay `pending`) and facility-scoped search | E3, WF01 | Yes (`merge_link.reconciliation_status`) |
 | Consent, guardians, alternative contacts, addresses, telecoms API | AM-PDI, CD-COV | Yes |
 | Scheduling, referral and correspondence | UG01-UG05, weeks 13-16 | No |
 | Prescribing, dispensing, administration | HS08, WF04 | No |

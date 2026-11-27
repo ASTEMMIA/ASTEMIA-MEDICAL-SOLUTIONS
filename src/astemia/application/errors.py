@@ -1,14 +1,17 @@
 """Application errors. The API maps each to an HTTP status and stable code."""
 
+from typing import Any
+
 
 class ApplicationError(Exception):
     status = 400
     code = "bad_request"
 
-    def __init__(self, message: str = "", *, code: str | None = None) -> None:
+    def __init__(self, message: str = "", *, code: str | None = None, details: Any = None) -> None:
         super().__init__(message or self.code)
         if code:
             self.code = code
+        self.details = details
 
 
 class Unauthenticated(ApplicationError):

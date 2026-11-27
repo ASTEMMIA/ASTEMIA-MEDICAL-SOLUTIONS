@@ -686,6 +686,11 @@ class DuplicateCandidate(Envelope, Base):
     resolution: Mapped[str | None] = mapped_column(String(16))
     resolved_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     resolved_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    # Identity review task (WF01): why the pair was raised, from where, and the
+    # registrar's or steward's note.
+    reasons: Mapped[list[str] | None] = mapped_column(JSON)
+    origin: Mapped[str | None] = mapped_column(String(16))
+    note: Mapped[str | None] = mapped_column(String(500))
 
 
 class MergeLink(Envelope, Base):
@@ -709,6 +714,9 @@ class MergeLink(Envelope, Base):
     reconciliation_status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="pending"
     )
+    # What the merge changed, so an unmerge can put it back (ADT A40 lineage):
+    # prior status, identifier pairs (original, copy) and alias name ids.
+    lineage: Mapped[dict[str, Any] | None] = mapped_column(JSON)
 
 
 class DemographicTransaction(Base):

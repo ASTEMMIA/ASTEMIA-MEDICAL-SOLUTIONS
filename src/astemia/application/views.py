@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 from astemia.adapters.db.models import (
     AeAttendance,
     DiagnosticReport,
+    DuplicateCandidate,
     Encounter,
+    MergeLink,
     Observation,
     ObservationRevision,
     Patient,
@@ -19,15 +21,19 @@ from astemia.adapters.db.models import (
 )
 from astemia.application.schemas import (
     AeAttendanceOut,
+    CandidateOut,
     EncounterOut,
     IdentifierOut,
+    MergeOut,
     NameOut,
     ObservationOut,
     OrderOut,
     PatientOut,
     ReportOut,
     ReviewOut,
+    ReviewTaskOut,
 )
+from astemia.domain import identity as idn
 
 
 def _mask(value: str) -> str:
@@ -146,3 +152,87 @@ def report(session: Session, row: DiagnosticReport, *, masks: frozenset[str]) ->
         for o, r in rows
     ]
     return out
+
+
+# --- identity stewardship ---------------------------------------------------------
+
+
+def candidate(
+    session: Session,
+    row: Patient,
+    score: int,
+    reasons: tuple[str, ...] | list[str],
+    *,
+    masks: frozenset[str],
+    at: datetime,
+) -> CandidateOut:
+    """Enough to tell two people apart, and no more (WF01 step 1)."""
+    full = patient(session, row, masks=masks, at=at)
+    band = idn.MatchScore(score, ()).band
+    return CandidateOut(
+        id=row.id,
+        status=row.status,
+        score=score,
+        band=band.value if band else None,
+        reasons=list(reasons),
+        family_name=full.family_name,
+        given_initial=full.given_names[:1],
+        birth_year=row.birth_date.year,
+        administrative_sex=row.administrative_sex,
+        identifiers=full.identifiers,
+    )
+
+
+def review_task(
+    session: Session, row: DuplicateCandidate, *, masks: frozenset[str], at: datetime
+) -> ReviewTaskOut:
+    score = int(row.weighting)
+    reasons = row.reasons or []
+    records = [
+        candidate(session, p, score, reasons, masks=masks, at=at)
+        for p in session.execute(
+            select(Patient)
+            .where(
+                Patient.tenant_id == row.tenant_id,
+                Patient.id.in_([row.record1_id, row.record2_id]),
+            )
+            .order_by(Patient.id)
+        ).scalars()
+    ]
+    return ReviewTaskOut(
+        id=row.id,
+        version=row.version,
+        score=score,
+        reasons=reasons,
+        origin=row.origin,
+        note=row.note,
+        resolved=row.resolved,
+        resolution=row.resolution,
+        resolved_at=row.resolved_at,
+        resolved_by_id=row.resolved_by_id,
+        records=records,
+    )
+
+
+def merge_link(
+    session: Session, row: MergeLink, *, masks: frozenset[str], at: datetime
+) -> MergeOut:
+    def load(pid: object) -> Patient:
+        return session.execute(
+            select(Patient).where(Patient.tenant_id == row.tenant_id, Patient.id == pid)
+        ).scalar_one()
+
+    return MergeOut(
+        id=row.id,
+        version=row.version,
+        prior_id=row.prior_id,
+        survivor_id=row.survivor_id,
+        action=row.action,
+        reviewer_id=row.reviewer_id,
+        reason=row.reason,
+        reversible=row.reversible,
+        reconciliation_status=row.reconciliation_status,
+        recorded_at=row.recorded_at,
+        prior=patient(session, load(row.prior_id), masks=masks, at=at),
+        survivor=patient(session, load(row.survivor_id), masks=masks, at=at),
+    )

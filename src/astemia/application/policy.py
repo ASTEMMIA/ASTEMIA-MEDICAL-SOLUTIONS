@@ -11,11 +11,14 @@ from sqlalchemy.orm import Session
 
 from astemia.adapters.db.models import LegitimateRelationship, WorkgroupTeamMembership
 from astemia.application.context import RequestContext
+from astemia.application.lineage import merged_family
 
 # Capability grants per role. Platform and tenant administrators get no
 # clinical capability: clinical access requires a separate approved grant.
 ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
-    "registrar": frozenset({"patient:register", "encounter:admit", "catalogue:read"}),
+    "registrar": frozenset(
+        {"patient:register", "patient:search", "encounter:admit", "catalogue:read"}
+    ),
     "clinician": frozenset(
         {
             "encounter:admit",
@@ -30,6 +33,17 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
+    # Identity stewards (WF01 step 4) review duplicates and merge or unmerge
+    # records. They see full identifiers but hold no chart access.
+    "identity_steward": frozenset(
+        {
+            "patient:search",
+            "identity:review",
+            "identity:merge",
+            "identity:unmerge",
+            "identifier:read",
+        }
+    ),
     "sensitive_reader": frozenset({"sensitive:mental_health", "sensitive:sexual_health"}),
 }
 
@@ -125,7 +139,7 @@ class PilotPolicy:
             select(lr.id)
             .where(
                 lr.tenant_id == ctx.tenant_id,
-                lr.patient_id == patient_id,
+                lr.patient_id.in_(merged_family(session, ctx.tenant_id, patient_id)),
                 or_(
                     lr.practitioner_id == ctx.principal.practitioner_id, lr.workgroup_id.in_(teams)
                 ),

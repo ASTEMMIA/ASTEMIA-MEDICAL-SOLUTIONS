@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
@@ -14,6 +14,8 @@ from astemia.domain.identity import AdministrativeSex
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
+Reason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+ShortReason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=255)]
 
 
 class Strict(BaseModel):
@@ -47,6 +49,43 @@ class RegisterPatient(Strict):
     administrative_sex: AdministrativeSex
     temporary: bool = False
     identifiers: list[IdentifierIn] = Field(default_factory=list, max_length=10)
+    # UG02: a likely duplicate blocks registration until the registrar has seen
+    # the candidates and says why this is a different person.
+    acknowledged_candidates: list[uuid.UUID] = Field(default_factory=list, max_length=20)
+    distinct_reason: Reason | None = None
+
+
+class MatchQuery(Strict):
+    """WF01 step 1: search before registering. Demographics travel in the body,
+    never in a URL."""
+
+    family_name: Name
+    given_names: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
+    ]
+    birth_date: date
+    birth_date_precision: EffectivePrecision = EffectivePrecision.DAY
+    administrative_sex: AdministrativeSex
+    mother_name: str | None = Field(default=None, max_length=200)
+    identifiers: list[IdentifierIn] = Field(default_factory=list, max_length=10)
+
+
+class ResolveReview(Strict):
+    resolution: Literal["distinct"] = Field(
+        description="Merges are made with POST /v1/patients/{id}/merge, which also "
+        "resolves the task."
+    )
+    reason: Reason
+
+
+class MergePatient(Strict):
+    survivor_id: uuid.UUID
+    reason: ShortReason
+    reversible: bool = True
+
+
+class UnmergePatient(Strict):
+    reason: ShortReason
 
 
 class AeAttendanceIn(Strict):
@@ -240,6 +279,60 @@ class ChartOut(BaseModel):
     open_reviews: list[ReviewOut]
     masked_fields: list[str]
     withheld_records: int
+    merged_records: list[uuid.UUID] = Field(
+        default_factory=list, description="Records merged into this one; their data is included."
+    )
+
+
+# --- identity stewardship (UG02, WF01, E3) ----------------------------------------
+
+
+class CandidateOut(BaseModel):
+    """A possible duplicate, with only enough shown to tell people apart."""
+
+    id: uuid.UUID
+    status: str
+    score: int
+    band: str | None
+    reasons: list[str]
+    family_name: str
+    given_initial: str
+    birth_year: int
+    administrative_sex: str
+    identifiers: list[IdentifierOut]
+
+
+class MatchOut(BaseModel):
+    candidates: list[CandidateOut]
+
+
+class ReviewTaskOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    score: int
+    reasons: list[str]
+    origin: str | None
+    note: str | None
+    resolved: bool
+    resolution: str | None
+    resolved_at: datetime | None
+    resolved_by_id: uuid.UUID | None
+    records: list[CandidateOut]
+
+
+class MergeOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    prior_id: uuid.UUID
+    survivor_id: uuid.UUID
+    action: str
+    reviewer_id: uuid.UUID
+    reason: str
+    reversible: bool
+    reconciliation_status: str
+    recorded_at: datetime
+    prior: PatientOut
+    survivor: PatientOut
 
 
 # --- service catalogue (Annex A16) ---------------------------------------------

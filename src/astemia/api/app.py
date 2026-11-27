@@ -26,13 +26,20 @@ from astemia.application.schemas import (
     ActivateService,
     AdmitEncounter,
     ChartOut,
+    MatchOut,
+    MatchQuery,
+    MergePatient,
     PlaceOrder,
     ProvisionCatalogue,
     RegisterPatient,
     ReleaseReport,
+    ResolveReview,
     RetireService,
+    ReviewTaskOut,
     ServiceOut,
+    UnmergePatient,
 )
+from astemia.application.stewardship import StewardshipCommands, StewardshipQueries
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
 
@@ -50,6 +57,8 @@ def create_app(
     commands = Commands(write_path)
     catalogue = Catalogue(write_path, factory, policy)
     queries = Queries(factory, policy)
+    steward_commands = StewardshipCommands(write_path)
+    steward_queries = StewardshipQueries(factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -65,16 +74,19 @@ def create_app(
         response.headers["X-Correlation-ID"] = cid
         return response
 
-    def error(request: Request, status: int, code: str, message: str) -> JSONResponse:
+    def error(
+        request: Request, status: int, code: str, message: str, details: Any = None
+    ) -> JSONResponse:
+        body: dict[str, Any] = {
+            "code": code,
+            "message": message,
+            "correlation_id": request.state.correlation_id,
+        }
+        if details is not None:
+            body["details"] = details
         return JSONResponse(
             status_code=status,
-            content={
-                "error": {
-                    "code": code,
-                    "message": message,
-                    "correlation_id": request.state.correlation_id,
-                }
-            },
+            content={"error": body},
             # Set here as well as in the middleware: unexpected exceptions are
             # handled outside it, and their responses must carry the ID too.
             headers={"X-Correlation-ID": request.state.correlation_id},
@@ -85,7 +97,7 @@ def create_app(
         if isinstance(exc, AccessDenied) and exc.conceal:
             # Same body as a genuine miss, so existence is not disclosed.
             return error(request, 404, "not_found", "not found")
-        return error(request, exc.status, exc.code, str(exc))
+        return error(request, exc.status, exc.code, str(exc), exc.details)
 
     @app.exception_handler(RequestValidationError)
     async def invalid(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -176,6 +188,62 @@ def create_app(
         return int(tag) if tag.isdigit() else None
 
     IfMatch = Annotated[str | None, Header(alias="If-Match")]
+
+    # --- identity stewardship (UG02, WF01 steps 1 and 4, E3) ----------------
+
+    @app.post("/v1/patients/match", response_model=MatchOut)
+    def match_patients(body: MatchQuery, ctx: Ctx) -> MatchOut:
+        return steward_queries.match(ctx, body)
+
+    @app.get("/v1/identity-review-tasks", response_model=list[ReviewTaskOut])
+    def review_tasks(
+        ctx: Ctx,
+        resolved: bool = False,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ) -> list[ReviewTaskOut]:
+        return steward_queries.review_tasks(ctx, resolved=resolved, limit=limit)
+
+    @app.post("/v1/identity-review-tasks/{task_id}/resolve")
+    def resolve_review(
+        task_id: uuid.UUID,
+        body: ResolveReview,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            steward_commands.resolve(ctx, key, task_id, expected_version(if_match), body),
+            response,
+        )
+
+    @app.post("/v1/patients/{patient_id}/merge")
+    def merge_patient(
+        patient_id: uuid.UUID,
+        body: MergePatient,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            steward_commands.merge(ctx, key, patient_id, expected_version(if_match), body),
+            response,
+        )
+
+    @app.post("/v1/merge-links/{link_id}/unmerge")
+    def unmerge_patient(
+        link_id: uuid.UUID,
+        body: UnmergePatient,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            steward_commands.unmerge(ctx, key, link_id, expected_version(if_match), body),
+            response,
+        )
 
     # --- service catalogue (Annex A16) -------------------------------------
 

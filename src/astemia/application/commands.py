@@ -27,9 +27,10 @@ from astemia.adapters.db.models import (
     ResultReview,
     ServiceRequest,
 )
-from astemia.application import views
+from astemia.application import stewardship, views
 from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.errors import Conflict, Unprocessable
+from astemia.application.lineage import merged_family
 from astemia.application.schemas import (
     Acknowledge,
     AdmitEncounter,
@@ -83,6 +84,12 @@ class Commands:
                 raise Unprocessable(
                     "the same identifier is listed twice", code="duplicate_identifier"
                 )
+            if cmd.acknowledged_candidates and not cmd.distinct_reason:
+                raise Unprocessable(
+                    "say why this is a different person", code="distinct_reason_required"
+                )
+            registering = u.authorize("patient:register")
+            matches = stewardship.guard_registration(u, cmd, registering)
             status = idn.PatientStatus.TEMPORARY if cmd.temporary else idn.PatientStatus.ACTIVE
             pid = new_id()
             envelope = {
@@ -120,6 +127,9 @@ class Commands:
                     family_name=cmd.family_name,
                     given_name=given,
                     other_given_name=other or None,
+                    family_name_phonetic=idn.phonetic(cmd.family_name),
+                    given_name_phonetic=idn.phonetic(given),
+                    other_given_name_phonetic=idn.phonetic(other) or None,
                     effective_from=u.ctx.now,
                     **envelope,
                 )
@@ -159,7 +169,17 @@ class Commands:
                 )
             )
             u.session.flush()  # surfaces a duplicate active identifier as a 409
-            decision = u.authorize("patient:register")
+            # WF01: matches the registrar has seen go to an identity steward.
+            for candidate, match in matches:
+                stewardship.open_review(
+                    u,
+                    pid,
+                    candidate.id,
+                    match,
+                    origin="registration",
+                    note=cmd.distinct_reason,
+                )
+            decision = registering
             event = u.emit(
                 EventType.PATIENT_REGISTERED,
                 "patient",
@@ -312,7 +332,10 @@ class Commands:
     def place_order(self, ctx: Any, key: str | None, cmd: PlaceOrder) -> CommandResult:
         def handle(u: Unit) -> CommandResult:
             encounter = u.get(Encounter, cmd.encounter_id, lock=True)
-            if encounter.patient_id != cmd.patient_id:
+            # An encounter of a record merged into this one still takes orders.
+            if encounter.patient_id not in merged_family(
+                u.session, u.ctx.tenant_id, cmd.patient_id
+            ):
                 raise Unprocessable(
                     "encounter does not belong to this patient", code="encounter_patient_mismatch"
                 )
@@ -339,7 +362,9 @@ class Commands:
                 display=cmd.display,
                 original_system=cmd.original_system,
                 original_code=cmd.original_code,
-                patient_id=cmd.patient_id,
+                # The order stays with its encounter's record, so an unmerge
+                # takes both back together.
+                patient_id=encounter.patient_id,
                 encounter_id=encounter.id,
                 requester_id=requester,
                 result_owner_id=owner,
