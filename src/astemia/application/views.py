@@ -11,6 +11,7 @@ from astemia.adapters.db.models import (
     DiagnosticReport,
     DuplicateCandidate,
     Encounter,
+    MentalHealthLegalStatus,
     MergeLink,
     Observation,
     ObservationRevision,
@@ -25,6 +26,7 @@ from astemia.application.schemas import (
     CandidateOut,
     EncounterOut,
     IdentifierOut,
+    LegalStatusOut,
     NameOut,
     ObservationOut,
     OrderOut,
@@ -34,6 +36,7 @@ from astemia.application.schemas import (
     ReviewTaskOut,
 )
 from astemia.domain import identity as idn
+from astemia.domain import safeguards as sg
 
 
 def _mask(value: str) -> str:
@@ -246,3 +249,38 @@ def review_task(
         resolved_by_id=row.resolved_by_id,
         records=[candidate(session, p, match, masks=masks, at=at) for p in records],
     )
+
+
+# --- mental health legal status (ICRS 5.5.9, 5.5.15) --------------------------------
+
+
+def legal_status(row: MentalHealthLegalStatus, at: datetime) -> LegalStatusOut:
+    status = sg.LegalStatus(row.status)
+    current = row.current_marker == 1
+    return LegalStatusOut(
+        id=row.id,
+        version=row.version,
+        patient_id=row.patient_id,
+        status=row.status,
+        legal_basis=row.legal_basis,
+        valid_from=row.valid_from,
+        valid_until=row.valid_until,
+        authorised_by_id=row.authorised_by_id,
+        reason=row.reason,
+        ended_at=row.ended_at,
+        current=current,
+        lapsed=current and sg.lapsed(status, row.valid_until, at),
+        expiring=current and sg.expiring(row.valid_until, at),
+    )
+
+
+def current_legal_status(
+    session: Session, tenant_id: uuid.UUID, patient_id: uuid.UUID
+) -> MentalHealthLegalStatus | None:
+    return session.execute(
+        select(MentalHealthLegalStatus).where(
+            MentalHealthLegalStatus.tenant_id == tenant_id,
+            MentalHealthLegalStatus.patient_id == patient_id,
+            MentalHealthLegalStatus.current_marker == 1,
+        )
+    ).scalar_one_or_none()

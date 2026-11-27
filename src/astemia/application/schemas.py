@@ -11,6 +11,13 @@ from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.identity import AdministrativeSex, ClosureReason
+from astemia.domain.safeguards import (
+    ConcernCategory,
+    InterventionType,
+    LegalStatus,
+    RaisedBy,
+    ReviewOutcome,
+)
 from astemia.domain.scheduling import (
     AttendanceOutcome,
     Modality,
@@ -283,6 +290,9 @@ class ChartOut(BaseModel):
     access_basis: str = Field(
         default="care_relationship",
         description="care_relationship, or emergency_grant for time-boxed emergency access",
+    )
+    legal_status: LegalStatusOut | None = Field(
+        default=None, description="Mental health legal status in force (ICRS 5.5.15)."
     )
 
 
@@ -567,3 +577,156 @@ class ReferralRecordsOut(BaseModel):
     reports: list[ReportOut]
     masked_fields: list[str]
     withheld_records: int
+
+
+# --- mental health safeguards (HS13, B11; ICRS 5.5.9) ---------------------------------
+
+LongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=10, max_length=1000)]
+
+
+class RecordIntervention(Strict):
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID | None = None
+    intervention_type: InterventionType
+    reason: LongText = Field(description="Why less restrictive options were not enough.")
+    authorised_by_id: uuid.UUID
+    staff_ids: list[uuid.UUID] = Field(min_length=1, max_length=20)
+    started_at: AwareDatetime
+    ended_at: AwareDatetime | None = None
+    injury: bool = False
+    injury_detail: str | None = Field(default=None, max_length=500)
+    debrief_offered: bool | None = None
+
+
+class EndIntervention(Strict):
+    ended_at: AwareDatetime
+    debrief_offered: bool
+    injury: bool = False
+    injury_detail: str | None = Field(default=None, max_length=500)
+
+
+class ReviewIntervention(Strict):
+    outcome: ReviewOutcome
+    note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=1000)]
+
+
+class InterventionOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID | None
+    intervention_type: str
+    reason: str
+    authorised_by_id: uuid.UUID
+    recorded_by_id: uuid.UUID | None
+    staff_ids: list[uuid.UUID]
+    started_at: datetime
+    ended_at: datetime | None
+    duration_minutes: int | None
+    injury: bool
+    injury_detail: str | None
+    debrief_offered: bool | None
+    legal_status_id: uuid.UUID | None
+    flags: list[str]
+    review_due_at: datetime
+    review_overdue: bool
+    reviewed_at: datetime | None
+    reviewed_by_id: uuid.UUID | None
+    review_outcome: str | None
+    review_note: str | None
+
+
+class SetLegalStatus(Strict):
+    status: LegalStatus
+    legal_basis: str | None = Field(
+        default=None, max_length=100, description="The law and power, required when detained."
+    )
+    valid_from: AwareDatetime
+    valid_until: AwareDatetime | None = None
+    authorised_by_id: uuid.UUID
+    reason: LongText
+
+
+class LegalStatusOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    status: str
+    legal_basis: str | None
+    valid_from: datetime
+    valid_until: datetime | None
+    authorised_by_id: uuid.UUID
+    reason: str
+    ended_at: datetime | None
+    current: bool
+    lapsed: bool
+    expiring: bool
+
+
+class RaiseConcern(Strict):
+    patient_id: uuid.UUID
+    raised_by: RaisedBy
+    raised_by_name: str | None = Field(default=None, max_length=200)
+    category: ConcernCategory
+    description: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=10, max_length=2000)
+    ]
+    about_practitioner_id: uuid.UUID | None = Field(
+        default=None, description="The member of staff the concern is about, if any."
+    )
+
+
+class CloseConcern(Strict):
+    outcome: Literal["upheld", "not_upheld"]
+    note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=1000)]
+
+
+class ConcernOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    raised_by: str
+    raised_by_name: str | None
+    recorded_by: str | None
+    category: str
+    description: str
+    about_practitioner_id: uuid.UUID | None
+    status: str
+    respond_by: datetime
+    overdue: bool
+    closed_at: datetime | None
+    closed_by_id: uuid.UUID | None
+    outcome_note: str | None
+    recorded_at: datetime
+
+
+class AppointAdvocate(Strict):
+    practitioner_id: uuid.UUID
+
+
+class AccessEntry(BaseModel):
+    occurred_at: datetime
+    actor_subject: str
+    actor_practitioner_id: uuid.UUID | None
+    action: str
+    outcome: str
+    reason_code: str | None
+    flags: list[str]
+
+
+class ActorSummary(BaseModel):
+    actor_subject: str
+    entries: int
+    flagged: int
+
+
+class AccessReportOut(BaseModel):
+    patient_id: uuid.UUID
+    start: datetime
+    end: datetime
+    entries: list[AccessEntry]
+    by_actor: list[ActorSummary]
+    flagged: int
+
+
+ChartOut.model_rebuild()

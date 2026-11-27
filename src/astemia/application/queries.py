@@ -91,6 +91,11 @@ class Queries:
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,
+                legal_status=(
+                    views.legal_status(legal, ctx.now)
+                    if (legal := views.current_legal_status(session, tid, patient_id))
+                    else None
+                ),
                 access_basis=(
                     "emergency_grant"
                     if decision.reason == "emergency_grant"

@@ -65,6 +65,19 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `GET /v1/referrals/{id}/records` | The historical records that came with a referral, for the receiving triage team and the referrer, masked and audited |
   | `GET /v1/referrals` | Triage worklist by `status` and `receiving_service`, urgent first (scheduler) |
   | `POST /v1/referrals/{id}/decision` | Accept, or reject with a reason. Needs `If-Match` |
+  | `POST /v1/restrictive-interventions` | Log a restraint, seclusion or rapid tranquillisation (care team) |
+  | `POST /v1/restrictive-interventions/{id}/end` | Record the end time, debrief and any injury, once. Needs `If-Match` |
+  | `GET /v1/restrictive-interventions` | Review queue, oldest deadline first; `reviewed=true` for the history (safeguarding lead) |
+  | `POST /v1/restrictive-interventions/{id}/review` | Independent review by a lead who took no part. Needs `If-Match` |
+  | `GET /v1/patients/{id}/restrictive-interventions` | The patient's log (care team, safeguarding lead, appointed advocate) |
+  | `POST /v1/patients/{id}/legal-status` | Record a new legal status; the previous one ends |
+  | `GET /v1/patients/{id}/legal-status` | Legal status history, newest first |
+  | `GET /v1/legal-status/expiring` | Compulsory powers expiring within 72 hours or lapsed (safeguarding lead) |
+  | `POST /v1/safeguarding-concerns` | Raise a concern for a patient, family member, advocate or staff |
+  | `GET /v1/safeguarding-concerns` | Concerns by `status`, earliest deadline first (safeguarding lead) |
+  | `POST /v1/safeguarding-concerns/{id}/outcome` | Upheld or not upheld, by a lead who is not its subject. Needs `If-Match` |
+  | `POST /v1/patients/{id}/advocates` | Appoint an independent advocate to a patient (safeguarding lead) |
+  | `GET /v1/patients/{id}/access-report` | Everyone who read or changed the record, flagged (safeguarding lead or the patient's advocate) |
   | `POST /v1/emergency-grants` | Emergency access: state a purpose, get read-only chart access to one patient for 30 minutes (clinician) |
   | `GET /v1/emergency-grants` | Privacy review queue, oldest deadline first; `reviewed=true` for the history (privacy officer) |
   | `POST /v1/emergency-grants/{id}/review` | Record whether the access was appropriate. Needs `If-Match` |

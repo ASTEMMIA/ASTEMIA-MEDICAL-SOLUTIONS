@@ -29,6 +29,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "catalogue:read",
             "schedule:book",
             "appointment:attend",
+            "concern:raise",
         }
     ),
     # Schedulers (UG01) run clinic templates and bookings and triage the
@@ -56,16 +57,38 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "emergency:request",
             "referral:create",
             "appointment:attend",
+            # Mental health safeguards (HS13): record restrictive practice and
+            # legal status for patients in their care, and raise concerns.
+            "safeguarding:record",
+            "safeguarding:view",
+            "mh_legal:manage",
+            "concern:raise",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
     "identity_steward": frozenset(
         {"patient:search", "patient:merge", "patient:close", "identifier:read"}
     ),
-    "nurse": frozenset({"chart:read", "catalogue:read"}),
+    "nurse": frozenset(
+        {
+            "chart:read",
+            "catalogue:read",
+            "safeguarding:record",
+            "safeguarding:view",
+            "concern:raise",
+        }
+    ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
+    # Safeguarding leads review every restrictive intervention and concern, see
+    # who accessed a patient's records, and appoint advocates. No chart access.
+    "safeguarding_lead": frozenset(
+        {"safeguarding:review", "concern:raise", "patient:search", "identifier:read"}
+    ),
+    # An independent advocate appointed to a patient sees that patient's
+    # safeguarding log, legal status and access report, and raises concerns.
+    "patient_advocate": frozenset({"safeguarding:view", "access_report:read", "concern:raise"}),
     # Privacy officers review every emergency access grant (SEC-04) and hold
     # no clinical capability themselves.
     "privacy_officer": frozenset({"emergency:review"}),
@@ -73,7 +96,17 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
 }
 
 # Capabilities that need a legitimate care relationship with the patient.
-RELATIONSHIP_BOUND = frozenset({"chart:read", "order:create", "referral:create"})
+RELATIONSHIP_BOUND = frozenset(
+    {
+        "chart:read",
+        "order:create",
+        "referral:create",
+        "safeguarding:record",
+        "safeguarding:view",
+        "mh_legal:manage",
+        "access_report:read",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)

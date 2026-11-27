@@ -880,6 +880,96 @@ class Appointment(Envelope, Base):
     outcome_recorded_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
 
+class MentalHealthLegalStatus(Envelope, Base):
+    """A patient's legal status under mental health law, with its history
+    (ICRS 5.5.9). current_marker is 1 on the status in force, so the unique key
+    allows one current status per patient; a change ends the previous one."""
+
+    __tablename__ = "mental_health_legal_status"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "authorised_by_id"], "practitioner"),
+        UniqueConstraint("tenant_id", "patient_id", "current_marker"),
+        Index(None, "tenant_id", "valid_until"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    legal_basis: Mapped[str | None] = mapped_column(String(100))
+    valid_from: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    valid_until: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    authorised_by_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    ended_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    current_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+
+
+class RestrictiveIntervention(Envelope, Base):
+    """Restraint, seclusion or rapid tranquillisation (HS13, B11). Entries are
+    never edited or deleted: an end time is recorded once, and a safeguarding
+    lead who took no part reviews each one."""
+
+    __tablename__ = "restrictive_intervention"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        fk(["tenant_id", "authorised_by_id"], "practitioner"),
+        fk(["tenant_id", "reviewed_by_id"], "practitioner"),
+        fk(["tenant_id", "legal_status_id"], "mental_health_legal_status"),
+        Index(None, "tenant_id", "patient_id", "started_at"),
+        Index(None, "tenant_id", "reviewed_at", "review_due_at"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    encounter_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    intervention_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    authorised_by_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    staff_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    ended_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    injury: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    injury_detail: Mapped[str | None] = mapped_column(String(500))
+    debrief_offered: Mapped[bool | None] = mapped_column(Boolean)
+    # The legal status in force when it happened, and why it needs a closer look.
+    legal_status_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    flags: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    review_due_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    review_outcome: Mapped[str | None] = mapped_column(String(16))
+    review_note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class SafeguardingConcern(Envelope, Base):
+    """A concern about how a patient is treated, from the patient, their
+    family, an advocate or staff, answered by a safeguarding lead."""
+
+    __tablename__ = "safeguarding_concern"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "about_practitioner_id"], "practitioner"),
+        fk(["tenant_id", "closed_by_id"], "practitioner"),
+        Index(None, "tenant_id", "status", "respond_by"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    raised_by: Mapped[str] = mapped_column(String(16), nullable=False)
+    raised_by_name: Mapped[str | None] = mapped_column(String(200))
+    category: Mapped[str] = mapped_column(String(32), nullable=False)
+    description: Mapped[str] = mapped_column(String(2000), nullable=False)
+    about_practitioner_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    respond_by: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    closed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    closed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    outcome_note: Mapped[str | None] = mapped_column(String(1000))
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""
