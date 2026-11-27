@@ -1,0 +1,173 @@
+"""Traceability for the Integrated Care Records Service specification.
+
+docs/source/ASTEMIA_CONSULTATION.docx holds 971 numbered requirements. Each is
+assigned to one functional module (101-120) or to one cross-cutting area, and
+each component of the service is assigned to a module (data/modules.json).
+Delivered requirements name the test that proves them. tests/unit/
+test_icrs_traceability.py fails if a requirement or component is unassigned,
+assigned twice, or claimed without evidence.
+"""
+
+import json
+import re
+import zipfile
+from collections.abc import Iterable
+from dataclasses import dataclass
+from functools import lru_cache
+from importlib import resources
+from pathlib import Path
+from typing import Any
+
+_ID = re.compile(r"^(\d+\.\d+\.\d+)\s*(.*)$", re.S)
+# A section title written as a plain paragraph, e.g. "3.2Patient / Service User Index".
+_SECTION = re.compile(r"^(\d+\.\d+)\s*([A-Za-z].{2,70})$")
+_PARA = re.compile(r"<w:p[ >].*?</w:p>", re.S)
+_TEXT = re.compile(r"<w:t[^>]*>([^<]*)</w:t>")
+_STYLE = re.compile(r'<w:pStyle w:val="([^"]+)"')
+_ENTITIES = {"&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&apos;": "'"}
+
+
+def key(requirement_id: str) -> tuple[int, ...]:
+    return tuple(int(p) for p in requirement_id.split("."))
+
+
+def localise(text: str) -> str:
+    """ASTEMIA naming in prose: GP becomes medical doctor."""
+    text = re.sub(r"(?<![A-Za-z])GPs(?![A-Za-z])", "medical doctors", text)
+    text = re.sub(r"(?<![A-Za-z])GP(?![A-Za-z])", "medical doctor", text)
+    return text[:1].upper() + text[1:]
+
+
+def _unescape(text: str) -> str:
+    for entity, char in _ENTITIES.items():
+        text = text.replace(entity, char)
+    return text
+
+
+def extract(docx: Path) -> list[dict[str, str]]:
+    """Numbered requirements in document order, with their section headings."""
+    xml = zipfile.ZipFile(docx).read("word/document.xml").decode()
+    section = subsection = ""
+    found: list[dict[str, str]] = []
+    for para in _PARA.findall(xml):
+        style = _STYLE.search(para)
+        text = _unescape("".join(_TEXT.findall(para))).strip()
+        if style and style.group(1) == "Heading2":
+            section, subsection = localise(text), ""
+            continue
+        if style and style.group(1) == "Heading3":
+            subsection = localise(text)
+            continue
+        title = _SECTION.match(text)
+        if title and not style:
+            section, subsection = localise(f"{title.group(1)} {title.group(2)}"), ""
+            continue
+        match = _ID.match(text)
+        if match:
+            found.append(
+                {
+                    "id": match.group(1),
+                    "section": section,
+                    "subsection": subsection,
+                    "text": localise(match.group(2).strip()),
+                }
+            )
+    return found
+
+
+@lru_cache
+def requirements() -> list[dict[str, str]]:
+    raw = (resources.files("astemia.icrs") / "data" / "requirements.json").read_text()
+    return list(json.loads(raw))
+
+
+@lru_cache
+def plan() -> dict[str, Any]:
+    raw = (resources.files("astemia.icrs") / "data" / "modules.json").read_text()
+    return dict(json.loads(raw))
+
+
+@dataclass(frozen=True, slots=True)
+class Assignment:
+    requirement_id: str
+    owner: str  # module code (101-120) or cross-cutting area code (X1-X6)
+    matches: int  # how many ranges or overrides claimed it; exactly 1 is valid
+
+
+def _owners(p: dict[str, Any]) -> Iterable[tuple[str, list[list[str]]]]:
+    for group in (*p["modules"], *p["areas"]):
+        yield group["code"], group["ranges"]
+
+
+def assign(reqs: list[dict[str, str]], p: dict[str, Any]) -> list[Assignment]:
+    out = []
+    for r in reqs:
+        rid = r["id"]
+        if rid in p["overrides"]:
+            out.append(Assignment(rid, p["overrides"][rid], 1))
+            continue
+        owners = [
+            code
+            for code, ranges in _owners(p)
+            for lo, hi in ranges
+            if key(lo) <= key(rid) <= key(hi)
+        ]
+        out.append(Assignment(rid, owners[0] if owners else "", len(owners)))
+    return out
+
+
+def module_summary(p: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Per module and area: requirement count, delivered count and components."""
+    p = p or plan()
+    reqs = requirements()
+    owner = {a.requirement_id: a.owner for a in assign(reqs, p)}
+    delivered = p["delivered"]
+    rows = []
+    for group in (*p["modules"], *p["areas"]):
+        ids = [r["id"] for r in reqs if owner[r["id"]] == group["code"]]
+        rows.append(
+            {
+                "code": group["code"],
+                "name": group["name"],
+                "requirements": len(ids),
+                "delivered": sum(1 for i in ids if i in delivered),
+                "components": [c["name"] for c in p["components"] if c["module"] == group["code"]],
+            }
+        )
+    return rows
+
+
+def render_markdown(p: dict[str, Any] | None = None) -> str:
+    """docs/icrs-traceability.md, generated by tools/icrs_traceability_doc.py."""
+    p = p or plan()
+    reqs = {r["id"]: r for r in requirements()}
+    lines = [
+        "# Integrated Care Records Service traceability (generated)",
+        "",
+        f"Generated by `tools/icrs_traceability_doc.py` from `{p['source']}` and",
+        "`src/astemia/icrs/data/modules.json`. Do not edit by hand.",
+        "",
+        f"{len(reqs)} numbered requirements. Each belongs to exactly one module or",
+        "cross-cutting area. A requirement counts as delivered only when the",
+        "build meets it and a named test proves it.",
+        "",
+        "| Code | Module or area | Requirements | Delivered | Components |",
+        "|---|---|---|---|---|",
+    ]
+    for row in module_summary(p):
+        components = "; ".join(row["components"]) or "-"
+        lines.append(
+            f"| {row['code']} | {row['name']} | {row['requirements']} | "
+            f"{row['delivered']} | {components} |"
+        )
+    lines += ["", "## Delivered requirements", ""]
+    if p["delivered"]:
+        lines += ["| Requirement | Section | Evidence |", "|---|---|---|"]
+        for rid in sorted(p["delivered"], key=key):
+            r = reqs[rid]
+            where = " / ".join(s for s in (r["section"], r["subsection"]) if s)
+            lines.append(f"| {rid} | {where} | `{p['delivered'][rid]}` |")
+    else:
+        lines.append("None yet.")
+    lines.append("")
+    return "\n".join(lines)

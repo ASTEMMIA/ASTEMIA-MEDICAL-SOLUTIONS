@@ -4,7 +4,7 @@ import re
 from datetime import date
 from enum import StrEnum
 
-from astemia.domain.common import EffectivePrecision, InvariantViolation
+from astemia.domain.common import EffectivePrecision, InvalidTransition, InvariantViolation
 
 
 class NameType(StrEnum):
@@ -20,6 +20,11 @@ class PatientStatus(StrEnum):
     TEMPORARY = "temporary"
     MERGED = "merged"
     DECEASED = "deceased"
+    CLOSED = "closed"  # closed in the index: moved away or discharged from all services
+
+
+# Records still open in the patient index.
+OPEN_STATUSES = frozenset({PatientStatus.ACTIVE, PatientStatus.TEMPORARY})
 
 
 class AdministrativeSex(StrEnum):
@@ -92,3 +97,54 @@ def validate_birth_date(birth_date: date, precision: EffectivePrecision, today: 
         raise InvariantViolation("date of birth is in the future", code="bad_birth_date")
     if precision not in (EffectivePrecision.YEAR, EffectivePrecision.DAY):
         raise InvariantViolation("date of birth precision is year or day", code="bad_birth_date")
+
+
+# -- Patient index stewardship (ICRS 3.2.8-3.2.21, 3.2.33) ---------------------
+
+
+class ClosureReason(StrEnum):
+    DEATH = "death"
+    MOVED_AWAY = "moved_away"
+    DISCHARGED = "discharged"
+
+
+def duplicate_key(family_name: str, birth_date: date, sex: str) -> tuple[str, date, str]:
+    """Records that share this key are probable duplicates (ICRS 3.2.8, 3.2.11)."""
+    return (" ".join(family_name.split()).casefold(), birth_date, sex)
+
+
+def check_merge(
+    prior_id: object, survivor_id: object, prior_status: str, survivor_status: str
+) -> None:
+    if prior_id == survivor_id:
+        raise InvariantViolation("a record cannot be merged into itself", code="merge_into_self")
+    if prior_status not in OPEN_STATUSES:
+        raise InvalidTransition(f"a {prior_status} record cannot be merged", code="not_mergeable")
+    if survivor_status not in OPEN_STATUSES:
+        raise InvalidTransition(
+            f"a record cannot be merged into a {survivor_status} record",
+            code="survivor_not_open",
+        )
+
+
+def check_identifiers_compatible(prior: dict[str, str], survivor: dict[str, str]) -> None:
+    """Two records holding different values from the same issuer are two people."""
+    clashes = sorted(i for i in prior.keys() & survivor.keys() if prior[i] != survivor[i])
+    if clashes:
+        raise InvariantViolation(
+            "the records hold different identifiers from " + ", ".join(clashes),
+            code="identifier_mismatch",
+        )
+
+
+def closure_status(reason: ClosureReason) -> PatientStatus:
+    return PatientStatus.DECEASED if reason is ClosureReason.DEATH else PatientStatus.CLOSED
+
+
+def check_closable(status: str, exit_date: date, birth_date: date, today: date) -> None:
+    if status not in OPEN_STATUSES:
+        raise InvalidTransition(f"a {status} record cannot be closed", code="not_closable")
+    if exit_date > today:
+        raise InvariantViolation("closure date is in the future", code="bad_closure_date")
+    if exit_date < birth_date:
+        raise InvariantViolation("closure date is before birth", code="bad_closure_date")

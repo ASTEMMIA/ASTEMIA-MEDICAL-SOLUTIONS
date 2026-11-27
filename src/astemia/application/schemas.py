@@ -10,7 +10,7 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstrai
 from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.encounter import EncounterClass
-from astemia.domain.identity import AdministrativeSex
+from astemia.domain.identity import AdministrativeSex, ClosureReason
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
@@ -117,6 +117,37 @@ class Acknowledge(Strict):
     note: str | None = Field(default=None, max_length=1000)
 
 
+Reason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=255)]
+
+
+class MergePatient(Strict):
+    """Merge this (prior) record into the survivor (ICRS 3.2.12, 3.2.33)."""
+
+    survivor_id: uuid.UUID
+    reason: Reason
+
+
+class UnmergePatient(Strict):
+    reason: Reason
+
+
+class ClosePatient(Strict):
+    """Close a record in the index (ICRS 3.2.18-3.2.19)."""
+
+    reason: ClosureReason
+    exit_date: date
+
+
+class ClosureItem(ClosePatient):
+    patient_id: uuid.UUID
+
+
+class CloseBatch(Strict):
+    """A batch of closures, for example a list of death registrations (ICRS 3.2.20)."""
+
+    items: list[ClosureItem] = Field(min_length=1, max_length=500)
+
+
 # --- outputs ------------------------------------------------------------------
 
 
@@ -150,6 +181,8 @@ class PatientOut(Resource):
     status: str
     names: list[NameOut] = []
     identifiers: list[IdentifierOut] = []
+    date_of_exit: date | None = None
+    merged_into: uuid.UUID | None = None
 
 
 class AeAttendanceOut(BaseModel):
@@ -240,6 +273,16 @@ class ChartOut(BaseModel):
     open_reviews: list[ReviewOut]
     masked_fields: list[str]
     withheld_records: int
+    merged_from: list[uuid.UUID] = []
+
+
+class DuplicateGroup(BaseModel):
+    """Open index records that share family name, date of birth and sex."""
+
+    family_name: str
+    birth_date: date
+    administrative_sex: str
+    patient_ids: list[uuid.UUID]
 
 
 # --- service catalogue (Annex A16) ---------------------------------------------

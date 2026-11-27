@@ -4,6 +4,7 @@ import logging
 import re
 import uuid
 from collections.abc import Awaitable, Callable
+from datetime import date
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, Header, Query, Request, Response
@@ -19,6 +20,7 @@ from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
 from astemia.application.errors import AccessDenied, ApplicationError
+from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
 from astemia.application.queries import Queries
 from astemia.application.schemas import (
@@ -26,12 +28,18 @@ from astemia.application.schemas import (
     ActivateService,
     AdmitEncounter,
     ChartOut,
+    CloseBatch,
+    ClosePatient,
+    DuplicateGroup,
+    MergePatient,
+    PatientOut,
     PlaceOrder,
     ProvisionCatalogue,
     RegisterPatient,
     ReleaseReport,
     RetireService,
     ServiceOut,
+    UnmergePatient,
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
@@ -50,6 +58,7 @@ def create_app(
     commands = Commands(write_path)
     catalogue = Catalogue(write_path, factory, policy)
     queries = Queries(factory, policy)
+    index = PatientIndex(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -176,6 +185,68 @@ def create_app(
         return int(tag) if tag.isdigit() else None
 
     IfMatch = Annotated[str | None, Header(alias="If-Match")]
+
+    # --- patient index (ICRS module 102, section 3.2) ----------------------
+
+    @app.get("/v1/patient-index", response_model=list[PatientOut])
+    def search_patients(
+        ctx: Ctx,
+        nin: Annotated[str | None, Query(max_length=32)] = None,
+        family_name: Annotated[str | None, Query(min_length=2, max_length=100)] = None,
+        given_name: Annotated[str | None, Query(max_length=100)] = None,
+        birth_date: date | None = None,
+        limit: Annotated[int, Query(ge=1, le=100)] = 25,
+    ) -> list[PatientOut]:
+        return index.search(
+            ctx,
+            nin=nin,
+            family_name=family_name,
+            given_name=given_name,
+            birth_date=birth_date,
+            limit=limit,
+        )
+
+    @app.get("/v1/patient-index/duplicates", response_model=list[DuplicateGroup])
+    def duplicate_patients(ctx: Ctx) -> list[DuplicateGroup]:
+        return index.duplicates(ctx)
+
+    @app.post("/v1/patients/{patient_id}/merge")
+    def merge_patient(
+        patient_id: uuid.UUID,
+        body: MergePatient,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            index.merge(ctx, key, patient_id, expected_version(if_match), body), response
+        )
+
+    @app.post("/v1/merge-links/{link_id}/unmerge")
+    def unmerge_patient(
+        link_id: uuid.UUID, body: UnmergePatient, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(index.unmerge(ctx, key, link_id, body), response)
+
+    @app.post("/v1/patients/{patient_id}/close")
+    def close_patient(
+        patient_id: uuid.UUID,
+        body: ClosePatient,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            index.close(ctx, key, patient_id, expected_version(if_match), body), response
+        )
+
+    @app.post("/v1/patient-index/closures")
+    def close_patients(
+        body: CloseBatch, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(index.close_batch(ctx, key, body), response)
 
     # --- service catalogue (Annex A16) -------------------------------------
 

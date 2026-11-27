@@ -15,7 +15,9 @@ from astemia.application.context import RequestContext
 # Capability grants per role. Platform and tenant administrators get no
 # clinical capability: clinical access requires a separate approved grant.
 ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
-    "registrar": frozenset({"patient:register", "encounter:admit", "catalogue:read"}),
+    "registrar": frozenset(
+        {"patient:register", "patient:search", "encounter:admit", "catalogue:read"}
+    ),
     "clinician": frozenset(
         {
             "encounter:admit",
@@ -23,8 +25,13 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "order:create",
             "result:acknowledge",
             "identifier:read",
+            "patient:search",
             "catalogue:read",
         }
+    ),
+    # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
+    "identity_steward": frozenset(
+        {"patient:search", "patient:merge", "patient:close", "identifier:read"}
     ),
     "nurse": frozenset({"chart:read", "catalogue:read"}),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),

@@ -1,0 +1,544 @@
+{
+ "source": "docs/source/ASTEMIA_CONSULTATION.docx",
+ "note": "Modules 101-120 and the components are the owner's build scope (27 November 2026). Each numbered requirement belongs to exactly one module or cross-cutting area; an override wins over ranges. source_label keeps the owner's original wording, including third-party product names, for lineage only.",
+ "modules": [
+  {
+   "code": "101",
+   "name": "User Tools",
+   "ranges": [
+    [
+     "3.2.44",
+     "3.2.51"
+    ],
+    [
+     "3.9.1",
+     "3.9.13"
+    ],
+    [
+     "3.10.30",
+     "3.10.33"
+    ],
+    [
+     "4.1.1",
+     "4.4.19"
+    ],
+    [
+     "4.4.23",
+     "4.4.38"
+    ]
+   ]
+  },
+  {
+   "code": "102",
+   "name": "Patient Index",
+   "ranges": [
+    [
+     "3.2.1",
+     "3.2.43"
+    ],
+    [
+     "5.5.3",
+     "5.5.9"
+    ]
+   ]
+  },
+  {
+   "code": "103",
+   "name": "Prevention, screening and surveillance",
+   "ranges": [
+    [
+     "5.2.1",
+     "5.2.1"
+    ],
+    [
+     "6.2.1",
+     "6.2.19"
+    ]
+   ]
+  },
+  {
+   "code": "104",
+   "name": "Assessment",
+   "ranges": [
+    [
+     "3.3.16",
+     "3.3.16"
+    ],
+    [
+     "5.3.23",
+     "5.3.25"
+    ]
+   ]
+  },
+  {
+   "code": "105",
+   "name": "Integrated Care Pathways and Care Planning",
+   "ranges": [
+    [
+     "3.3.1",
+     "3.3.11"
+    ],
+    [
+     "3.3.17",
+     "3.3.22"
+    ],
+    [
+     "3.3.39",
+     "3.3.39"
+    ],
+    [
+     "5.3.26",
+     "5.3.28"
+    ]
+   ]
+  },
+  {
+   "code": "106",
+   "name": "Clinical Documentation, including Clinical Noting and Clinical Correspondence",
+   "ranges": [
+    [
+     "3.3.23",
+     "3.3.38"
+    ],
+    [
+     "4.4.20",
+     "4.4.20"
+    ]
+   ]
+  },
+  {
+   "code": "107",
+   "name": "Care management",
+   "ranges": [
+    [
+     "3.3.12",
+     "3.3.15"
+    ],
+    [
+     "5.4.1",
+     "5.4.10"
+    ],
+    [
+     "5.4.67",
+     "5.4.82"
+    ],
+    [
+     "5.5.1",
+     "5.5.2"
+    ],
+    [
+     "5.5.10",
+     "5.5.20"
+    ]
+   ]
+  },
+  {
+   "code": "108",
+   "name": "Scheduling",
+   "ranges": [
+    [
+     "3.4.45",
+     "3.4.53"
+    ],
+    [
+     "3.10.1",
+     "3.10.24"
+    ],
+    [
+     "5.4.11",
+     "5.4.53"
+    ]
+   ]
+  },
+  {
+   "code": "109",
+   "name": "Electronic Booking",
+   "ranges": [
+    [
+     "3.3.44",
+     "3.3.47"
+    ],
+    [
+     "3.4.1",
+     "3.4.44"
+    ],
+    [
+     "4.4.21",
+     "4.4.22"
+    ]
+   ]
+  },
+  {
+   "code": "110",
+   "name": "Requesting and order communications",
+   "ranges": [
+    [
+     "3.5.1",
+     "3.5.18"
+    ]
+   ]
+  },
+  {
+   "code": "111",
+   "name": "Results reporting",
+   "ranges": [
+    [
+     "3.5.19",
+     "3.5.24"
+    ]
+   ]
+  },
+  {
+   "code": "112",
+   "name": "Decision support",
+   "ranges": [
+    [
+     "3.3.40",
+     "3.3.43"
+    ],
+    [
+     "3.8.1",
+     "3.8.11"
+    ]
+   ]
+  },
+  {
+   "code": "113",
+   "name": "Prescribing and pharmacy",
+   "ranges": [
+    [
+     "3.6.1",
+     "3.6.71"
+    ]
+   ]
+  },
+  {
+   "code": "114",
+   "name": "Diagnostic and Investigative Services",
+   "ranges": [
+    [
+     "5.6.1",
+     "5.6.10"
+    ]
+   ]
+  },
+  {
+   "code": "115",
+   "name": "Digital Imaging, including a Picture Archiving and Communications System (PACS)",
+   "ranges": [
+    [
+     "3.7.1",
+     "3.7.26"
+    ]
+   ]
+  },
+  {
+   "code": "116",
+   "name": "Document Management",
+   "ranges": [
+    [
+     "5.4.54",
+     "5.4.66"
+    ]
+   ]
+  },
+  {
+   "code": "117",
+   "name": "Financial Payments to Service Providers",
+   "ranges": [
+    [
+     "3.10.25",
+     "3.10.29"
+    ]
+   ]
+  },
+  {
+   "code": "118",
+   "name": "Maternity",
+   "ranges": []
+  },
+  {
+   "code": "119",
+   "name": "Social Care",
+   "ranges": [
+    [
+     "5.3.1",
+     "5.3.22"
+    ],
+    [
+     "5.3.29",
+     "5.3.39"
+    ]
+   ]
+  },
+  {
+   "code": "120",
+   "name": "Dental Services",
+   "ranges": []
+  }
+ ],
+ "areas": [
+  {
+   "code": "X1",
+   "name": "Context and vision",
+   "ranges": [
+    [
+     "1.1.1",
+     "2.4.10"
+    ],
+    [
+     "3.1.1",
+     "3.1.4"
+    ],
+    [
+     "5.1.1",
+     "5.1.3"
+    ]
+   ]
+  },
+  {
+   "code": "X2",
+   "name": "Platform and information governance",
+   "ranges": [
+    [
+     "4.5.1",
+     "4.5.49"
+    ]
+   ]
+  },
+  {
+   "code": "X3",
+   "name": "Delivery: project, implementation, testing, training, support, data conversion",
+   "ranges": [
+    [
+     "7.1.1",
+     "7.8.5"
+    ]
+   ]
+  },
+  {
+   "code": "X4",
+   "name": "Service levels: performance, resilience, access, security, administration",
+   "ranges": [
+    [
+     "8.1.1",
+     "8.7.4"
+    ]
+   ]
+  },
+  {
+   "code": "X5",
+   "name": "Standards",
+   "ranges": [
+    [
+     "9.1.1",
+     "9.9.11"
+    ]
+   ]
+  },
+  {
+   "code": "X6",
+   "name": "National services and infrastructure",
+   "ranges": [
+    [
+     "10.1.1",
+     "10.8.5"
+    ]
+   ]
+  }
+ ],
+ "overrides": {
+  "5.4.8": "118",
+  "10.3.6": "118",
+  "10.3.7": "118",
+  "10.3.8": "118"
+ },
+ "components": [
+  {
+   "name": "Patient Index",
+   "module": "102"
+  },
+  {
+   "name": "Patient List Management",
+   "module": "102"
+  },
+  {
+   "name": "Patient Registration",
+   "module": "102"
+  },
+  {
+   "name": "Admission, Discharge and Transfer",
+   "module": "107"
+  },
+  {
+   "name": "Discharge Summary",
+   "module": "106"
+  },
+  {
+   "name": "Outpatient and Visit Management",
+   "module": "108"
+  },
+  {
+   "name": "Bed Management",
+   "module": "108"
+  },
+  {
+   "name": "Scheduling",
+   "module": "108"
+  },
+  {
+   "name": "Case Note Tracking",
+   "module": "116"
+  },
+  {
+   "name": "Ordering",
+   "module": "110"
+  },
+  {
+   "name": "Care Lists",
+   "module": "107"
+  },
+  {
+   "name": "Results Reporting",
+   "module": "111"
+  },
+  {
+   "name": "Radiology Information System",
+   "module": "115"
+  },
+  {
+   "name": "Prescribing (inpatient, outpatient, to take out)",
+   "module": "113"
+  },
+  {
+   "name": "Medication Administration",
+   "module": "113"
+  },
+  {
+   "name": "Clinical Documentation",
+   "module": "106"
+  },
+  {
+   "name": "Immunisations and Child Health",
+   "module": "103"
+  },
+  {
+   "name": "Decision Support",
+   "module": "112"
+  },
+  {
+   "name": "Clinical Coding",
+   "module": "101"
+  },
+  {
+   "name": "Letters",
+   "module": "106"
+  },
+  {
+   "name": "Inbox Alerts",
+   "module": "101"
+  },
+  {
+   "name": "Clinical Specialism (for example diabetes)",
+   "module": "103"
+  },
+  {
+   "name": "A&E Patient Locator",
+   "module": "107"
+  },
+  {
+   "name": "PACS Image Viewer",
+   "module": "115",
+   "source_label": "Stentor PACS Image Viewer"
+  },
+  {
+   "name": "Clinical Department Management (for example cardiology)",
+   "module": "107"
+  },
+  {
+   "name": "Primary Care",
+   "module": "103"
+  },
+  {
+   "name": "Maternity",
+   "module": "118"
+  },
+  {
+   "name": "Mental Health Management",
+   "module": "107"
+  },
+  {
+   "name": "Care Pathway Knowledge Base",
+   "module": "105",
+   "source_label": "Map of Medicine"
+  },
+  {
+   "name": "Electronic Transmission of Prescriptions",
+   "module": "113",
+   "source_label": "eTP"
+  },
+  {
+   "name": "Electronic Booking",
+   "module": "109",
+   "source_label": "eBooking"
+  },
+  {
+   "name": "Theatre Management",
+   "module": "108",
+   "source_label": "Theatre Management better than Draeger"
+  },
+  {
+   "name": "Anaesthetic Management",
+   "module": "106",
+   "source_label": "Anaesthetic Management better than Draeger"
+  },
+  {
+   "name": "Critical Care Management",
+   "module": "107",
+   "source_label": "Critical Care Management better than Draeger"
+  },
+  {
+   "name": "Surgical Instrument Tracking",
+   "module": "108",
+   "source_label": "ScanTrack instrument tracking"
+  },
+  {
+   "name": "Document Management",
+   "module": "116",
+   "source_label": "Document Management better than Xerox Documentum"
+  },
+  {
+   "name": "Pathology Laboratory",
+   "module": "114",
+   "source_label": "Triple G ULTRA Pathology"
+  },
+  {
+   "name": "Picture Archiving and Communications System",
+   "module": "115",
+   "source_label": "PACS better than GE"
+  },
+  {
+   "name": "Foetal Monitoring",
+   "module": "118",
+   "source_label": "GE QS Foetal Monitoring"
+  },
+  {
+   "name": "Ambulance Pre-arrival Information",
+   "module": "107",
+   "source_label": "HASS Guardian for Ambulance"
+  },
+  {
+   "name": "Pharmacy Stock Control",
+   "module": "113"
+  }
+ ],
+ "delivered": {
+  "3.2.8": "tests/e2e/test_patient_index.py::test_registration_alerts_on_probable_duplicates",
+  "3.2.12": "tests/e2e/test_patient_index.py::test_merge_moves_identifiers_and_combines_the_chart",
+  "3.2.18": "tests/e2e/test_patient_index.py::test_close_for_death_and_for_moving_away",
+  "3.2.19": "tests/e2e/test_patient_index.py::test_close_for_death_and_for_moving_away",
+  "3.2.20": "tests/e2e/test_patient_index.py::test_batch_closure_reports_each_item",
+  "3.2.33": "tests/e2e/test_patient_index.py::test_unmerge_restores_both_records",
+  "3.2.34": "tests/e2e/test_patient_index.py::test_search_by_nin_and_by_name"
+ }
+}

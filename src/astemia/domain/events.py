@@ -5,6 +5,9 @@ from enum import StrEnum
 
 class EventType(StrEnum):
     PATIENT_REGISTERED = "patient.registered"
+    PATIENT_MERGED = "patient.merged"
+    PATIENT_UNMERGED = "patient.unmerged"
+    PATIENT_CLOSED = "patient.closed"
     ENCOUNTER_ADMITTED = "encounter.admitted"
     ORDER_PLACED = "order.placed"
     RESULT_RELEASED = "result.released"

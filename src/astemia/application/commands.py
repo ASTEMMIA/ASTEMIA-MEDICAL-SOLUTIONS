@@ -30,6 +30,7 @@ from astemia.adapters.db.models import (
 from astemia.application import views
 from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.errors import Conflict, Unprocessable
+from astemia.application.patient_index import possible_duplicates
 from astemia.application.schemas import (
     Acknowledge,
     AdmitEncounter,
@@ -179,6 +180,10 @@ class Commands:
             body = views.patient(u.session, patient, masks=frozenset(), at=u.ctx.now).model_dump(
                 mode="json"
             )
+            # ICRS 3.2.8: alert, never block; the registrar or a steward decides.
+            body["possible_duplicates"] = [
+                str(d) for d in possible_duplicates(u.session, patient, cmd.family_name)
+            ]
             return CommandResult(201, body)
 
         return self.wp.run(

@@ -57,6 +57,26 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/diagnostic-reports` | Release a result. A second release is an amendment that reopens exactly one review |
   | `POST /v1/result-reviews/{id}/acknowledge` | Acknowledge a result. Needs `If-Match` |
 
+* **Patient index** (ICRS module 102). Registration also returns
+  `possible_duplicates`, an alert that never blocks:
+
+  | Endpoint | Purpose |
+  |---|---|
+  | `GET /v1/patient-index` | Search by `nin`, or by `family_name` (prefix) with optional `given_name` and `birth_date` |
+  | `GET /v1/patient-index/duplicates` | Housekeeping list of probable duplicates (identity steward) |
+  | `POST /v1/patients/{id}/merge` | Merge this record into `survivor_id`. Needs `If-Match` |
+  | `POST /v1/merge-links/{id}/unmerge` | Reverse a merge |
+  | `POST /v1/patients/{id}/close` | Close for death, moving away or discharge. Needs `If-Match` |
+  | `POST /v1/patient-index/closures` | Close a batch, for example death registrations; reports each item |
+
+## Integrated Care Records Service build
+
+The owner's scope is modules 101 to 120 of the Integrated Care Records Service
+specification (`docs/source/ASTEMIA_CONSULTATION.docx`) and the components
+listed with them. [docs/icrs-traceability.md](docs/icrs-traceability.md) shows,
+per module, how many of the 971 numbered requirements it owns and how many are
+delivered, each with the test that proves it.
+
 ## Hospital service catalogue
 
 50 department groups and 359 services. The full list, with both directory

@@ -1,5 +1,6 @@
 """Read models: canonical rows to API resources, applying policy masks."""
 
+import uuid
 from datetime import datetime
 
 from sqlalchemy import or_, select
@@ -9,6 +10,7 @@ from astemia.adapters.db.models import (
     AeAttendance,
     DiagnosticReport,
     Encounter,
+    MergeLink,
     Observation,
     ObservationRevision,
     Patient,
@@ -49,6 +51,44 @@ def current_names(session: Session, patient: Patient, at: datetime) -> list[Pers
     )
 
 
+# A merge link in force: a merge that has not been reversed by an unmerge.
+MERGE, UNMERGE, REVERSED = "merge", "unmerge", "reversed"
+
+
+def merged_into(session: Session, row: Patient) -> uuid.UUID | None:
+    return session.execute(
+        select(MergeLink.survivor_id)
+        .where(
+            MergeLink.tenant_id == row.tenant_id,
+            MergeLink.prior_id == row.id,
+            MergeLink.action == MERGE,
+            MergeLink.reconciliation_status != REVERSED,
+        )
+        .order_by(MergeLink.recorded_at.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+
+
+def merged_from(session: Session, tenant_id: uuid.UUID, survivor_id: uuid.UUID) -> list[uuid.UUID]:
+    """Every record merged into the survivor, directly or through a chain."""
+    found: list[uuid.UUID] = []
+    frontier = [survivor_id]
+    while frontier:
+        priors = list(
+            session.execute(
+                select(MergeLink.prior_id).where(
+                    MergeLink.tenant_id == tenant_id,
+                    MergeLink.survivor_id.in_(frontier),
+                    MergeLink.action == MERGE,
+                    MergeLink.reconciliation_status != REVERSED,
+                )
+            ).scalars()
+        )
+        frontier = [p for p in priors if p not in found and p != survivor_id]
+        found += frontier
+    return found
+
+
 def patient(session: Session, row: Patient, *, masks: frozenset[str], at: datetime) -> PatientOut:
     identifiers = session.execute(
         select(PatientIdentifier).where(
@@ -81,6 +121,8 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
         birth_date_precision=row.birth_date_precision,
         administrative_sex=row.administrative_sex,
         status=row.status,
+        date_of_exit=row.date_of_exit,
+        merged_into=merged_into(session, row),
         identifiers=[
             IdentifierOut(
                 issuer=i.issuer,

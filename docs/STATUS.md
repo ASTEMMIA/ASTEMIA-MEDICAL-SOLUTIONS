@@ -19,6 +19,8 @@ references are to AMS-002 CEDA section 11.2.
 | Migration staging (MIG-01 tables) | 66 verbatim `stg_*` tables with lineage; a re-run batch adds zero duplicates | `tests/db_integration/test_integrity.py` |
 | Service catalogue (CAT-01..05) | 50 groups, 359 services; provision, activate, retire, search; admissions bound to active services per facility | `tests/e2e/test_service_catalogue.py` |
 | Directory coverage | All 281 directory A and 170 directory B listings mapped to a service | `tests/unit/test_service_catalogue.py` |
+| Patient index (ICRS module 102) | Search by NIN or by name with optional given name and date of birth (masked identifiers for roles without `identifier:read`); duplicate alerts at registration and a housekeeping list; merge and unmerge by an identity steward, with identifiers moving across and back and the survivor's chart combining merged records, chains included; closure for death, moving away or discharge, singly or in batches, with date and user recorded. ICRS 3.2.8, 3.2.12, 3.2.18-3.2.20, 3.2.33, 3.2.34 | `tests/e2e/test_patient_index.py` |
+| ICRS traceability | All 971 numbered requirements of `docs/source/ASTEMIA_CONSULTATION.docx` assigned to modules 101-120 or cross-cutting areas X1-X6; 41 components assigned to modules; delivered requirements name their test. Generated page: [docs/icrs-traceability.md](icrs-traceability.md) | `tests/unit/test_icrs_traceability.py` |
 | Operations | CLI (`seed-dev`, `token`, `relay`), Docker image (non-root), Compose stack | `tests/db_integration/test_runtime.py`, CI `container` job |
 
 ## Planned, not started
@@ -30,7 +32,8 @@ code reads or writes them yet. They are not features until listed above.
 |---|---|---|
 | Legacy migration loaders and reconciliation | MIG-01 to MIG-03, weeks 17-20 | Yes (`stg_*`, `stg_extract_record`) |
 | National returns (APC, Outpatients, A&E, MHMDS) | section 9.3 | Yes (`national_extract_record`) |
-| Identity stewardship: duplicates, merge and unmerge | WF01, E3 | Yes |
+| Patient index, rest of ICRS 3.2: demographic amendment and deletion with history (3.2.11), automatic closure of open activity on death (3.2.21), departmental identifier search (3.2.3), letters, external tracing interfaces, address gazetteer | ICRS 3.2, WF01 | Partly |
+| ICRS modules 101, 103-120 (see [docs/icrs-traceability.md](icrs-traceability.md)) | ICRS sections 3-6 | Partly |
 | Consent, guardians, alternative contacts, addresses, telecoms API | AM-PDI, CD-COV | Yes |
 | Scheduling, referral and correspondence | UG01-UG05, weeks 13-16 | No |
 | Prescribing, dispensing, administration | HS08, WF04 | No |
