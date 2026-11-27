@@ -128,8 +128,8 @@ Clyde directory listings are renamed too:
 "GP Service" becomes "Medical Doctor Service", "GP Out of Hours" becomes
 "Medical Doctor Out of Hours", and "Out of Hours GP Service" becomes "Out of
 Hours Medical Doctor Service" (migration 0006, including tenant search
-aliases), and "Shops in NHSGGC" became "Shops in Astemia Medical Solutions
-GGC" (migration 0007). Only the listing URLs keep the old letters, because
+aliases), and "Shops in NHSGGC" became "Shops in Astemia Medical Solutions"
+(migrations 0007 and 0008). Only the listing URLs keep the old letters, because
 they are the publisher's own web addresses and changing them would break the
 links.
 

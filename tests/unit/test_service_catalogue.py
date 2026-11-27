@@ -130,6 +130,6 @@ def test_no_gp_or_nhs_in_directory_listing_names(directory: str) -> None:
     """ASTEMIA naming applies to the directory crosswalks too, without exceptions."""
     import re
 
-    banned = re.compile(r"(?<![A-Za-z])(GP|NHS)(?![a-z])")  # NHSGGC included
+    banned = re.compile(r"(?<![A-Za-z])(GP|NHS|GGC)(?![a-z])")  # NHSGGC included
     listings = [e["listing"] for e in load_crosswalk(directory)["entries"]]
     assert [x for x in listings if banned.search(x)] == []

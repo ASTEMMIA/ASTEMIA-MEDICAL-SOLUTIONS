@@ -15,7 +15,7 @@ references are to AMS-002 CEDA section 11.2.
 | API-03 vertical slice | Register, admit (with A&E detail), chart read, order, result release and amendment, acknowledgement by owner or backup | `tests/e2e/test_api03_vertical_slice.py` |
 | Medicare to NIN | NIN binds; Medicare kept only as previous identifier | same |
 | Outbox (DATA-03) | Relay with backoff on broker failure; consumer deduplication | `tests/db_integration/` |
-| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0006 apply, reverse and match the models | `alembic check`, migration tests |
+| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0008 apply, reverse and match the models | `alembic check`, migration tests |
 | Migration staging (MIG-01 tables) | 66 verbatim `stg_*` tables with lineage; a re-run batch adds zero duplicates | `tests/db_integration/test_integrity.py` |
 | Service catalogue (CAT-01..05) | 50 groups, 359 services; provision, activate, retire, search; admissions bound to active services per facility | `tests/e2e/test_service_catalogue.py` |
 | Directory coverage | All 281 KCH and 172 NHSGGC listings mapped to a service | `tests/unit/test_service_catalogue.py` |

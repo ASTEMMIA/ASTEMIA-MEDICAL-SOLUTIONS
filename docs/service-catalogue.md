@@ -1577,7 +1577,7 @@ Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 202
 | 143 | Stop Smoking Support | D36-09 Stop smoking service |
 | 144 | Scottish Newborn Screening Laboratory | D32-11 Newborn screening laboratory |
 | 145 | Self Check In Kiosks | D34-09 Self check-in |
-| 146 | Shops in Astemia Medical Solutions GGC | D50-10 Visitor amenities |
+| 146 | Shops in Astemia Medical Solutions | D50-10 Visitor amenities |
 | 147 | Sexual Health Services for under 18s | D29-07 Young people's sexual health |
 | 148 | Sexual Assault Response Coordination Service (Archway Glasgow) | D29-03 Sexual assault referral centre |
 | 149 | Smoking Cessation Services | D36-09 Stop smoking service |
