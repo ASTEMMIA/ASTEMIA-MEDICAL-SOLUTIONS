@@ -26,7 +26,7 @@ def main() -> None:
         f"* **D01-D36** ({len(spec)} groups, {n_spec} services) are the department groups of",
         "  AMS-002 Annex A15, which assigns every listing of",
         f"  {cat['coverage_template']}",
-        "  to one primary group. Services found only in the NHS Greater Glasgow and Clyde",
+        "  to one primary group. Services found only in the Astemia Medical Solutions Greater Glasgow and Clyde",
         "  directory were added to these groups where they belong.",
         f"* **D37-D{len(groups):02d}** ({len(ext)} groups, {n_ext} services) are ASTEMIA extension",
         "  groups: services a comprehensive general hospital and the Nigeria country profile",
@@ -79,7 +79,7 @@ def main() -> None:
     names = {s["code"]: s["name"] for g in groups for s in g["services"]}
     for key, title in (
         ("kch", "King's College Hospital"),
-        ("nhsggc", "NHS Greater Glasgow and Clyde"),
+        ("nhsggc", "Astemia Medical Solutions Greater Glasgow and Clyde"),
     ):
         cw = load_crosswalk(key)
         lines += [

@@ -25,7 +25,8 @@ half-built. Before reporting work as finished:
 - Build from `docs/source/AMS-002_CEDA.docx` (CEDA). Its section 10 fixes the
   stack; section 3 the canonical record; section 11.2 the build sequence.
 - Python 3.14, MySQL 26.10 (InnoDB, utf8mb4, strict mode, UTC).
-- Naming: NHS becomes NIN, GP becomes medical doctor, with no exceptions.
+- Naming, with no exceptions: the NHS number and NHS ID become NIN; every
+  other NHS becomes Astemia Medical Solutions; GP becomes medical doctor.
   Original ERD labels survive only in `source_label` for lineage.
 - `medicare_number` is retired in favour of the NIN.
 - Every tenant-owned foreign key includes `tenant_id`. The domain layer has no

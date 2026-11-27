@@ -820,7 +820,7 @@ class ServiceTemplate(Base):
 
 class ServiceDirectoryListing(Base):
     """Public services A-Z directory listings mapped to catalogue services
-    (King's College Hospital, NHS Greater Glasgow and Clyde). Listing names
+    (King's College Hospital, Astemia Medical Solutions Greater Glasgow and Clyde). Listing names
     become search aliases when a tenant provisions the catalogue (CAT-02)."""
 
     __tablename__ = "service_directory_listing"

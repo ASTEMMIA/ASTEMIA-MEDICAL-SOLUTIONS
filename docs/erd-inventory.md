@@ -23,7 +23,7 @@ Do not edit by hand.
 | `stg_alternative_contact_future` | Alternative_Contact_Future | ams_master_schema_wip_erp, zetter_ams_erd, pdi_ams_schema_erp | 13 |
 | `stg_alternative_contact_history` | Alternative_Contact_History | ams_master_schema_wip_erp, zetter_ams_erd, pdi_ams_schema_erp | 13 |
 | `stg_business_action` | BUSINESS ACTION, Business Action | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 3 |
-| `stg_business_clinical_service` | BUSINESS (CLINICAL) SERVICE, Business Clinical Service | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 3 |
+| `stg_business_clinical_service` | BUSINESS (CLINICAL) SERVICE, Business Clinical Service | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 5 |
 | `stg_care_provision` | Care Provision | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 11 |
 | `stg_consent` | CONSENT, Consent | ams_master_schema_wip_erp, zetter_ams_erd, ahis_master_erd, pdi_ams_schema_erp | 36 |
 | `stg_consent_history` | CONSENT_HISTORY | ams_master_schema_wip_erp, zetter_ams_erd, pdi_ams_schema_erp | 7 |
@@ -87,7 +87,7 @@ Do not edit by hand.
 | `elective_admissions_census` | Elective Admissions - Census | zetter_ams_erd | pdi_ams_schema_erp | 61 |
 | `ae_transaction` | AE_TRANSACTION | ahis_master_erd | 144 |
 
-## Renamed labels in the extract dictionary (NHS to NIN, GP to medical doctor)
+## Renamed labels in the extract dictionary (NIN, Astemia Medical Solutions, medical doctor)
 
 | ERD label | Stored as |
 |---|---|

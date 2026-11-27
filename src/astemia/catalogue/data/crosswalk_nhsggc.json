@@ -874,7 +874,7 @@
   },
   {
    "position": 146,
-   "listing": "Shops in NHSGGC",
+   "listing": "Shops in Astemia Medical Solutions GGC",
    "url": "https://www.nhsggc.scot/cafes-restaurants-and-shops/",
    "service_code": "D50-10"
   },
@@ -1035,5 +1035,5 @@
    "service_code": "D36-08"
   }
  ],
- "naming": "Listing names follow ASTEMIA naming: NHS becomes NIN, GP becomes medical doctor. URLs are the publisher's own addresses and are unchanged."
+ "naming": "Listing names follow ASTEMIA naming: the NHS number and NHS ID become NIN, every other NHS becomes Astemia Medical Solutions, and GP becomes medical doctor. URLs are the publisher's own addresses and are unchanged."
 }

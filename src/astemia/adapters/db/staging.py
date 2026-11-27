@@ -93,7 +93,8 @@ def load_erds() -> list[ErdEntity]:
                     slot["fields"] = list(e["fields"])
                 slot["wide"] = True
             elif not slot["wide"]:
-                # Union by column key: 'NHS Number', 'nhs_number' and
+                # Union by column key: the ERDs' spellings of one field (for example the three
+                # spellings of the national identifier) and
                 # 'medicare_number' variants of one field become one column.
                 keys = {column_name(f) for f in slot["fields"]}
                 for f in e["fields"]:

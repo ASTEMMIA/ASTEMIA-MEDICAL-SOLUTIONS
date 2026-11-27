@@ -64,7 +64,7 @@ crosswalks, is in [docs/service-catalogue.md](docs/service-catalogue.md).
 
 * **King's College Hospital A to Z:** all 281 listings map to a specific
   service. D01-D36 follow AMS-002 Annex A15.
-* **NHS Greater Glasgow and Clyde A to Z:** all 172 listings map to a
+* **Astemia Medical Solutions Greater Glasgow and Clyde A to Z:** all 172 listings map to a
   specific service. That includes non-clinical listings such as chaplaincy,
   interpreting, patient transport and visitor amenities, which go to D50
   Patient, family and visitor support.

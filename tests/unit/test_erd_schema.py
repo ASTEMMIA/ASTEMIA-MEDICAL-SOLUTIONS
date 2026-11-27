@@ -1,9 +1,10 @@
-"""The schema built from the AMS ERDs: every entity lands somewhere, NHS is NIN."""
+"""The schema built from the AMS ERDs: every entity lands somewhere, and the owner's
+naming rules hold (NIN, Astemia Medical Solutions, medical doctor)."""
 
 import pytest
 
 from astemia.adapters.db import models
-from astemia.adapters.db.legacy_names import nhs_to_nin
+from astemia.adapters.db.legacy_names import rename_nhs
 from astemia.adapters.db.staging import (
     WIDE_LIMIT,
     extract_dictionary_rows,
@@ -46,12 +47,15 @@ def test_no_nhs_labels_in_the_extract_dictionary() -> None:
         ("NHS_NUMBER_PSEUD", "NIN_PSEUD"),
         ("NHS_ID_STATUS_IND", "NIN_STATUS_IND"),
         ("Previous NHS Number", "Previous NIN"),
-        ("Date of NHS Exit", "Date of NIN Exit"),
-        ("NHS BS Code", "Medicare BS Code"),
+        ("Date of NHS Exit", "Date of Astemia Medical Solutions Exit"),
+        ("NHS BS Code", "Astemia Medical Solutions BS Code"),
+        ("NHS Status", "Astemia Medical Solutions Status"),
+        ("nhs_status", "astemia_medical_solutions_status"),
+        ("NHS Number (Temporary NHS Number/NHAIS)", "NIN (Temporary NIN/NIMC)"),
     ],
 )
-def test_nhs_to_nin(before: str, after: str) -> None:
-    assert nhs_to_nin(before) == after
+def test_nhs_naming(before: str, after: str) -> None:
+    assert rename_nhs(before) == after
 
 
 def test_credentials_from_the_erd_are_not_canonical_columns() -> None:

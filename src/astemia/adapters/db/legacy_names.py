@@ -1,34 +1,42 @@
-"""Naming rules for legacy ERD entities and fields (ZETTER, AE_AMS, AHIS).
+"""Naming rules for legacy ERD entities and fields (ZETTER, AE_AMS, AHIS, PDi, AMS master).
 
-NHS identifiers are renamed to NIN, the Nigerian National Identification
-Number, everywhere ASTEMIA stores or exposes them. The original label is kept
-in the extract dictionary for traceability. The NHS business-service code is
-named after the ERD's own Medicare BS Code instead, because it is a service
-code and not a person identifier.
+The owner's rules, with no exceptions:
+
+* The NHS number and NHS ID name a person's national identifier, so they
+  become NIN, the Nigerian National Identification Number.
+* Every other NHS becomes Astemia Medical Solutions.
+* GP becomes medical doctor.
+
+The original label is kept only as lineage (the extract dictionary's
+source_label). This module is the one place that has to recognise the old
+terms in the source ERDs.
 """
 
 import re
 
-_SPECIFIC = [
-    (re.compile(r"\bNHS\s+BS\b", re.I), "Medicare BS"),
+_IDENTIFIERS = [
     # "NHS Number" / NHS_NUMBER / nhs_number / NHS_ID name the identifier itself: NIN.
     (re.compile(r"(?<![A-Za-z])NHS[ _](?:Number|ID)(?![a-z])"), "NIN"),
     (re.compile(r"(?<![A-Za-z])NHS_(?:NUMBER|ID)(?![A-Za-z])"), "NIN"),
     (re.compile(r"(?<![A-Za-z])nhs_(?:number|id)(?![A-Za-z])"), "nin"),
     (re.compile(r"\bNHAIS\b", re.I), "NIMC"),
 ]
-_NHS = re.compile(r"(?<![A-Za-z])NHS(?![A-Za-z])|(?<=_)NHS(?=_)|^NHS(?=_)|(?<=_)NHS$", re.I)
+_NHS = re.compile(r"(?<![A-Za-z])NHS(?![A-Za-z])", re.I)
 
 
-def nhs_to_nin(label: str) -> str:
-    for pattern, repl in _SPECIFIC:
+def rename_nhs(label: str) -> str:
+    """NHS number and NHS ID become NIN; every other NHS becomes Astemia Medical Solutions."""
+    for pattern, repl in _IDENTIFIERS:
         label = pattern.sub(repl, label)
 
-    def same_case(m: re.Match[str]) -> str:
-        text = m.group(0)
-        return "NIN" if text.isupper() else ("nin" if text.islower() else "Nin")
+    def replace(m: re.Match[str]) -> str:
+        text, start, end = m.group(0), m.start(), m.end()
+        snake = (start > 0 and label[start - 1] == "_") or (end < len(label) and label[end] == "_")
+        if snake:
+            return "ASTEMIA_MEDICAL_SOLUTIONS" if text.isupper() else "astemia_medical_solutions"
+        return "Astemia Medical Solutions"
 
-    return _NHS.sub(same_case, label)
+    return _NHS.sub(replace, label)
 
 
 # GP (general practitioner) is named "medical doctor", the term the ZETTER ERD
@@ -49,8 +57,8 @@ def gp_to_medical_doctor(label: str) -> str:
 
 
 def localise(label: str) -> str:
-    """ASTEMIA naming for a legacy ERD label: NHS becomes NIN, GP becomes medical doctor."""
-    return gp_to_medical_doctor(nhs_to_nin(label))
+    """ASTEMIA naming for a legacy ERD label (see the module docstring)."""
+    return gp_to_medical_doctor(rename_nhs(label))
 
 
 def column_name(label: str) -> str:

@@ -2,7 +2,7 @@
 
 D01-D36 reproduce Annex A15, which maps all 281 listing positions of the King's
 College Hospital services A-Z directory to one primary group each. D37 onward
-are ASTEMIA extensions: services from the NHS Greater Glasgow and Clyde A-Z,
+are ASTEMIA extensions: services from the Astemia Medical Solutions Greater Glasgow and Clyde A-Z,
 and services a comprehensive general hospital and the Nigeria country profile
 need. Both directories are crosswalked listing by listing to a service
 (data/crosswalk_kch.json, data/crosswalk_nhsggc.json). Every service is a

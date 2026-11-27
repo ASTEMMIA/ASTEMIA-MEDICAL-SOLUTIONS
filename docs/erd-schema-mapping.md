@@ -25,7 +25,7 @@ and handles fields that repeat inside the national extracts.
    provenance, sensitivity), composite foreign keys that include `tenant_id`,
    and UTC `DATETIME(6)`.
 2. **Verbatim staging** (`stg_*`, MIG-01): each ERD entity with up to 60 fields,
-   field names exactly as drawn (snake_case, NHS renamed to NIN), values as raw
+   field names exactly as drawn (snake_case, renamed by the naming rules below), values as raw
    `TEXT`, plus lineage: batch, source system and row key, SHA-256 row digest,
    mapping version, reconciliation status and exception owner. A unique key on
    the digest means a re-run batch adds zero duplicates (MIG-02).
@@ -87,21 +87,26 @@ of one table.
 All of these remain in the `stg_*` tables, because staging must hold source
 rows exactly as received. Access to staging is restricted to the migration role.
 
-## NHS renamed to NIN
+## Naming rules for NHS terms
 
-As instructed, every NHS identifier is named NIN (Nigerian National
-Identification Number): `nhs_number` becomes `nin`, `NHS_NUMBER_STATUS_IND`
-becomes `NIN_STATUS_IND`, "Previous NHS Number" becomes "Previous NIN", and so
-on. Exceptions:
+As instructed, with no exceptions:
 
-* **NHS BS Code / Name** (business clinical service) becomes **Medicare BS
-  Code / Name**, which the AMS master ERD already uses. It is a service code,
-  not a person identifier.
-* **NHAIS** (the NHS registration system) becomes **NIMC**, the NIN issuer.
+* **The NHS number and NHS ID become NIN** (Nigerian National
+  Identification Number), because they name a person's national identifier:
+  `nhs_number` becomes `nin`, `NHS_NUMBER_STATUS_IND` becomes `NIN_STATUS_IND`,
+  "Previous NHS Number" becomes "Previous NIN". NHAIS (the registration system)
+  becomes NIMC, the NIN issuer.
+* **Every other NHS becomes Astemia Medical Solutions:** "NHS Status" becomes
+  "Astemia Medical Solutions Status" (`astemia_medical_solutions_status`),
+  "Date of NHS Exit" becomes "Date of Astemia Medical Solutions Exit", and the
+  business clinical service's "NHS BS Code / Name" becomes "Astemia Medical
+  Solutions BS Code / Name". Directory and organisation names follow it too,
+  for example "Astemia Medical Solutions Greater Glasgow and Clyde".
 
-The extract dictionary keeps the original label in `source_label` for lineage.
-The canonical issuer is `NG-NIN` (11 digits). The UK NHS issuer and its
-check-digit rule were removed.
+Migration 0007 renamed the affected staging columns in place, so staged values
+are kept. The extract dictionary keeps the original label in `source_label`
+for lineage. The canonical issuer is `NG-NIN` (11 digits); the old UK issuer
+and its check-digit rule were removed.
 
 ## GP renamed to medical doctor
 
@@ -118,12 +123,15 @@ ZETTER medical doctor columns (migration 0005). The CDS suffix `VGP`
 (variant grouping) is not a GP field and is unchanged. The extract dictionary
 keeps the original label in `source_label`.
 
-The rule has no exceptions. The NHSGGC directory listings are renamed too:
+The rule has no exceptions. The Astemia Medical Solutions Greater Glasgow and
+Clyde directory listings are renamed too:
 "GP Service" becomes "Medical Doctor Service", "GP Out of Hours" becomes
 "Medical Doctor Out of Hours", and "Out of Hours GP Service" becomes "Out of
 Hours Medical Doctor Service" (migration 0006, including tenant search
-aliases). Only the listing URLs keep "gp", because they are NHSGGC's own web
-addresses and changing them would break the links.
+aliases), and "Shops in NHSGGC" became "Shops in Astemia Medical Solutions
+GGC" (migration 0007). Only the listing URLs keep the old letters, because
+they are the publisher's own web addresses and changing them would break the
+links.
 
 ## Decisions for the data architect
 
