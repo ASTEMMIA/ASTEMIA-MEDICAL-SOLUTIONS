@@ -1,6 +1,7 @@
 """Patient identity register rules (CEDA 3.2 Patient, PatientIdentifier)."""
 
 import re
+from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 
@@ -148,3 +149,114 @@ def check_closable(status: str, exit_date: date, birth_date: date, today: date) 
         raise InvariantViolation("closure date is in the future", code="bad_closure_date")
     if exit_date < birth_date:
         raise InvariantViolation("closure date is before birth", code="bad_closure_date")
+
+
+# -- Explainable matching (UG02, WF01 step 1; ICRS 3.2.34) ---------------------
+
+MATCH_LIKELY = 85
+MATCH_POSSIBLE = 60
+
+_SOUNDEX = {
+    **dict.fromkeys("BFPV", "1"),
+    **dict.fromkeys("CGJKQSXZ", "2"),
+    **dict.fromkeys("DT", "3"),
+    "L": "4",
+    **dict.fromkeys("MN", "5"),
+    "R": "6",
+}
+
+
+def phonetic(name: str) -> str:
+    """Soundex key, so spelling variants of a name sort together."""
+    letters = [c for c in name.upper() if "A" <= c <= "Z"]
+    if not letters:
+        return ""
+    key, last = letters[0], _SOUNDEX.get(letters[0], "")
+    for c in letters[1:]:
+        code = _SOUNDEX.get(c, "")
+        if code and code != last:
+            key += code
+        if c not in "HW":
+            last = code
+    return (key + "000")[:4]
+
+
+class MatchBand(StrEnum):
+    LIKELY = "likely"
+    POSSIBLE = "possible"
+
+
+@dataclass(frozen=True, slots=True)
+class Demographics:
+    family_name: str
+    given_name: str
+    birth_date: date
+    birth_date_precision: EffectivePrecision
+    administrative_sex: str
+    mother_name: str | None = None
+    identifiers: frozenset[tuple[str, str]] = frozenset()
+    verified: frozenset[tuple[str, str]] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
+class MatchScore:
+    score: int
+    reasons: tuple[str, ...]
+
+    @property
+    def band(self) -> MatchBand | None:
+        if self.score >= MATCH_LIKELY:
+            return MatchBand.LIKELY
+        if self.score >= MATCH_POSSIBLE:
+            return MatchBand.POSSIBLE
+        return None
+
+
+def _same(a: str | None, b: str | None) -> bool:
+    if not a or not b:
+        return False
+    return " ".join(a.split()).casefold() == " ".join(b.split()).casefold()
+
+
+def score_match(probe: Demographics, candidate: Demographics) -> MatchScore:
+    """Explainable match score, 0 to 100. Every point carries a reason, so the
+    registrar and the steward see why two records were put side by side."""
+    if probe.identifiers & candidate.identifiers:
+        return MatchScore(100, ("identifier",))
+    score, reasons = 0, list[str]()
+    both_days = (
+        probe.birth_date_precision == candidate.birth_date_precision == EffectivePrecision.DAY
+    )
+    if both_days and probe.birth_date == candidate.birth_date:
+        score += 30
+        reasons.append("birth_date")
+    elif not both_days and probe.birth_date.year == candidate.birth_date.year:
+        score += 15
+        reasons.append("birth_year")
+    if _same(probe.family_name, candidate.family_name):
+        score += 25
+        reasons.append("family_name")
+    elif phonetic(probe.family_name) == phonetic(candidate.family_name):
+        score += 15
+        reasons.append("family_name_sounds_like")
+    if _same(probe.given_name, candidate.given_name):
+        score += 20
+        reasons.append("given_name")
+    elif phonetic(probe.given_name) == phonetic(candidate.given_name):
+        score += 10
+        reasons.append("given_name_sounds_like")
+    elif probe.given_name[:1].casefold() == candidate.given_name[:1].casefold():
+        score += 5
+        reasons.append("given_initial")
+    if probe.administrative_sex == candidate.administrative_sex != "unknown":
+        score += 5
+        reasons.append("administrative_sex")
+    if _same(probe.mother_name, candidate.mother_name):
+        score += 10
+        reasons.append("mother_name")
+    probe_issuers = dict(probe.verified)
+    if any(probe_issuers.get(issuer, value) != value for issuer, value in candidate.verified):
+        # Two different verified national numbers: strong evidence of two people.
+        score -= 40
+        reasons.append("verified_identifier_differs")
+    return MatchScore(max(score, 0), tuple(reasons))

@@ -285,7 +285,7 @@ def read_path[T](
     capability: str,
     action: str,
     resource_type: str,
-    patient_id: uuid.UUID,
+    patient_id: uuid.UUID | None,
     reader: Callable[[Session, Decision], T],
 ) -> T:
     """Scoped query: decide, read with masks, and commit the audit event before

@@ -30,6 +30,7 @@ from astemia.adapters.db.models import (
 from astemia.application import views
 from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.errors import Conflict, Unprocessable
+from astemia.application.identity_review import review_new_registration
 from astemia.application.patient_index import possible_duplicates
 from astemia.application.schemas import (
     Acknowledge,
@@ -121,6 +122,9 @@ class Commands:
                     family_name=cmd.family_name,
                     given_name=given,
                     other_given_name=other or None,
+                    family_name_phonetic=idn.phonetic(cmd.family_name),
+                    given_name_phonetic=idn.phonetic(given),
+                    other_given_name_phonetic=idn.phonetic(other) or None,
                     effective_from=u.ctx.now,
                     **envelope,
                 )
@@ -184,6 +188,8 @@ class Commands:
             body["possible_duplicates"] = [
                 str(d) for d in possible_duplicates(u.session, patient, cmd.family_name)
             ]
+            # WF01: near matches (spelling, year of birth) open steward review tasks.
+            body["identity_review_tasks"] = review_new_registration(u, patient.id, cmd)
             return CommandResult(201, body)
 
         return self.wp.run(
@@ -317,7 +323,11 @@ class Commands:
     def place_order(self, ctx: Any, key: str | None, cmd: PlaceOrder) -> CommandResult:
         def handle(u: Unit) -> CommandResult:
             encounter = u.get(Encounter, cmd.encounter_id, lock=True)
-            if encounter.patient_id != cmd.patient_id:
+            # The open encounter of a record merged into this one still takes orders.
+            if encounter.patient_id not in (
+                cmd.patient_id,
+                *views.merged_from(u.session, u.ctx.tenant_id, cmd.patient_id),
+            ):
                 raise Unprocessable(
                     "encounter does not belong to this patient", code="encounter_patient_mismatch"
                 )
@@ -344,7 +354,9 @@ class Commands:
                 display=cmd.display,
                 original_system=cmd.original_system,
                 original_code=cmd.original_code,
-                patient_id=cmd.patient_id,
+                # The order stays with its encounter's record, so an unmerge
+                # takes both back together.
+                patient_id=encounter.patient_id,
                 encounter_id=encounter.id,
                 requester_id=requester,
                 result_owner_id=owner,

@@ -686,6 +686,11 @@ class DuplicateCandidate(Envelope, Base):
     resolution: Mapped[str | None] = mapped_column(String(16))
     resolved_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     resolved_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    # Identity review task (WF01): why the pair was raised, where, and the notes
+    # of the registrar and the steward.
+    reasons: Mapped[list[str] | None] = mapped_column(JSON)
+    origin: Mapped[str | None] = mapped_column(String(16))
+    note: Mapped[str | None] = mapped_column(String(500))
 
 
 class MergeLink(Envelope, Base):

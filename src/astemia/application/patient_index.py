@@ -26,6 +26,7 @@ from astemia.adapters.db.models import (
 from astemia.application import views
 from astemia.application.context import RequestContext
 from astemia.application.errors import AccessDenied, Conflict, NotFound, Unprocessable
+from astemia.application.identity_review import resolve_on_merge
 from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import (
     CloseBatch,
@@ -135,6 +136,54 @@ def _lock_pair(u: Unit, a: uuid.UUID, b: uuid.UUID) -> tuple[Patient, Patient]:
     return rows[a], rows[b]
 
 
+def _add_aliases(u: Unit, prior: Patient, survivor: Patient) -> list[uuid.UUID]:
+    """WF01 step 4: the prior record's names stay findable on the survivor as
+    aliases, each pointing at the name it came from."""
+    seen = {
+        (n.family_name.casefold(), n.given_name.casefold())
+        for n in views.current_names(u.session, survivor, u.ctx.now)
+    }
+    number = (
+        u.session.execute(
+            select(func.max(PersonName.name_number)).where(
+                PersonName.tenant_id == u.ctx.tenant_id,
+                PersonName.party_id == survivor.id,
+                PersonName.name_type == idn.NameType.ALIAS.value,
+            )
+        ).scalar_one()
+        or 0
+    )
+    added = []
+    for n in views.current_names(u.session, prior, u.ctx.now):
+        if (n.family_name.casefold(), n.given_name.casefold()) in seen:
+            continue
+        seen.add((n.family_name.casefold(), n.given_name.casefold()))
+        number += 1
+        alias = PersonName(
+            tenant_id=u.ctx.tenant_id,
+            id=new_id(),
+            recorded_at=u.ctx.now,
+            author_id=n.author_id,
+            author_role=n.author_role,
+            source_system=n.source_system,
+            source_id=str(n.id),
+            party_id=survivor.id,
+            name_type=idn.NameType.ALIAS.value,
+            name_number=number,
+            title=n.title,
+            family_name=n.family_name,
+            given_name=n.given_name,
+            other_given_name=n.other_given_name,
+            suffix=n.suffix,
+            family_name_phonetic=idn.phonetic(n.family_name),
+            given_name_phonetic=idn.phonetic(n.given_name),
+            effective_from=u.ctx.now,
+        )
+        u.session.add(alias)
+        added.append(alias.id)
+    return added
+
+
 def _reviewer(u: Unit) -> uuid.UUID:
     """Merge links name the reviewing practitioner; a service account cannot merge."""
     reviewer = u.ctx.principal.practitioner_id
@@ -180,8 +229,18 @@ class PatientIndex:
             u.session.flush()  # release the unique bindings before the survivor takes them
             copied = []
             for i in moving:
+                # HS02: the copy keeps the original's author and source IDs.
                 copy = PatientIdentifier(
+                    tenant_id=u.ctx.tenant_id,
                     id=new_id(),
+                    recorded_at=u.ctx.now,
+                    effective_at=i.effective_at,
+                    author_id=i.author_id,
+                    author_role=i.author_role,
+                    source_system=i.source_system,
+                    source_id=i.source_id,
+                    source_status=i.source_status,
+                    sensitivity=i.sensitivity,
                     patient_id=survivor.id,
                     issuer=i.issuer,
                     value=i.value,
@@ -189,10 +248,11 @@ class PatientIndex:
                     verification_status=i.verification_status,
                     valid_from=u.ctx.now,
                     active_marker=1,
-                    **_envelope(u),
                 )
                 u.session.add(copy)
                 copied.append(copy.id)
+            aliases = _add_aliases(u, prior, survivor)
+            reviews = resolve_on_merge(u, prior.id, survivor.id)
             prior_status = prior.status
             prior.status, prior.version = idn.PatientStatus.MERGED.value, prior.version + 1
             link = MergeLink(
@@ -218,6 +278,8 @@ class PatientIndex:
                     "prior_status": prior_status,
                     "deactivated_identifiers": [str(i.id) for i in moving],
                     "copied_identifiers": [str(c) for c in copied],
+                    "alias_names": [str(a) for a in aliases],
+                    "resolved_reviews": [str(r) for r in reviews],
                 },
             )
             _transaction(u, survivor.id, "merge", {"merged_from": str(prior.id)})
@@ -298,6 +360,13 @@ class PatientIndex:
                 )
             ).scalars():
                 i.active_marker, i.valid_to, i.version = 1, None, i.version + 1
+            ids = [uuid.UUID(i) for i in delta.get("alias_names", [])]
+            for alias in u.session.execute(
+                select(PersonName).where(
+                    PersonName.tenant_id == u.ctx.tenant_id, PersonName.id.in_(ids)
+                )
+            ).scalars():
+                alias.effective_to, alias.version = u.ctx.now, alias.version + 1
             prior.status, prior.version = delta["prior_status"], prior.version + 1
             link.reconciliation_status, link.version = views.REVERSED, link.version + 1
             reversal = MergeLink(

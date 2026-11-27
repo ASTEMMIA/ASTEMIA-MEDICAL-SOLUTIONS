@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
@@ -330,3 +330,60 @@ class ProvisionOut(BaseModel):
     groups: int
     services_created: int
     services_existing: int
+
+
+# --- identity review (UG02, WF01 steps 1 and 4) ------------------------------------
+
+
+class MatchQuery(Strict):
+    """Search before registering. Demographics travel in the body, never in a URL."""
+
+    family_name: Name
+    given_names: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
+    ]
+    birth_date: date
+    birth_date_precision: EffectivePrecision = EffectivePrecision.DAY
+    administrative_sex: AdministrativeSex
+    mother_name: str | None = Field(default=None, max_length=200)
+    identifiers: list[IdentifierIn] = Field(default_factory=list, max_length=10)
+
+
+class CandidateOut(BaseModel):
+    """A possible duplicate, with only enough shown to tell people apart."""
+
+    id: uuid.UUID
+    status: str
+    score: int
+    band: str | None
+    reasons: list[str]
+    family_name: str
+    given_initial: str
+    birth_year: int
+    administrative_sex: str
+    identifiers: list[IdentifierOut]
+
+
+class MatchOut(BaseModel):
+    candidates: list[CandidateOut]
+
+
+class ResolveReview(Strict):
+    resolution: Literal["distinct"] = Field(
+        description="A merge (POST /v1/patients/{id}/merge) resolves the task itself."
+    )
+    reason: Reason
+
+
+class ReviewTaskOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    score: int
+    reasons: list[str]
+    origin: str | None
+    note: str | None
+    resolved: bool
+    resolution: str | None
+    resolved_at: datetime | None
+    resolved_by_id: uuid.UUID | None
+    records: list[CandidateOut]
