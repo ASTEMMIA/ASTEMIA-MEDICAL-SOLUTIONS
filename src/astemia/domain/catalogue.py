@@ -38,14 +38,6 @@ def move(current: ServiceStatus, target: ServiceStatus) -> ServiceStatus:
     return transition(current, target, _STATUS, "service")
 
 
-def check_no_cycle(unit_id: object, parent_chain: list[object]) -> None:
-    """parent_chain lists the proposed parent, its parent, and so on upward."""
-    if unit_id in parent_chain:
-        raise InvariantViolation(
-            "organisation unit hierarchy would contain a cycle", code="org_unit_cycle"
-        )
-
-
 def check_activation(owner_set: bool, facility_set: bool, approval_reference: str | None) -> None:
     """CAT-01/CAT-05: a named owner, a facility assignment and documented approval."""
     missing = [

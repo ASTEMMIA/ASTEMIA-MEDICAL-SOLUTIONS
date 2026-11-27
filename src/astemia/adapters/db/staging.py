@@ -113,9 +113,11 @@ def staging_table_name(entity: ErdEntity) -> str:
     return name[:60]
 
 
-def build_staging_tables(metadata: MetaData) -> dict[str, Table]:
+def build_staging_tables(
+    metadata: MetaData, entities: list[ErdEntity] | None = None
+) -> dict[str, Table]:
     tables: dict[str, Table] = {}
-    for entity in load_erds():
+    for entity in load_erds() if entities is None else entities:
         if entity.wide:
             continue
         name = staging_table_name(entity)

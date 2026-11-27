@@ -152,6 +152,21 @@ class PatientOut(Resource):
     identifiers: list[IdentifierOut] = []
 
 
+class AeAttendanceOut(BaseModel):
+    attendance_number: str
+    arrival_mode: str
+    attendance_category: str
+    patient_group: str | None = None
+    referral_source: str | None = None
+    incident_location_type: str | None = None
+    arrival_at: datetime
+    initial_assessment_at: datetime | None = None
+    seen_for_treatment_at: datetime | None = None
+    conclusion_at: datetime | None = None
+    departure_at: datetime | None = None
+    attendance_disposal: str | None = None
+
+
 class EncounterOut(Resource):
     patient_id: uuid.UUID
     facility_id: uuid.UUID
@@ -163,6 +178,8 @@ class EncounterOut(Resource):
     state: str
     period_start: datetime
     period_end: datetime | None = None
+    clinical_service_id: uuid.UUID | None = None
+    ae: AeAttendanceOut | None = None
 
 
 class OrderOut(Resource):

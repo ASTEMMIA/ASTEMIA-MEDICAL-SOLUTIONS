@@ -6,6 +6,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from astemia.adapters.db.models import (
+    AeAttendance,
     DiagnosticReport,
     Encounter,
     Observation,
@@ -17,6 +18,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application.schemas import (
+    AeAttendanceOut,
     EncounterOut,
     IdentifierOut,
     NameOut,
@@ -91,8 +93,16 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
     )
 
 
-def encounter(row: Encounter) -> EncounterOut:
-    return EncounterOut.model_validate(row, from_attributes=True)
+def encounter(session: Session, row: Encounter) -> EncounterOut:
+    out = EncounterOut.model_validate(row, from_attributes=True)
+    ae = session.execute(
+        select(AeAttendance).where(
+            AeAttendance.tenant_id == row.tenant_id, AeAttendance.encounter_id == row.id
+        )
+    ).scalar_one_or_none()
+    if ae is not None:
+        out.ae = AeAttendanceOut.model_validate(ae, from_attributes=True)
+    return out
 
 
 def order(row: ServiceRequest) -> OrderOut:

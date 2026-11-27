@@ -296,7 +296,7 @@ class Commands:
                 patient_id=patient.id,
                 event_id=event,
             )
-            return CommandResult(201, views.encounter(encounter).model_dump(mode="json"))
+            return CommandResult(201, views.encounter(u.session, encounter).model_dump(mode="json"))
 
         return self.wp.run(
             ctx,
