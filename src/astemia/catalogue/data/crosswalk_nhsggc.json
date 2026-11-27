@@ -1,0 +1,1039 @@
+{
+ "source": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/",
+ "snapshot": "2026-11-23",
+ "entries": [
+  {
+   "position": 1,
+   "listing": "Abortion Services: Safe Access Zones",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/abortion-safe-access-zones/",
+   "service_code": "D26-06"
+  },
+  {
+   "position": 2,
+   "listing": "Accident & Emergency Fracture Clinic",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/fracture-clinic/",
+   "service_code": "D15-05"
+  },
+  {
+   "position": 3,
+   "listing": "Accident & Emergency (A&E)",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/emergency-department/",
+   "service_code": "D01-01"
+  },
+  {
+   "position": 4,
+   "listing": "Acute Adult Physiotherapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/acute-adult-physiotherapy/",
+   "service_code": "D24-06"
+  },
+  {
+   "position": 5,
+   "listing": "Alcohol and Drugs (Health Improvement)",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/health-improvement-alcohol-and-drugs/",
+   "service_code": "D36-10"
+  },
+  {
+   "position": 6,
+   "listing": "Alcohol and Drugs Recovery Services",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/addictions/",
+   "service_code": "D39-05"
+  },
+  {
+   "position": 7,
+   "listing": "All about money",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/all-about-money/",
+   "service_code": "D46-05"
+  },
+  {
+   "position": 8,
+   "listing": "Audiology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/audiology/",
+   "service_code": "D37-04"
+  },
+  {
+   "position": 9,
+   "listing": "Baby Feeding",
+   "url": "https://www.nhsggc.scot/your-health/early-years/",
+   "service_code": "D41-04"
+  },
+  {
+   "position": 10,
+   "listing": "Bereavement Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/bereavement-information-and-support/",
+   "service_code": "D21-04"
+  },
+  {
+   "position": 11,
+   "listing": "Biochemistry",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/biochemistry/",
+   "service_code": "D32-03"
+  },
+  {
+   "position": 12,
+   "listing": "Birthing Suite",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/birthing-suite/",
+   "service_code": "D25-05"
+  },
+  {
+   "position": 13,
+   "listing": "Bone Marrow Transplant",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/bone-marrow-transplant/",
+   "service_code": "D20-09"
+  },
+  {
+   "position": 14,
+   "listing": "Cafés and restaurants",
+   "url": "https://www.nhsggc.scot/cafes-restaurants-and-shops/",
+   "service_code": "D50-10"
+  },
+  {
+   "position": 15,
+   "listing": "Cardiology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/cardiology-services/",
+   "service_code": "D05-01"
+  },
+  {
+   "position": 16,
+   "listing": "Cash withdrawal (ATM)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/cash-machine-atm/",
+   "service_code": "D50-10"
+  },
+  {
+   "position": 17,
+   "listing": "Cardiac Rehabilitation",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/cardiology-services/cardiac-rehabilitation/",
+   "service_code": "D05-06"
+  },
+  {
+   "position": 18,
+   "listing": "Chaplaincy Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/spiritual-care-and-chaplaincy-service/",
+   "service_code": "D50-01"
+  },
+  {
+   "position": 19,
+   "listing": "Child and Adolescent Mental Health Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/specialist-childrens-services/",
+   "service_code": "D39-04"
+  },
+  {
+   "position": 20,
+   "listing": "Clear to All",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/clear-to-all/",
+   "service_code": "D50-02"
+  },
+  {
+   "position": 21,
+   "listing": "Colposcopy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/colposcopy/",
+   "service_code": "D26-03"
+  },
+  {
+   "position": 22,
+   "listing": "Colposcopy Clinic",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/colposcopy/",
+   "service_code": "D26-03"
+  },
+  {
+   "position": 23,
+   "listing": "Community Maternity Unit",
+   "url": "https://www.nhsggc.scot/hospitals-services/our-hospitals/maternity-hospitals-and-units/",
+   "service_code": "D25-07"
+  },
+  {
+   "position": 24,
+   "listing": "CT Scan",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-02"
+  },
+  {
+   "position": 25,
+   "listing": "Care Homes",
+   "url": "https://www.nhsggc.scot/your-health/care-homes/",
+   "service_code": "D36-12"
+  },
+  {
+   "position": 26,
+   "listing": "Care Home Collaborative",
+   "url": "https://www.nhsggc.scot/your-health/care-homes/care-home-collaborative/",
+   "service_code": "D36-12"
+  },
+  {
+   "position": 27,
+   "listing": "Chronic Pain",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/chronic-pain/",
+   "service_code": "D03-07"
+  },
+  {
+   "position": 28,
+   "listing": "Capital Developments",
+   "url": "https://www.nhsggc.scot/hospitals-services/visiting-hospital/capital-developments/",
+   "service_code": "D35-04"
+  },
+  {
+   "position": 29,
+   "listing": "Day Surgery",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/day-surgery-unit/",
+   "service_code": "D03-08"
+  },
+  {
+   "position": 30,
+   "listing": "Dental Treatment",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/dentist/",
+   "service_code": "D17-01"
+  },
+  {
+   "position": 31,
+   "listing": "Diabetes",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/diabetes/",
+   "service_code": "D07-02"
+  },
+  {
+   "position": 32,
+   "listing": "Dietetics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/dietetics/",
+   "service_code": "D24-08"
+  },
+  {
+   "position": 33,
+   "listing": "Dermatology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/dermatology/",
+   "service_code": "D11-02"
+  },
+  {
+   "position": 34,
+   "listing": "Drugs and Alcohol Services",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/addictions/",
+   "service_code": "D39-05"
+  },
+  {
+   "position": 35,
+   "listing": "Diagnostic Imaging",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 36,
+   "listing": "Drugs and Alcohol – Health Improvment",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/health-improvement-alcohol-and-drugs/",
+   "service_code": "D36-10"
+  },
+  {
+   "position": 37,
+   "listing": "Digital Services",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/digital-services/",
+   "service_code": "D35-13"
+  },
+  {
+   "position": 38,
+   "listing": "ECG Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/electrocardiagram-ecg/",
+   "service_code": "D05-03"
+  },
+  {
+   "position": 39,
+   "listing": "Enhanced Recovery Area",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/enhanced-recovery-after-surgery/",
+   "service_code": "D03-09"
+  },
+  {
+   "position": 40,
+   "listing": "(ENT) Ear, Nose and Throat Surgery",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/ear-nose-and-throat-ent-surgery/",
+   "service_code": "D37-01"
+  },
+  {
+   "position": 41,
+   "listing": "Esteem Glasgow",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/esteem-glasgow/",
+   "service_code": "D39-07"
+  },
+  {
+   "position": 42,
+   "listing": "Epilepsy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/epilepsy/",
+   "service_code": "D22-02"
+  },
+  {
+   "position": 43,
+   "listing": "Fracture Clinic",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/fracture-clinic/",
+   "service_code": "D15-05"
+  },
+  {
+   "position": 44,
+   "listing": "Food in hospitals",
+   "url": "https://www.nhsggc.scot/hospitals-services/food-in-hospital/",
+   "service_code": "D35-12"
+  },
+  {
+   "position": 45,
+   "listing": "Food First – Information for Staff",
+   "url": "https://www.nhsggc.scot/staff-recruitment/food-first-information-for-staff/",
+   "service_code": "D35-12"
+  },
+  {
+   "position": 46,
+   "listing": "Food takeaway facilities",
+   "url": "https://www.nhsggc.scot/cafes-restaurants-and-shops/",
+   "service_code": "D50-10"
+  },
+  {
+   "position": 47,
+   "listing": "Free Condoms",
+   "url": "https://www.freecondoms.scot/",
+   "service_code": "D29-02"
+  },
+  {
+   "position": 48,
+   "listing": "Family Wellbeing Hub",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/the-family-wellbeing-hub/",
+   "service_code": "D39-04"
+  },
+  {
+   "position": 49,
+   "listing": "Medical Doctor Out of Hours",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/gp-out-of-hours/",
+   "service_code": "D36-07"
+  },
+  {
+   "position": 50,
+   "listing": "Medical Doctor Service",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/",
+   "service_code": "D36-01"
+  },
+  {
+   "position": 51,
+   "listing": "GIRFEC – Getting it right for every child",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/girfec-getting-it-right-for-every-child/",
+   "service_code": "D29-04"
+  },
+  {
+   "position": 52,
+   "listing": "Glasgow City Youth Health Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-city-youth-health-service/",
+   "service_code": "D36-08"
+  },
+  {
+   "position": 53,
+   "listing": "Gynaecology Clinics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/gynaecology-clinics/",
+   "service_code": "D26-01"
+  },
+  {
+   "position": 54,
+   "listing": "Gynaecology Oncology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/gynaecology-oncology/",
+   "service_code": "D18-04"
+  },
+  {
+   "position": 55,
+   "listing": "Gynaecology – Pre-operativeAssessment (South Sector)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/pre-operative-assessment/south-sector/",
+   "service_code": "D14-05"
+  },
+  {
+   "position": 56,
+   "listing": "Glasgow PsychologicalTrauma Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-psychological-trauma-service-anchor/",
+   "service_code": "D39-08"
+  },
+  {
+   "position": 57,
+   "listing": "Glasgow Research onMood and Wellbeing (GROW) Clinic",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/mental-health-and-wellbeing/glasgow-research-on-mood-and-wellbeing-grow-clinic/",
+   "service_code": "D39-09"
+  },
+  {
+   "position": 58,
+   "listing": "Glasgow Women’sHealth Network (GWHN)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-womens-health-network-gwhn/",
+   "service_code": "D26-10"
+  },
+  {
+   "position": 59,
+   "listing": "Haematology and Blood Transfusion",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/haematology-and-blood-transfusion/",
+   "service_code": "D32-09"
+  },
+  {
+   "position": 60,
+   "listing": "Haemophilia and Thrombosis Centre",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/haemophilia-and-thrombosis-centre/",
+   "service_code": "D20-06"
+  },
+  {
+   "position": 61,
+   "listing": "Hearing Aid Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/audiology/",
+   "service_code": "D37-06"
+  },
+  {
+   "position": 62,
+   "listing": "Hip and Knee Surgery",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthopaedics/",
+   "service_code": "D15-06"
+  },
+  {
+   "position": 63,
+   "listing": "Health Improvement – Alcohol and Drugs",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/health-improvement-alcohol-and-drugs/",
+   "service_code": "D36-10"
+  },
+  {
+   "position": 64,
+   "listing": "Hospital at Home",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/virtual-hospital/",
+   "service_code": "D49-01"
+  },
+  {
+   "position": 65,
+   "listing": "Imaging",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 66,
+   "listing": "Infertility Clinic",
+   "url": "https://www.nhsggc.org.uk/your-health/health-services/assisted-conception-service/",
+   "service_code": "D26-05"
+  },
+  {
+   "position": 67,
+   "listing": "Infection Prevention and Control",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/infection-prevention-and-control/",
+   "service_code": "D35-03"
+  },
+  {
+   "position": 68,
+   "listing": "Immunology",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/immunology-and-neuroimmunology/",
+   "service_code": "D32-10"
+  },
+  {
+   "position": 69,
+   "listing": "Information in other languages",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/clear-to-all/information-in-other-languages/",
+   "service_code": "D50-02"
+  },
+  {
+   "position": 70,
+   "listing": "InS:PIRE",
+   "url": "/hospitals-services/services-a-to-z/inspire/",
+   "service_code": "D03-10"
+  },
+  {
+   "position": 71,
+   "listing": "Interventional Neuroradiology (INR)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/neurosurgery/interventional-neuroradiology-inr/",
+   "service_code": "D31-03"
+  },
+  {
+   "position": 72,
+   "listing": "Laboratory Genetics",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/laboratory-genetics/",
+   "service_code": "D42-03"
+  },
+  {
+   "position": 73,
+   "listing": "Laboratory – Newborn Screening",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/scottish-newborn-screening-laboratory/",
+   "service_code": "D32-11"
+  },
+  {
+   "position": 74,
+   "listing": "Larkfield Day Hospital",
+   "url": "https://www.nhsggc.scot/hospitals-services/day-hospitals/larkfield-day-hospital/",
+   "service_code": "D04-06"
+  },
+  {
+   "position": 75,
+   "listing": "Living Kidney Donation",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/living-kidney-donation/",
+   "service_code": "D08-06"
+  },
+  {
+   "position": 76,
+   "listing": "Living with HIV",
+   "url": "https://www.brownleehiv.scot/",
+   "service_code": "D12-01"
+  },
+  {
+   "position": 77,
+   "listing": "Living Well with Long-Term Conditions",
+   "url": "https://www.nhsggc.scot/longtermcondition",
+   "service_code": "D36-13"
+  },
+  {
+   "position": 78,
+   "listing": "Lymphoedema",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/lymphoedema/",
+   "service_code": "D24-11"
+  },
+  {
+   "position": 79,
+   "listing": "Maternity Hospitals and Units",
+   "url": "https://www.nhsggc.scot/hospitals-services/our-hospitals/maternity-hospitals-and-units/",
+   "service_code": "D25-04"
+  },
+  {
+   "position": 80,
+   "listing": "Maternity Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/maternity-services/",
+   "service_code": "D25-01"
+  },
+  {
+   "position": 81,
+   "listing": "Medical Illustration Services",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/medical-illustration-services/",
+   "service_code": "D35-14"
+  },
+  {
+   "position": 82,
+   "listing": "Meet your midwife",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/maternity-services/self-referring-to-maternity-services-spa/",
+   "service_code": "D25-08"
+  },
+  {
+   "position": 83,
+   "listing": "Microbiology and Virology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/microbiology-and-virology/",
+   "service_code": "D32-04"
+  },
+  {
+   "position": 84,
+   "listing": "Milk Bank Scotland",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/milk-bank-scotland/",
+   "service_code": "D27-07"
+  },
+  {
+   "position": 85,
+   "listing": "Minor Injuries Unit",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/minor-injuries-unit/",
+   "service_code": "D01-06"
+  },
+  {
+   "position": 86,
+   "listing": "Mortuary",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/pathology-mortuary-services/",
+   "service_code": "D45-01"
+  },
+  {
+   "position": 87,
+   "listing": "MRI Scan",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-03"
+  },
+  {
+   "position": 88,
+   "listing": "Musculoskeletal (MSK) Physiotherapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/musculoskeletal-msk-physiotherapy/",
+   "service_code": "D24-04"
+  },
+  {
+   "position": 89,
+   "listing": "Mental Health Improvement",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/mental-health-improvement/",
+   "service_code": "D36-10"
+  },
+  {
+   "position": 90,
+   "listing": "Mindfulness Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/mindfulness-services/",
+   "service_code": "D39-10"
+  },
+  {
+   "position": 91,
+   "listing": "Mesh",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/national-complex-mesh-surgical-service/",
+   "service_code": "D26-09"
+  },
+  {
+   "position": 92,
+   "listing": "Money Advice – Hospital Based Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/hospital-based-money-advice-services/",
+   "service_code": "D50-03"
+  },
+  {
+   "position": 93,
+   "listing": "Mental Health and Wellbeing",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/mental-health-and-wellbeing/",
+   "service_code": "D39-03"
+  },
+  {
+   "position": 94,
+   "listing": "Mental Health – Occupational Therapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/occupational-therapy-adult-mental-health-services/",
+   "service_code": "D39-11"
+  },
+  {
+   "position": 95,
+   "listing": "Musculoskeletal (MSK) Physiotherapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/musculoskeletal-msk-physiotherapy/",
+   "service_code": "D24-04"
+  },
+  {
+   "position": 96,
+   "listing": "My Health",
+   "url": "https://www.nhsggc.scot/your-health/public-health/my-health/",
+   "service_code": "D36-13"
+  },
+  {
+   "position": 97,
+   "listing": "My Health – Living Well with a Long-Term Condition",
+   "url": "https://www.nhsggc.scot/longtermcondition",
+   "service_code": "D36-13"
+  },
+  {
+   "position": 98,
+   "listing": "Newborn Screening Laboratory",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/scottish-newborn-screening-laboratory/",
+   "service_code": "D32-11"
+  },
+  {
+   "position": 99,
+   "listing": "Nuclear Medicine",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/nuclear-medicine/",
+   "service_code": "D31-04"
+  },
+  {
+   "position": 100,
+   "listing": "Neuroimmunology",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/immunology-and-neuroimmunology/",
+   "service_code": "D32-10"
+  },
+  {
+   "position": 101,
+   "listing": "National Complex Mesh Surgical Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/national-complex-mesh-surgical-service/",
+   "service_code": "D26-09"
+  },
+  {
+   "position": 102,
+   "listing": "Neurorehabilitation",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/neurorehabilitation/",
+   "service_code": "D24-01"
+  },
+  {
+   "position": 103,
+   "listing": "Neurosurgery",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/neurosurgery/",
+   "service_code": "D23-02"
+  },
+  {
+   "position": 104,
+   "listing": "Occupational Health",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/occupational-health/",
+   "service_code": "D46-01"
+  },
+  {
+   "position": 105,
+   "listing": "Occupational Therapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/occupational-therapy/",
+   "service_code": "D24-02"
+  },
+  {
+   "position": 106,
+   "listing": "Oncology Day Unit",
+   "url": "https://www.beatson.scot.nhs.uk/patients-and-visitors/wards-departments/oncology-day-unit-ward-b9/",
+   "service_code": "D19-01"
+  },
+  {
+   "position": 107,
+   "listing": "Optician",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/optometrist/",
+   "service_code": "D16-08"
+  },
+  {
+   "position": 108,
+   "listing": "Optometrist",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/optometrist/",
+   "service_code": "D16-08"
+  },
+  {
+   "position": 109,
+   "listing": "Orthopaedics North",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthopaedics/orthopaedics-north/",
+   "service_code": "D15-01"
+  },
+  {
+   "position": 110,
+   "listing": "Outpatient Clinics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/outpatients/",
+   "service_code": "D34-03"
+  },
+  {
+   "position": 111,
+   "listing": "Out of Hours Medical Doctor Service",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/gp-surgery/",
+   "service_code": "D36-07"
+  },
+  {
+   "position": 112,
+   "listing": "Orthopaedics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthopaedics/",
+   "service_code": "D15-01"
+  },
+  {
+   "position": 113,
+   "listing": "Orthoptics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthoptics/",
+   "service_code": "D16-05"
+  },
+  {
+   "position": 114,
+   "listing": "Orthotics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthotics/",
+   "service_code": "D48-02"
+  },
+  {
+   "position": 115,
+   "listing": "Orthopaedic AHP Therapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthopaedic-ahp-therapy/",
+   "service_code": "D15-07"
+  },
+  {
+   "position": 116,
+   "listing": "Oral and maxillofacial surgery (OMFS)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/neurosurgery/oral-and-maxillofacial-surgery-omfs/",
+   "service_code": "D17-08"
+  },
+  {
+   "position": 117,
+   "listing": "Overseas Travel Vaccinations",
+   "url": "https://www.nhsggc.scot/your-health/general-vaccinations/overseas-travel-vaccinations/",
+   "service_code": "D40-08"
+  },
+  {
+   "position": 118,
+   "listing": "Ocular Prosthetics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/ocular-prosthetics/",
+   "service_code": "D16-07"
+  },
+  {
+   "position": 119,
+   "listing": "Orthoptics",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/orthoptics/",
+   "service_code": "D16-05"
+  },
+  {
+   "position": 120,
+   "listing": "Occupational Therapy Mental Health",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/occupational-therapy-adult-mental-health-services/",
+   "service_code": "D39-11"
+  },
+  {
+   "position": 121,
+   "listing": "Pain Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/chronic-pain/",
+   "service_code": "D03-07"
+  },
+  {
+   "position": 122,
+   "listing": "PEPI Team",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/patient-experience-and-public-involvement-pepi/",
+   "service_code": "D50-05"
+  },
+  {
+   "position": 123,
+   "listing": "Person centred virtual visiting",
+   "url": "https://www.nhsggc.scot/hospitals-services/visiting-hospital/person-centred-virtual-visiting/",
+   "service_code": "D50-07"
+  },
+  {
+   "position": 124,
+   "listing": "Pharmacy",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/pharmacy/",
+   "service_code": "D33-07"
+  },
+  {
+   "position": 125,
+   "listing": "Phototherapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/phototherapy/",
+   "service_code": "D11-05"
+  },
+  {
+   "position": 126,
+   "listing": "Physiotherapy – WestMARC",
+   "url": "https://www.nhsggc.org.uk/your-health/health-services/westmarc/westmarc-services/prosthetics/physiotherapy/",
+   "service_code": "D48-04"
+  },
+  {
+   "position": 127,
+   "listing": "Podiatry Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/podiatry-service-information-for-patients/",
+   "service_code": "D24-10"
+  },
+  {
+   "position": 128,
+   "listing": "Pre-operative assessment",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/5761-2/",
+   "service_code": "D14-05"
+  },
+  {
+   "position": 129,
+   "listing": "Patient Transport Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/visiting-hospital/patient-transport-service/",
+   "service_code": "D50-06"
+  },
+  {
+   "position": 130,
+   "listing": "Physical Activity",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/physical-activity/",
+   "service_code": "D36-11"
+  },
+  {
+   "position": 131,
+   "listing": "Physiotherapy (Musculoskeletal)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/musculoskeletal-msk-physiotherapy/",
+   "service_code": "D24-04"
+  },
+  {
+   "position": 132,
+   "listing": "Physiotherapy (Adult Acute)",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/acute-adult-physiotherapy/",
+   "service_code": "D24-06"
+  },
+  {
+   "position": 133,
+   "listing": "Perinatal Mental Health Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/perinatal-mental-health-service/",
+   "service_code": "D39-06"
+  },
+  {
+   "position": 134,
+   "listing": "Pathology and Mortuary Services",
+   "url": "https://www.nhsggc.scot/staff-recruitment/staff-resources/laboratory-medicine/pathology-mortuary-services/",
+   "service_code": "D32-05"
+  },
+  {
+   "position": 135,
+   "listing": "Playlist for Life",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/playlist-for-life/",
+   "service_code": "D04-07"
+  },
+  {
+   "position": 136,
+   "listing": "Primary Care",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/primary-care/",
+   "service_code": "D36-01"
+  },
+  {
+   "position": 137,
+   "listing": "Radiology",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 138,
+   "listing": "Referral Guidance",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/referral-guidelines/",
+   "service_code": "D34-04"
+  },
+  {
+   "position": 139,
+   "listing": "Redress Scotland",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/nhsggc-historic-child-abuse/",
+   "service_code": "D50-08"
+  },
+  {
+   "position": 140,
+   "listing": "Respiratory Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/respiratory-services/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 141,
+   "listing": "Sanctuary",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/spiritual-care-and-chaplaincy-service/",
+   "service_code": "D50-01"
+  },
+  {
+   "position": 142,
+   "listing": "Sandyford",
+   "url": "https://www.sandyford.scot/",
+   "service_code": "D29-01"
+  },
+  {
+   "position": 143,
+   "listing": "Stop Smoking Support",
+   "url": "https://www.nhsggc.scot/your-health/quit-your-way/",
+   "service_code": "D36-09"
+  },
+  {
+   "position": 144,
+   "listing": "Scottish Newborn Screening Laboratory",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/scottish-newborn-screening-laboratory/",
+   "service_code": "D32-11"
+  },
+  {
+   "position": 145,
+   "listing": "Self Check In Kiosks",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/self-check-in-kiosks/",
+   "service_code": "D34-09"
+  },
+  {
+   "position": 146,
+   "listing": "Shops in NHSGGC",
+   "url": "https://www.nhsggc.scot/cafes-restaurants-and-shops/",
+   "service_code": "D50-10"
+  },
+  {
+   "position": 147,
+   "listing": "Sexual Health Services for under 18s",
+   "url": "https://ypsandyford.scot/",
+   "service_code": "D29-07"
+  },
+  {
+   "position": 148,
+   "listing": "Sexual Assault Response Coordination Service (Archway Glasgow)",
+   "url": "https://archwayglasgow.scot/",
+   "service_code": "D29-03"
+  },
+  {
+   "position": 149,
+   "listing": "Smoking Cessation Services",
+   "url": "https://www.nhsggc.scot/your-health/quit-your-way/",
+   "service_code": "D36-09"
+  },
+  {
+   "position": 150,
+   "listing": "Specialist Children’s Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/specialist-childrens-services/",
+   "service_code": "D27-08"
+  },
+  {
+   "position": 151,
+   "listing": "Specialist Weight Management Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/specialist-weight-management-service-swms/",
+   "service_code": "D07-09"
+  },
+  {
+   "position": 152,
+   "listing": "Speech and Language Therapy",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/speech-and-language-therapy/",
+   "service_code": "D24-07"
+  },
+  {
+   "position": 153,
+   "listing": "Spiritual Care",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/spiritual-care-and-chaplaincy-service/",
+   "service_code": "D50-01"
+  },
+  {
+   "position": 154,
+   "listing": "Support and Information Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/support-and-information-services/",
+   "service_code": "D50-04"
+  },
+  {
+   "position": 155,
+   "listing": "Scottish Ocular Oncology Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/scottish-ocular-oncology-service/",
+   "service_code": "D16-06"
+  },
+  {
+   "position": 156,
+   "listing": "SPHERE Bladder and Bowel Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/sphere-bladder-and-bowel-service/",
+   "service_code": "D24-12"
+  },
+  {
+   "position": 157,
+   "listing": "Stroke Psychology Services",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/stroke-psychology-services/",
+   "service_code": "D23-07"
+  },
+  {
+   "position": 158,
+   "listing": "Therapeutic Diets",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/dietetics/clinical-conditions-and-therapeutic-diet/",
+   "service_code": "D24-08"
+  },
+  {
+   "position": 159,
+   "listing": "Travel Clinic at the Brownlee Centre",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/travel-medicine-at-the-brownlee-centre/",
+   "service_code": "D40-08"
+  },
+  {
+   "position": 160,
+   "listing": "Travel Office",
+   "url": "https://www.nhsggc.org.uk/patients-and-visitors/transport-travel-and-parking/",
+   "service_code": "D50-09"
+  },
+  {
+   "position": 161,
+   "listing": "Travel Vaccination",
+   "url": "https://www.nhsggc.scot/your-health/general-vaccinations/overseas-travel-vaccinations/",
+   "service_code": "D40-08"
+  },
+  {
+   "position": 162,
+   "listing": "Type 2 Diabetes Hub",
+   "url": "https://www.nhsggc.scot/your-health/type-2-diabetes-hub/",
+   "service_code": "D07-02"
+  },
+  {
+   "position": 163,
+   "listing": "Ultrasound",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-05"
+  },
+  {
+   "position": 164,
+   "listing": "Virtual Hospital",
+   "url": "https://www.nhsggc.scot/your-health/right-care-right-place/virtual-hospital/",
+   "service_code": "D49-01"
+  },
+  {
+   "position": 165,
+   "listing": "WestMARC",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/westmarc/",
+   "service_code": "D48-01"
+  },
+  {
+   "position": 166,
+   "listing": "Weight Management",
+   "url": "https://www.nhsggc.org.uk/weightmanagement",
+   "service_code": "D07-09"
+  },
+  {
+   "position": 167,
+   "listing": "Weigh to Go",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/weigh-to-go/",
+   "service_code": "D27-06"
+  },
+  {
+   "position": 168,
+   "listing": "West of Scotland Safe Haven",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/west-of-scotland-safe-haven/",
+   "service_code": "D35-15"
+  },
+  {
+   "position": 169,
+   "listing": "West of Scotland Rape Services",
+   "url": "https://nhswossarc.scot/",
+   "service_code": "D29-03"
+  },
+  {
+   "position": 170,
+   "listing": "X-ray Department",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/imaging/",
+   "service_code": "D30-04"
+  },
+  {
+   "position": 171,
+   "listing": "Young Onset Dementia Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/young-onset-dementia-service/",
+   "service_code": "D39-12"
+  },
+  {
+   "position": 172,
+   "listing": "Youth Health Service",
+   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-city-youth-health-service/",
+   "service_code": "D36-08"
+  }
+ ],
+ "naming": "Listing names follow ASTEMIA naming: NHS becomes NIN, GP becomes medical doctor. URLs are the publisher's own addresses and are unchanged."
+}

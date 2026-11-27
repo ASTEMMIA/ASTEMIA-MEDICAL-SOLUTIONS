@@ -1,0 +1,41 @@
+# Local development stack. Synthetic data only.
+services:
+  mysql:
+    image: mysql:26.10
+    environment:
+      MYSQL_ROOT_PASSWORD: devroot
+      MYSQL_DATABASE: astemia
+      MYSQL_USER: astemia
+      MYSQL_PASSWORD: astemia
+    command:
+      - --sql-mode=STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,ONLY_FULL_GROUP_BY,NO_ENGINE_SUBSTITUTION
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+    ports: ["3306:3306"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pdevroot"]
+      interval: 5s
+      retries: 30
+
+  migrate:
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    environment: &env
+      ASTEMIA_DATABASE_URL: mysql+mysqlconnector://astemia:astemia@mysql:3306/astemia
+    depends_on:
+      mysql: { condition: service_healthy }
+
+  api:
+    build: .
+    environment: *env
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  relay:
+    build: .
+    command: ["astemia", "relay"]
+    environment: *env
+    depends_on:
+      migrate: { condition: service_completed_successfully }

@@ -1,0 +1,1692 @@
+{
+ "source": "https://www.kch.nhs.uk/services/services-a-to-z/",
+ "snapshot": "2026-11-23",
+ "entries": [
+  {
+   "position": 1,
+   "listing": "Accident and Emergency (A&E)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/accident-and-emergency-ae/",
+   "service_code": "D01-01"
+  },
+  {
+   "position": 2,
+   "listing": "Acute dental care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/acute-dental-care/",
+   "service_code": "D17-01"
+  },
+  {
+   "position": 3,
+   "listing": "Acute medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/acute-medicine/",
+   "service_code": "D02-01"
+  },
+  {
+   "position": 4,
+   "listing": "Adrenal surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/adrenal-surgery/",
+   "service_code": "D14-04"
+  },
+  {
+   "position": 5,
+   "listing": "Advanced chronic liver disease (cirrhosis)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/advanced-chronic-liver-disease-cirrhosis/",
+   "service_code": "D10-02"
+  },
+  {
+   "position": 6,
+   "listing": "Allergy and immunology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/allergy-and-immunology/",
+   "service_code": "D11-01"
+  },
+  {
+   "position": 7,
+   "listing": "Allergy, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/allergy-children/",
+   "service_code": "D28-01"
+  },
+  {
+   "position": 8,
+   "listing": "Antenatal scanning",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/antenatal-scanning/",
+   "service_code": "D25-01"
+  },
+  {
+   "position": 9,
+   "listing": "Antibiotics IV at home",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/antibiotics-iv-at-home/",
+   "service_code": "D12-03"
+  },
+  {
+   "position": 10,
+   "listing": "Asthma, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/asthma-children/",
+   "service_code": "D28-02"
+  },
+  {
+   "position": 11,
+   "listing": "Bereavement support",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bereavement-support/",
+   "service_code": "D21-04"
+  },
+  {
+   "position": 12,
+   "listing": "Biliary atresia",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/biliary-atresia/",
+   "service_code": "D28-06"
+  },
+  {
+   "position": 13,
+   "listing": "Bleeding disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bleeding-disorders/",
+   "service_code": "D20-06"
+  },
+  {
+   "position": 14,
+   "listing": "Blood cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/blood-cancer/",
+   "service_code": "D20-01"
+  },
+  {
+   "position": 15,
+   "listing": "Blood disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/blood-disorders/",
+   "service_code": "D20-01"
+  },
+  {
+   "position": 16,
+   "listing": "Blood disorders, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/blood-disorders-children/",
+   "service_code": "D28-09"
+  },
+  {
+   "position": 17,
+   "listing": "Blood tests (phlebotomy)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/blood-tests/",
+   "service_code": "D32-01"
+  },
+  {
+   "position": 18,
+   "listing": "Bone marrow transplantation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bone-marrow-transplantation/",
+   "service_code": "D20-09"
+  },
+  {
+   "position": 19,
+   "listing": "Bowel cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bowel-cancer/",
+   "service_code": "D18-03"
+  },
+  {
+   "position": 20,
+   "listing": "Bowel cancer screening",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bowel-cancer-screening/",
+   "service_code": "D09-04"
+  },
+  {
+   "position": 21,
+   "listing": "Bowel disorders, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/bowel-disorders-children/",
+   "service_code": "D28-05"
+  },
+  {
+   "position": 22,
+   "listing": "Brain surgery, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/brain-surgery-children/",
+   "service_code": "D27-04"
+  },
+  {
+   "position": 23,
+   "listing": "Brain tumours",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/brain-tumours/",
+   "service_code": "D18-09"
+  },
+  {
+   "position": 24,
+   "listing": "Breast cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breast-cancer/",
+   "service_code": "D18-02"
+  },
+  {
+   "position": 25,
+   "listing": "Breast Care Unit",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breast-care-unit/",
+   "service_code": "D18-02"
+  },
+  {
+   "position": 26,
+   "listing": "Breast screening",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breast-screening/",
+   "service_code": "D18-02"
+  },
+  {
+   "position": 27,
+   "listing": "Breathing disorders, adults",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breathing-disorders-adults/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 28,
+   "listing": "Breathing disorders, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breathing-disorders-children/",
+   "service_code": "D28-03"
+  },
+  {
+   "position": 29,
+   "listing": "Breathing tests",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/breathing-tests/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 30,
+   "listing": "Cancer, adults",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cancer-adults/",
+   "service_code": "D18-01"
+  },
+  {
+   "position": 31,
+   "listing": "Cancer, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cancer-children/",
+   "service_code": "D28-08"
+  },
+  {
+   "position": 32,
+   "listing": "Cardiac health and rehabilitation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cardiac-health-and-rehabilitation/",
+   "service_code": "D05-06"
+  },
+  {
+   "position": 33,
+   "listing": "Cardiac non-invasive diagnostics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cardiac-non-invasive-diagnostics/",
+   "service_code": "D05-03"
+  },
+  {
+   "position": 34,
+   "listing": "Cardiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cardiology/",
+   "service_code": "D05-01"
+  },
+  {
+   "position": 35,
+   "listing": "Cardiothoracic surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cardiothoracic-surgery/",
+   "service_code": "D14-01"
+  },
+  {
+   "position": 36,
+   "listing": "Cervical cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cervical-cancer/",
+   "service_code": "D18-04"
+  },
+  {
+   "position": 37,
+   "listing": "Chemotherapy Day Unit",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/chemotherapy-day-unit/",
+   "service_code": "D19-01"
+  },
+  {
+   "position": 38,
+   "listing": "Chest disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/chest-disorders/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 39,
+   "listing": "Chest Unit and Lung Function",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/chest-unit/",
+   "service_code": "D06-03"
+  },
+  {
+   "position": 40,
+   "listing": "Children’s dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/childrens-dentistry/",
+   "service_code": "D17-02"
+  },
+  {
+   "position": 41,
+   "listing": "Children’s Emergency Department",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-emergency-department/",
+   "service_code": "D01-02"
+  },
+  {
+   "position": 42,
+   "listing": "Children’s services",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/childrens-services/",
+   "service_code": "D27-01"
+  },
+  {
+   "position": 43,
+   "listing": "Cirrhosis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cirrhosis/",
+   "service_code": "D10-03"
+  },
+  {
+   "position": 44,
+   "listing": "Clinical gerontology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/clinical-gerontology/",
+   "service_code": "D04-01"
+  },
+  {
+   "position": 45,
+   "listing": "Cognitive neurology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cognitive-neurology/",
+   "service_code": "D22-01"
+  },
+  {
+   "position": 46,
+   "listing": "Colorectal liver metastases",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/colorectal-liver-metastases/",
+   "service_code": "D13-02"
+  },
+  {
+   "position": 47,
+   "listing": "Colorectal surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/colorectal-surgery/",
+   "service_code": "D13-01"
+  },
+  {
+   "position": 48,
+   "listing": "Colposcopy and vulvoscopy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/colposcopy-and-vulvoscopy/",
+   "service_code": "D26-03"
+  },
+  {
+   "position": 49,
+   "listing": "Community heart failure service",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/community-heart-failure-service/",
+   "service_code": "D05-05"
+  },
+  {
+   "position": 50,
+   "listing": "Community special care dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/community-special-care-dentistry/",
+   "service_code": "D17-03"
+  },
+  {
+   "position": 51,
+   "listing": "Complications of excess weight (CEW)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/complications-of-excess-weight-cew/",
+   "service_code": "D27-06"
+  },
+  {
+   "position": 52,
+   "listing": "Contraception",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/contraception/",
+   "service_code": "D29-02"
+  },
+  {
+   "position": 53,
+   "listing": "Craniofacial prosthetics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/craniofacial-prosthetics/",
+   "service_code": "D17-10"
+  },
+  {
+   "position": 54,
+   "listing": "Critical care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/critical-care/",
+   "service_code": "D03-01"
+  },
+  {
+   "position": 55,
+   "listing": "CT, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ct-general/",
+   "service_code": "D30-02"
+  },
+  {
+   "position": 56,
+   "listing": "CT, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ct-neuro/",
+   "service_code": "D31-02"
+  },
+  {
+   "position": 57,
+   "listing": "Cystic fibrosis, adult",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cystic-fibrosis-adult/",
+   "service_code": "D06-02"
+  },
+  {
+   "position": 58,
+   "listing": "Cystic fibrosis, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/cystic-fibrosis-children/",
+   "service_code": "D28-03"
+  },
+  {
+   "position": 59,
+   "listing": "Deep brain stimulation (DBS)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/deep-brain-stimulation-dbs/",
+   "service_code": "D23-03"
+  },
+  {
+   "position": 60,
+   "listing": "Dental – acute",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-acute/",
+   "service_code": "D17-01"
+  },
+  {
+   "position": 61,
+   "listing": "Dental – community special care dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-community-special-care-dentistry/",
+   "service_code": "D17-03"
+  },
+  {
+   "position": 62,
+   "listing": "Dental – hospital based special care dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-hospital-based-special-care-dentistry/",
+   "service_code": "D17-03"
+  },
+  {
+   "position": 63,
+   "listing": "Dental and facial orthodontics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-and-facial-orthodontics/",
+   "service_code": "D17-05"
+  },
+  {
+   "position": 64,
+   "listing": "Dental care, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-care-children/",
+   "service_code": "D17-02"
+  },
+  {
+   "position": 65,
+   "listing": "Dental psychology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dental-psychology/",
+   "service_code": "D17-06"
+  },
+  {
+   "position": 66,
+   "listing": "Dermatology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dermatology/",
+   "service_code": "D11-02"
+  },
+  {
+   "position": 67,
+   "listing": "Diabetes",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes/",
+   "service_code": "D07-02"
+  },
+  {
+   "position": 68,
+   "listing": "Diabetes inpatient service",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-inpatient-service/",
+   "service_code": "D07-04"
+  },
+  {
+   "position": 69,
+   "listing": "Diabetes psychiatry and psychology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-psychiatry-and-psychology/",
+   "service_code": "D07-08"
+  },
+  {
+   "position": 70,
+   "listing": "Diabetes with complications clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-with-complications-clinic/",
+   "service_code": "D07-03"
+  },
+  {
+   "position": 71,
+   "listing": "Diabetes with end-stage renal disease on dialysis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-with-end-stage-renal-disease-on-dialysis/",
+   "service_code": "D07-05"
+  },
+  {
+   "position": 72,
+   "listing": "Diabetes: preconception and antenatal care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-preconception-and-antenatal-care/",
+   "service_code": "D07-06"
+  },
+  {
+   "position": 73,
+   "listing": "Diabetes: type 1",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabetes-type-1/",
+   "service_code": "D07-02"
+  },
+  {
+   "position": 74,
+   "listing": "Diabulimia",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diabulimia/",
+   "service_code": "D07-08"
+  },
+  {
+   "position": 75,
+   "listing": "Dialysis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/dialysis/",
+   "service_code": "D08-03"
+  },
+  {
+   "position": 76,
+   "listing": "Diverticular disease",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/diverticular-disease/",
+   "service_code": "D09-03"
+  },
+  {
+   "position": 77,
+   "listing": "Doppler scanning",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/doppler-scanning/",
+   "service_code": "D30-06"
+  },
+  {
+   "position": 78,
+   "listing": "Duplex scanning",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/duplex-scanning/",
+   "service_code": "D30-06"
+  },
+  {
+   "position": 79,
+   "listing": "Early Pregnancy Unit (EPU)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/early-pregnancy-unit/",
+   "service_code": "D25-02"
+  },
+  {
+   "position": 80,
+   "listing": "Elderly care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/elderly-care/",
+   "service_code": "D04-01"
+  },
+  {
+   "position": 81,
+   "listing": "Electromyography (EMG)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/electromyography-emg/",
+   "service_code": "D22-04"
+  },
+  {
+   "position": 82,
+   "listing": "Emergency Department",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/emergency-department/",
+   "service_code": "D01-01"
+  },
+  {
+   "position": 83,
+   "listing": "Endocrine gynaecology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endocrine-gynaecology/",
+   "service_code": "D26-01"
+  },
+  {
+   "position": 84,
+   "listing": "Endocrine surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endocrine-surgery/",
+   "service_code": "D14-04"
+  },
+  {
+   "position": 85,
+   "listing": "Endocrinology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endocrinology/",
+   "service_code": "D07-01"
+  },
+  {
+   "position": 86,
+   "listing": "Endocrinology, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endocrinology-children/",
+   "service_code": "D28-04"
+  },
+  {
+   "position": 87,
+   "listing": "Endoscopy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endoscopy/",
+   "service_code": "D09-02"
+  },
+  {
+   "position": 88,
+   "listing": "Endovascular neurosurgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endovascular-neurosurgery/",
+   "service_code": "D23-06"
+  },
+  {
+   "position": 89,
+   "listing": "Endovascular surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/endovascular-surgery/",
+   "service_code": "D14-03"
+  },
+  {
+   "position": 90,
+   "listing": "Epilepsy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/epilepsy/",
+   "service_code": "D22-02"
+  },
+  {
+   "position": 91,
+   "listing": "Eye conditions",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/eye-conditions/",
+   "service_code": "D16-03"
+  },
+  {
+   "position": 92,
+   "listing": "Facial surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/facial-surgery/",
+   "service_code": "D17-08"
+  },
+  {
+   "position": 93,
+   "listing": "Fertility",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/fertility/",
+   "service_code": "D26-05"
+  },
+  {
+   "position": 94,
+   "listing": "Fetal cardiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/fetal-cardiology/",
+   "service_code": "D25-03"
+  },
+  {
+   "position": 95,
+   "listing": "Fetal medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/fetal-medicine/",
+   "service_code": "D25-03"
+  },
+  {
+   "position": 96,
+   "listing": "Fetal scanning",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/fetal-scanning/",
+   "service_code": "D25-03"
+  },
+  {
+   "position": 97,
+   "listing": "Frank Cooksey Rehabilitation Unit",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/frank-cooksey-rehabilitation-unit/",
+   "service_code": "D24-13"
+  },
+  {
+   "position": 98,
+   "listing": "Functional neurological disorder (FND)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/functional-neurological-disorder-fnd/",
+   "service_code": "D22-01"
+  },
+  {
+   "position": 99,
+   "listing": "Gastroenterology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gastroenterology/",
+   "service_code": "D09-01"
+  },
+  {
+   "position": 100,
+   "listing": "Gastrointestinal disorders, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gastrointestinal-disorders-children/",
+   "service_code": "D28-05"
+  },
+  {
+   "position": 101,
+   "listing": "Gastroscopy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gastroscopy/",
+   "service_code": "D09-02"
+  },
+  {
+   "position": 102,
+   "listing": "General gynaecology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/general-gynaecology/",
+   "service_code": "D26-01"
+  },
+  {
+   "position": 103,
+   "listing": "General imaging",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/general-imaging/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 104,
+   "listing": "General paediatrics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/general-paediatrics/",
+   "service_code": "D27-01"
+  },
+  {
+   "position": 105,
+   "listing": "Geriatric medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/geriatric-medicine/",
+   "service_code": "D04-01"
+  },
+  {
+   "position": 106,
+   "listing": "Gynae ultrasound",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynae-ultrasound/",
+   "service_code": "D26-08"
+  },
+  {
+   "position": 107,
+   "listing": "Gynae-oncology cancer service",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynae-oncology-cancer-service/",
+   "service_code": "D18-04"
+  },
+  {
+   "position": 108,
+   "listing": "Gynaecology – Colposcopy clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynaecology-colposcopy-clinic/",
+   "service_code": "D26-03"
+  },
+  {
+   "position": 109,
+   "listing": "Gynaecology – endocrine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynaecology-endocrine/",
+   "service_code": "D26-01"
+  },
+  {
+   "position": 110,
+   "listing": "Gynaecology – general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynaecology-general/",
+   "service_code": "D26-01"
+  },
+  {
+   "position": 111,
+   "listing": "Gynaecology – Menopause clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynaecology-menopause-clinic/",
+   "service_code": "D26-04"
+  },
+  {
+   "position": 112,
+   "listing": "Gynaecology – rapid access clinics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/gynaecology-rapid-access-clinics/",
+   "service_code": "D26-02"
+  },
+  {
+   "position": 113,
+   "listing": "Haemato-oncology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/haemato-oncology/",
+   "service_code": "D20-01"
+  },
+  {
+   "position": 114,
+   "listing": "Haematology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/haematology/",
+   "service_code": "D20-01"
+  },
+  {
+   "position": 115,
+   "listing": "Haematology, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/haematology-children/",
+   "service_code": "D28-09"
+  },
+  {
+   "position": 116,
+   "listing": "Haemodialysis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/haemodialysis/",
+   "service_code": "D08-03"
+  },
+  {
+   "position": 117,
+   "listing": "Hand therapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/hand-therapy/",
+   "service_code": "D24-03"
+  },
+  {
+   "position": 118,
+   "listing": "Harris Birthright Centre",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/harris-birthright-centre/",
+   "service_code": "D25-03"
+  },
+  {
+   "position": 119,
+   "listing": "Haven, The",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/haven-the/",
+   "service_code": "D29-03"
+  },
+  {
+   "position": 120,
+   "listing": "Heart care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-care/",
+   "service_code": "D05-01"
+  },
+  {
+   "position": 121,
+   "listing": "Heart failure",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-failure/",
+   "service_code": "D05-04"
+  },
+  {
+   "position": 122,
+   "listing": "Heart Failure – Integrated Community Service",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-failure-integrated-community-service/",
+   "service_code": "D05-05"
+  },
+  {
+   "position": 123,
+   "listing": "Heart investigations",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-investigations/",
+   "service_code": "D05-03"
+  },
+  {
+   "position": 124,
+   "listing": "Heart rehab",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-rehab/",
+   "service_code": "D05-06"
+  },
+  {
+   "position": 125,
+   "listing": "Heart surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/heart-surgery/",
+   "service_code": "D14-01"
+  },
+  {
+   "position": 126,
+   "listing": "Hepatitis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/hepatitis/",
+   "service_code": "D10-04"
+  },
+  {
+   "position": 127,
+   "listing": "Hepatobiliary and pancreatic (HPB)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/hepatobiliary-and-pancreatic-hpb/",
+   "service_code": "D13-03"
+  },
+  {
+   "position": 128,
+   "listing": "Hepatology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/hepatology/",
+   "service_code": "D10-01"
+  },
+  {
+   "position": 129,
+   "listing": "HIV",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/hiv/",
+   "service_code": "D12-01"
+  },
+  {
+   "position": 130,
+   "listing": "Imaging, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/imaging-general/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 131,
+   "listing": "Imaging, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/imaging-neuro/",
+   "service_code": "D31-02"
+  },
+  {
+   "position": 132,
+   "listing": "Infertility",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/infertility/",
+   "service_code": "D26-05"
+  },
+  {
+   "position": 133,
+   "listing": "Insulin restriction",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/insulin-restriction/",
+   "service_code": "D07-08"
+  },
+  {
+   "position": 134,
+   "listing": "Integrated heart failure service – community",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/integrated-heart-failure-service-community/",
+   "service_code": "D05-05"
+  },
+  {
+   "position": 135,
+   "listing": "Intensive care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/intensive-care/",
+   "service_code": "D03-01"
+  },
+  {
+   "position": 136,
+   "listing": "Interventional neuroradiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/interventional-neuroradiology/",
+   "service_code": "D31-03"
+  },
+  {
+   "position": 137,
+   "listing": "Interventional radiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/interventional-radiology/",
+   "service_code": "D30-07"
+  },
+  {
+   "position": 138,
+   "listing": "Islet cell transplantation clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/islet-cell-transplantation-clinic/",
+   "service_code": "D10-06"
+  },
+  {
+   "position": 139,
+   "listing": "IV antibiotics at home",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/iv-antibiotics-at-home/",
+   "service_code": "D12-03"
+  },
+  {
+   "position": 140,
+   "listing": "IVF",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ivf/",
+   "service_code": "D26-05"
+  },
+  {
+   "position": 141,
+   "listing": "Kidney disease",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/kidney-disease/",
+   "service_code": "D08-01"
+  },
+  {
+   "position": 142,
+   "listing": "Labour",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/labour/",
+   "service_code": "D25-04"
+  },
+  {
+   "position": 143,
+   "listing": "Leukaemia",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/leukaemia/",
+   "service_code": "D20-02"
+  },
+  {
+   "position": 144,
+   "listing": "Liver disease",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/liver-disease/",
+   "service_code": "D10-01"
+  },
+  {
+   "position": 145,
+   "listing": "Liver disease, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/liver-disease-children/",
+   "service_code": "D28-06"
+  },
+  {
+   "position": 146,
+   "listing": "Liver transplantation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/liver-transplantation/",
+   "service_code": "D10-05"
+  },
+  {
+   "position": 147,
+   "listing": "Lumpectomy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/lumpectomy/",
+   "service_code": "D18-11"
+  },
+  {
+   "position": 148,
+   "listing": "Lung cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/lung-cancer/",
+   "service_code": "D18-05"
+  },
+  {
+   "position": 149,
+   "listing": "Lung disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/lung-disorders/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 150,
+   "listing": "Lung Function",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/lung-function/",
+   "service_code": "D06-03"
+  },
+  {
+   "position": 151,
+   "listing": "Lymphoma",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/lymphoma/",
+   "service_code": "D20-03"
+  },
+  {
+   "position": 152,
+   "listing": "Macmillan care, End of life",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/macmillan-care-end-of-life/",
+   "service_code": "D21-02"
+  },
+  {
+   "position": 153,
+   "listing": "Mastectomy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/mastectomy/",
+   "service_code": "D18-11"
+  },
+  {
+   "position": 154,
+   "listing": "Maternity",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/maternity/",
+   "service_code": "D25-01"
+  },
+  {
+   "position": 155,
+   "listing": "Maxillofacial prosthetics and reconstruction",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/maxillofacial-prosthetics-and-reconstruction/",
+   "service_code": "D17-10"
+  },
+  {
+   "position": 156,
+   "listing": "Maxillofacial surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/maxillofacial-surgery/",
+   "service_code": "D17-08"
+  },
+  {
+   "position": 157,
+   "listing": "Menopause",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/menopause/",
+   "service_code": "D26-04"
+  },
+  {
+   "position": 158,
+   "listing": "Metastatic Spinal Cord Compression (MSCC)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/metastatic-spinal-cord-compression/",
+   "service_code": "D18-10"
+  },
+  {
+   "position": 159,
+   "listing": "Motor nerve",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/motor-nerve/",
+   "service_code": "D22-08"
+  },
+  {
+   "position": 160,
+   "listing": "Motor neurone disease (MND)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/motor-neurone-disease-mnd/",
+   "service_code": "D22-06"
+  },
+  {
+   "position": 161,
+   "listing": "Mouth disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/mouth-disorders/",
+   "service_code": "D17-07"
+  },
+  {
+   "position": 162,
+   "listing": "Movement disorders and Parkinson’s",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/movement-disorders-and-parkinsons/",
+   "service_code": "D22-05"
+  },
+  {
+   "position": 163,
+   "listing": "MRI, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/mri-general/",
+   "service_code": "D30-03"
+  },
+  {
+   "position": 164,
+   "listing": "MRI, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/mri-neuro/",
+   "service_code": "D31-02"
+  },
+  {
+   "position": 165,
+   "listing": "Multiple sclerosis (MS) and neuroinflammation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/multiple-sclerosis-ms/",
+   "service_code": "D22-07"
+  },
+  {
+   "position": 166,
+   "listing": "Muscle and myasthenia",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/muscle-and-myasthenia/",
+   "service_code": "D22-06"
+  },
+  {
+   "position": 167,
+   "listing": "Musculoskeletal outpatient physiotherapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/musculoskeletal-outpatient-physiotherapy/",
+   "service_code": "D24-04"
+  },
+  {
+   "position": 168,
+   "listing": "Myeloid cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/myeloid-cancer/",
+   "service_code": "D20-05"
+  },
+  {
+   "position": 169,
+   "listing": "Myeloma",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/myeloma/",
+   "service_code": "D20-04"
+  },
+  {
+   "position": 170,
+   "listing": "Neonatal",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neonatal/",
+   "service_code": "D27-02"
+  },
+  {
+   "position": 171,
+   "listing": "Nerve conduction and electromyography",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/nerve-conduction-and-electromyography/",
+   "service_code": "D22-04"
+  },
+  {
+   "position": 172,
+   "listing": "Neuro-oncology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neuro-oncology/",
+   "service_code": "D18-09"
+  },
+  {
+   "position": 173,
+   "listing": "Neuro-rehabilitation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neuro-rehabilitation/",
+   "service_code": "D24-01"
+  },
+  {
+   "position": 174,
+   "listing": "Neuroendocrine tumours (NETs)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neuroendocrine-tumours/",
+   "service_code": "D18-08"
+  },
+  {
+   "position": 175,
+   "listing": "Neurointerventional radiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurointerventional-radiology/",
+   "service_code": "D31-03"
+  },
+  {
+   "position": 176,
+   "listing": "Neurology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurology/",
+   "service_code": "D22-09"
+  },
+  {
+   "position": 177,
+   "listing": "Neurology, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurology-children/",
+   "service_code": "D28-07"
+  },
+  {
+   "position": 178,
+   "listing": "Neuropsychology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neuropsychology/",
+   "service_code": "D24-09"
+  },
+  {
+   "position": 179,
+   "listing": "Neuroradiology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neuroradiology/",
+   "service_code": "D31-01"
+  },
+  {
+   "position": 180,
+   "listing": "Neurosciences",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurosciences/",
+   "service_code": "D22-09"
+  },
+  {
+   "position": 181,
+   "listing": "Neurosurgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurosurgery/",
+   "service_code": "D23-02"
+  },
+  {
+   "position": 182,
+   "listing": "Neurovascular",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/neurovascular/",
+   "service_code": "D23-04"
+  },
+  {
+   "position": 183,
+   "listing": "Nuclear medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/nuclear-medicine/",
+   "service_code": "D31-04"
+  },
+  {
+   "position": 184,
+   "listing": "Occupational therapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/occupational-therapy/",
+   "service_code": "D24-02"
+  },
+  {
+   "position": 185,
+   "listing": "Older people, care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/older-people-care/",
+   "service_code": "D04-03"
+  },
+  {
+   "position": 186,
+   "listing": "Ophthalmology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ophthalmology/",
+   "service_code": "D16-03"
+  },
+  {
+   "position": 187,
+   "listing": "Oral and maxillofacial surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/oral-and-maxillofacial-surgery/",
+   "service_code": "D17-08"
+  },
+  {
+   "position": 188,
+   "listing": "Oral medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/oral-medicine/",
+   "service_code": "D17-07"
+  },
+  {
+   "position": 189,
+   "listing": "Oral surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/oral-surgery/",
+   "service_code": "D17-11"
+  },
+  {
+   "position": 190,
+   "listing": "Orthodontics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/orthodontics/",
+   "service_code": "D17-05"
+  },
+  {
+   "position": 191,
+   "listing": "Orthopaedics and trauma",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/orthopaedics-and-trauma/",
+   "service_code": "D15-01"
+  },
+  {
+   "position": 192,
+   "listing": "Outpatient IV antibiotics",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/outpatient-iv-antibiotics/",
+   "service_code": "D12-04"
+  },
+  {
+   "position": 193,
+   "listing": "Outpatient Parenteral Antimicrobial Therapy (OPAT)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/outpatient-parenteral-antimicrobial-therapy-opat/",
+   "service_code": "D12-04"
+  },
+  {
+   "position": 194,
+   "listing": "Paediatric allergy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-allergy/",
+   "service_code": "D28-01"
+  },
+  {
+   "position": 195,
+   "listing": "Paediatric cystic fibrosis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-cystic-fibrosis/",
+   "service_code": "D28-03"
+  },
+  {
+   "position": 196,
+   "listing": "Paediatric dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-dentistry/",
+   "service_code": "D17-02"
+  },
+  {
+   "position": 197,
+   "listing": "Paediatric Emergency Department",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/childrens-emergency-department/",
+   "service_code": "D01-02"
+  },
+  {
+   "position": 198,
+   "listing": "Paediatric endocrinology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-endocrinology/",
+   "service_code": "D28-04"
+  },
+  {
+   "position": 199,
+   "listing": "Paediatric gastroenterology and nutrition",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-gastroenterology-and-nutrition/",
+   "service_code": "D28-05"
+  },
+  {
+   "position": 200,
+   "listing": "Paediatric haematology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-haematology/",
+   "service_code": "D28-09"
+  },
+  {
+   "position": 201,
+   "listing": "Paediatric liver",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-liver/",
+   "service_code": "D28-06"
+  },
+  {
+   "position": 202,
+   "listing": "Paediatric neurology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-neurology/",
+   "service_code": "D28-07"
+  },
+  {
+   "position": 203,
+   "listing": "Paediatric oncology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-oncology/",
+   "service_code": "D28-08"
+  },
+  {
+   "position": 204,
+   "listing": "Paediatric respiratory",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-respiratory/",
+   "service_code": "D28-03"
+  },
+  {
+   "position": 205,
+   "listing": "Paediatric sickle cell and thalassaemia",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-sickle-cell-and-thalassaemia/",
+   "service_code": "D28-10"
+  },
+  {
+   "position": 206,
+   "listing": "Paediatric surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatric-surgery/",
+   "service_code": "D27-03"
+  },
+  {
+   "position": 207,
+   "listing": "Paediatrics, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/paediatrics-general/",
+   "service_code": "D27-01"
+  },
+  {
+   "position": 208,
+   "listing": "Pain management",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pain-management/",
+   "service_code": "D03-07"
+  },
+  {
+   "position": 209,
+   "listing": "Palliative care",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/palliative-care/",
+   "service_code": "D21-01"
+  },
+  {
+   "position": 210,
+   "listing": "Pancreatic cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pancreatic-cancer/",
+   "service_code": "D18-06"
+  },
+  {
+   "position": 211,
+   "listing": "Parkinson’s disease",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/parkinsons-disease/",
+   "service_code": "D22-05"
+  },
+  {
+   "position": 212,
+   "listing": "Pelvic health physiotherapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pelvic-health-physiotherapy/",
+   "service_code": "D24-05"
+  },
+  {
+   "position": 213,
+   "listing": "Peripheral nerve",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/peripheral-nerve/",
+   "service_code": "D22-08"
+  },
+  {
+   "position": 214,
+   "listing": "PET-CT scans",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pet-ct-scans/",
+   "service_code": "D31-05"
+  },
+  {
+   "position": 215,
+   "listing": "Pharmacy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pharmacy/",
+   "service_code": "D33-02"
+  },
+  {
+   "position": 216,
+   "listing": "Physiotherapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/physiotherapy/",
+   "service_code": "D24-06"
+  },
+  {
+   "position": 217,
+   "listing": "Physiotherapy – Musculoskeletal outpatients",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/physiotherapy-musculoskeletal-outpatients/",
+   "service_code": "D24-04"
+  },
+  {
+   "position": 218,
+   "listing": "Porphyria",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/porphyria/",
+   "service_code": "D20-08"
+  },
+  {
+   "position": 219,
+   "listing": "Pre-operative assessment clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pre-operative-assessment-clinic/",
+   "service_code": "D14-05"
+  },
+  {
+   "position": 220,
+   "listing": "Programmed Investigation Unit (PIU)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/programmed-investigation-unit-piu/",
+   "service_code": "D02-03"
+  },
+  {
+   "position": 221,
+   "listing": "Psychology (adult clinical health)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/psychology-adult-clinical-health/",
+   "service_code": "D29-06"
+  },
+  {
+   "position": 222,
+   "listing": "Pulmonary function tests",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pulmonary-function-tests/",
+   "service_code": "D06-03"
+  },
+  {
+   "position": 223,
+   "listing": "Pulmonary rehabilitation",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/pulmonary-rehabilitation/",
+   "service_code": "D06-05"
+  },
+  {
+   "position": 224,
+   "listing": "Radiology, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/radiology-general/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 225,
+   "listing": "Radiology, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/radiology-neuro/",
+   "service_code": "D31-02"
+  },
+  {
+   "position": 226,
+   "listing": "Rapid Access Chest Pain Clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/rapid-access-chest-pain-clinic/",
+   "service_code": "D05-02"
+  },
+  {
+   "position": 227,
+   "listing": "Red cell haematology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/red-cell-haematology/",
+   "service_code": "D20-07"
+  },
+  {
+   "position": 228,
+   "listing": "Renal",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/renal/",
+   "service_code": "D08-01"
+  },
+  {
+   "position": 229,
+   "listing": "Respiratory medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/respiratory-medicine/",
+   "service_code": "D06-01"
+  },
+  {
+   "position": 230,
+   "listing": "Restorative dentistry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/restorative-dentistry/",
+   "service_code": "D17-04"
+  },
+  {
+   "position": 231,
+   "listing": "Rheumatology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/rheumatology/",
+   "service_code": "D11-04"
+  },
+  {
+   "position": 232,
+   "listing": "Scans, antenatal",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/scans-antenatal/",
+   "service_code": "D25-01"
+  },
+  {
+   "position": 233,
+   "listing": "Scans, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/scans-general/",
+   "service_code": "D30-01"
+  },
+  {
+   "position": 234,
+   "listing": "Scans, gynae",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/scans-gynae/",
+   "service_code": "D26-08"
+  },
+  {
+   "position": 235,
+   "listing": "Scans, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/scans-neuro/",
+   "service_code": "D31-02"
+  },
+  {
+   "position": 236,
+   "listing": "Sexual Assault Referral Centre (SARC)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/sexual-assault-referral-centre-sarc/",
+   "service_code": "D29-03"
+  },
+  {
+   "position": 237,
+   "listing": "Sexual health",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/sexual-health/",
+   "service_code": "D29-01"
+  },
+  {
+   "position": 238,
+   "listing": "Sickle cell, adult",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/sickle-cell-adult/",
+   "service_code": "D20-07"
+  },
+  {
+   "position": 239,
+   "listing": "Sickle cell, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/sickle-cell-children/",
+   "service_code": "D28-10"
+  },
+  {
+   "position": 240,
+   "listing": "Skin allergy, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/skin-allergy-children/",
+   "service_code": "D28-01"
+  },
+  {
+   "position": 241,
+   "listing": "Skin cancer",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/skin-cancer/",
+   "service_code": "D18-07"
+  },
+  {
+   "position": 242,
+   "listing": "Skin problems",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/skin-problems/",
+   "service_code": "D11-02"
+  },
+  {
+   "position": 243,
+   "listing": "Skull base",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/skull-base/",
+   "service_code": "D23-05"
+  },
+  {
+   "position": 244,
+   "listing": "Sleep studies",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/sleep-studies/",
+   "service_code": "D06-04"
+  },
+  {
+   "position": 245,
+   "listing": "South East London Breast Screening Programme",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/south-east-london-breast-screening-programme/",
+   "service_code": "D18-02"
+  },
+  {
+   "position": 246,
+   "listing": "Special Care Baby Unit (SCBU)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/special-care-baby-unit-scbu/",
+   "service_code": "D27-02"
+  },
+  {
+   "position": 247,
+   "listing": "Special care dentistry – community",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/special-care-dentistry-community/",
+   "service_code": "D17-03"
+  },
+  {
+   "position": 248,
+   "listing": "Special care dentistry – hospital based",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/special-care-dentistry-hospital-based/",
+   "service_code": "D17-03"
+  },
+  {
+   "position": 249,
+   "listing": "Speech and language therapy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/speech-and-language-therapy/",
+   "service_code": "D24-07"
+  },
+  {
+   "position": 250,
+   "listing": "Spinal surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/spinal-surgery/",
+   "service_code": "D15-02"
+  },
+  {
+   "position": 251,
+   "listing": "Spinal surgery, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/spinal-surgery-children/",
+   "service_code": "D27-04"
+  },
+  {
+   "position": 252,
+   "listing": "Stroke medicine",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/stroke-medicine/",
+   "service_code": "D23-01"
+  },
+  {
+   "position": 253,
+   "listing": "Surgery, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/surgery-children/",
+   "service_code": "D27-03"
+  },
+  {
+   "position": 254,
+   "listing": "Surgical Ambulatory Care Unit (SACU)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/surgical-ambulatory-care-unit-sacu/",
+   "service_code": "D13-05"
+  },
+  {
+   "position": 255,
+   "listing": "T1DE",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/t1de/",
+   "service_code": "D07-08"
+  },
+  {
+   "position": 256,
+   "listing": "Termination of pregnancy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/termination-of-pregnancy/",
+   "service_code": "D26-06"
+  },
+  {
+   "position": 257,
+   "listing": "Thalassaemia, adult",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/thalassaemia-adult/",
+   "service_code": "D20-07"
+  },
+  {
+   "position": 258,
+   "listing": "Thalassaemia, children",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/thalassaemia-children/",
+   "service_code": "D28-11"
+  },
+  {
+   "position": 259,
+   "listing": "The Havens",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/the-havens/",
+   "service_code": "D29-03"
+  },
+  {
+   "position": 260,
+   "listing": "Thrombosis and haemostasis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/thrombosis-and-haemostasis/",
+   "service_code": "D20-06"
+  },
+  {
+   "position": 261,
+   "listing": "Thyroid disorders",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/thyroid-disorders/",
+   "service_code": "D07-01"
+  },
+  {
+   "position": 262,
+   "listing": "Thyroid surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/thyroid-surgery/",
+   "service_code": "D14-04"
+  },
+  {
+   "position": 263,
+   "listing": "Tongue-tie",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/tongue-tie/",
+   "service_code": "D27-05"
+  },
+  {
+   "position": 264,
+   "listing": "Transplant-related diabetes",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/transplant-related-diabetes/",
+   "service_code": "D07-07"
+  },
+  {
+   "position": 265,
+   "listing": "Type 1 Diabetes with Disordered Eating (T1DE)",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/type-1-diabetes-with-disordered-eating-t1de/",
+   "service_code": "D07-08"
+  },
+  {
+   "position": 266,
+   "listing": "Ultrasound, antenatal",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ultrasound-antenatal/",
+   "service_code": "D25-01"
+  },
+  {
+   "position": 267,
+   "listing": "Ultrasound, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ultrasound-general/",
+   "service_code": "D30-05"
+  },
+  {
+   "position": 268,
+   "listing": "Ultrasound, general gynae",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ultrasound-general-gynae/",
+   "service_code": "D26-08"
+  },
+  {
+   "position": 269,
+   "listing": "Ultrasound, vascular",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/ultrasound-vascular/",
+   "service_code": "D30-08"
+  },
+  {
+   "position": 270,
+   "listing": "Urgent dental clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/urgent-dental-clinic/",
+   "service_code": "D17-01"
+  },
+  {
+   "position": 271,
+   "listing": "Urogynaecology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/urogynaecology/",
+   "service_code": "D26-07"
+  },
+  {
+   "position": 272,
+   "listing": "Urology",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/urology/",
+   "service_code": "D16-01"
+  },
+  {
+   "position": 273,
+   "listing": "Vascular Access Team",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/vascular-access-team/",
+   "service_code": "D08-07"
+  },
+  {
+   "position": 274,
+   "listing": "Vascular and endovascular surgery",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/vascular-and-endovascular-surgery/",
+   "service_code": "D14-03"
+  },
+  {
+   "position": 275,
+   "listing": "Vascular ultrasound",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/vascular-ultrasound/",
+   "service_code": "D30-08"
+  },
+  {
+   "position": 276,
+   "listing": "Video-EEG telemetry",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/video-eeg-telemetry/",
+   "service_code": "D22-03"
+  },
+  {
+   "position": 277,
+   "listing": "Viral hepatitis",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/viral-hepatitis/",
+   "service_code": "D10-04"
+  },
+  {
+   "position": 278,
+   "listing": "Virtual Fracture Clinic",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/fracture-care-team/",
+   "service_code": "D15-03"
+  },
+  {
+   "position": 279,
+   "listing": "Vulvoscopy",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/vulvoscopy/",
+   "service_code": "D26-03"
+  },
+  {
+   "position": 280,
+   "listing": "X-ray, general",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/x-ray-general/",
+   "service_code": "D30-04"
+  },
+  {
+   "position": 281,
+   "listing": "X-ray, neuro",
+   "url": "https://www.kch.nhs.uk/services/services-a-to-z/x-ray-neuro/",
+   "service_code": "D31-02"
+  }
+ ]
+}

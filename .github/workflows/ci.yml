@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  # Branches are tested through their pull request; pushes run CI only on main.
+  # A push to a PR branch therefore triggers one run, not two.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR cancels the run it supersedes.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:26.10
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root
+          MYSQL_DATABASE: astemia_test
+          MYSQL_USER: astemia
+          MYSQL_PASSWORD: astemia
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-root"
+          --health-interval=5s --health-retries=30
+    env:
+      ASTEMIA_TEST_DATABASE_URL: mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+      - run: uv sync --frozen --all-groups
+      - name: Lint and format
+        run: |
+          uv run ruff check src tests tools
+          uv run ruff format --check src tests tools
+      - name: Types
+        run: uv run mypy
+      - name: Tests on MySQL 26.10
+        run: uv run pytest --cov=astemia --cov-report=term-missing
+      - name: Schema diff (models vs migrations)
+        env:
+          ASTEMIA_DATABASE_URL: ${{ env.ASTEMIA_TEST_DATABASE_URL }}
+        run: uv run alembic check
