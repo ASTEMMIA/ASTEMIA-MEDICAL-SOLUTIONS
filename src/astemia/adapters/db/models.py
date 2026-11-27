@@ -1091,6 +1091,76 @@ class DocumentVersion(Envelope, Base):
     reason: Mapped[str] = mapped_column(String(500), nullable=False)
 
 
+class Task(Envelope, Base):
+    """CEDA Task (UG03 Daybook): work for a named owner or a queue (a role),
+    with a due time that reassignment never changes."""
+
+    __tablename__ = "task"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "assignee_id"], "practitioner"),
+        fk(["tenant_id", "completed_by_id"], "practitioner"),
+        Index(None, "tenant_id", "assignee_id", "status", "due_at"),
+        Index(None, "tenant_id", "queue", "status", "due_at"),
+        Index(None, "tenant_id", "origin_type", "origin_id"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    subject: Mapped[str] = mapped_column(String(200), nullable=False)
+    task_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    priority: Mapped[str] = mapped_column(String(16), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    due_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    assignee_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    queue: Mapped[str | None] = mapped_column(String(64))
+    origin_type: Mapped[str | None] = mapped_column(String(32))
+    origin_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    escalation_step: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    acknowledged_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    completed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    completed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    outcome_note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class TaskAssignment(Envelope, Base):
+    """CEDA Assignment: every owner a task has had, in order."""
+
+    __tablename__ = "task_assignment"
+    __table_args__ = (
+        fk(["tenant_id", "task_id"], "task"),
+        fk(["tenant_id", "assignee_id"], "practitioner"),
+        Index(None, "tenant_id", "task_id", "recorded_at"),
+        TABLE_OPTS,
+    )
+
+    task_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    assignee_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    queue: Mapped[str | None] = mapped_column(String(64))
+    reason: Mapped[str] = mapped_column(String(500), nullable=False)
+
+
+class TaskNotification(Base):
+    """CEDA Notification: a reminder, at most one per task, policy and
+    escalation step (UG03 invariant), whoever owns the task at the time."""
+
+    __tablename__ = "task_notification"
+    __table_args__ = (
+        fk(["tenant_id", "task_id"], "task"),
+        UniqueConstraint("tenant_id", "task_id", "policy", "step"),
+        TABLE_OPTS,
+    )
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    task_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    policy: Mapped[str] = mapped_column(String(32), nullable=False)
+    step: Mapped[int] = mapped_column(Integer, nullable=False)
+    recipient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    recipient_queue: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""

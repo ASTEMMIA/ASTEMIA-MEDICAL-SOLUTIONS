@@ -1,4 +1,4 @@
-"""Operator CLI: astemia seed-dev | token | relay | serve."""
+"""Operator CLI: astemia seed-dev | token | relay | reminders | serve."""
 
 import argparse
 import json
@@ -23,6 +23,7 @@ from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import issue_dev_token
 from astemia.config import get_settings
 from astemia.workers.outbox_relay import relay_once
+from astemia.workers.reminders import send_reminders
 
 DEV_TENANT = uuid.UUID("0196f1a0-0000-7000-8000-000000000001")
 
@@ -143,12 +144,15 @@ def main(argv: list[str] | None = None, factory: sessionmaker[Session] | None = 
     relay = sub.add_parser("relay", help="publish outbox events")
     relay.add_argument("--interval", type=float, default=1.0)
     relay.add_argument("--max-cycles", type=int, default=None)
+    sub.add_parser("reminders", help="send the Daybook reminders now due")
     args = parser.parse_args(argv)
     settings = get_settings()
     if args.cmd == "seed-dev":
         print(json.dumps(seed_dev(factory, uuid.UUID(args.tenant)), indent=2))
     elif args.cmd == "token":
         print(issue_dev_token(settings, args.subject, uuid.UUID(args.tenant)))
+    elif args.cmd == "reminders":
+        print(send_reminders(factory or default_session_factory()))
     else:
         run_relay(
             factory or default_session_factory(), LoggingBroker(), args.interval, args.max_cycles

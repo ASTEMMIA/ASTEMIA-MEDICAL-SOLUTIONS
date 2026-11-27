@@ -77,6 +77,12 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/documents/{id}/file` | File to a patient and route to a reviewer; `adjudication` needed for an ambiguous match. Needs `If-Match` |
   | `POST /v1/documents/{id}/reindex` | Correct the indexing; the original digest is kept. Needs `If-Match` |
   | `POST /v1/documents/{id}/review` | The named reviewer signs the document off. Needs `If-Match` |
+  | `POST /v1/tasks` | Create a Daybook task for a named owner or a queue (a role) |
+  | `GET /v1/tasks` | `view=mine` (mine and my queues) or `view=all` (team supervisor), earliest due first |
+  | `POST /v1/tasks/{id}/acknowledge` | Acknowledge; claims a queue task. Needs `If-Match` |
+  | `POST /v1/tasks/{id}/complete` | Complete, recording who and when. Needs `If-Match` |
+  | `POST /v1/tasks/{id}/cancel` | Cancel with a reason. Needs `If-Match` |
+  | `POST /v1/tasks/{id}/reassign` | Reassign; the deadline does not move. Needs `If-Match` |
   | `POST /v1/restrictive-interventions` | Log a restraint, seclusion or rapid tranquillisation (care team) |
   | `POST /v1/restrictive-interventions/{id}/end` | Record the end time, debrief and any injury, once. Needs `If-Match` |
   | `GET /v1/restrictive-interventions` | Review queue, oldest deadline first; `reviewed=true` for the history (safeguarding lead) |

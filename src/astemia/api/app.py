@@ -20,6 +20,7 @@ from astemia.adapters.identity.tokens import TokenVerifier
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
+from astemia.application.daybook import Daybook
 from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
@@ -39,13 +40,16 @@ from astemia.application.schemas import (
     AppointAdvocate,
     BookAppointment,
     CancelAppointment,
+    CancelTask,
     ChartOut,
     CloseBatch,
     CloseConcern,
     ClosePatient,
+    CompleteTask,
     ConcernOut,
     CreateEntry,
     CreateSlots,
+    CreateTask,
     DecideReferral,
     DocumentOut,
     DuplicateGroup,
@@ -62,6 +66,7 @@ from astemia.application.schemas import (
     PlaceOrder,
     ProvisionCatalogue,
     RaiseConcern,
+    ReassignTask,
     ReceiveDocument,
     RecordAttendance,
     RecordIntervention,
@@ -82,6 +87,7 @@ from astemia.application.schemas import (
     SetLegalStatus,
     SlotOut,
     SubmitReferral,
+    TaskOut,
     UnmergePatient,
     UpdateDraft,
 )
@@ -112,6 +118,7 @@ def create_app(
     safeguards = Safeguards(write_path, factory, policy)
     notes = Notes(write_path, factory, policy)
     documents = Documents(write_path, factory, policy)
+    daybook = Daybook(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -442,6 +449,65 @@ def create_app(
     ) -> dict[str, Any]:
         result = documents.review(ctx, key, document_id, version_of(if_match), body)
         return respond(result, response)
+
+    # --- Daybook tasks (UG03) ----------------------------------------------------
+
+    @app.post("/v1/tasks", status_code=201)
+    def create_task(
+        body: CreateTask, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(daybook.create(ctx, key, body), response)
+
+    @app.get("/v1/tasks", response_model=list[TaskOut])
+    def task_worklist(
+        ctx: Ctx,
+        view: Annotated[str, Query(pattern="^(mine|all)$")] = "mine",
+        limit: Annotated[int, Query(ge=1, le=200)] = 100,
+    ) -> list[TaskOut]:
+        return daybook.worklist(ctx, view=view, limit=limit)
+
+    @app.post("/v1/tasks/{task_id}/acknowledge")
+    def acknowledge_task(
+        task_id: uuid.UUID,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(daybook.acknowledge(ctx, key, task_id, version_of(if_match)), response)
+
+    @app.post("/v1/tasks/{task_id}/complete")
+    def complete_task(
+        task_id: uuid.UUID,
+        body: CompleteTask,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(daybook.complete(ctx, key, task_id, version_of(if_match), body), response)
+
+    @app.post("/v1/tasks/{task_id}/cancel")
+    def cancel_task(
+        task_id: uuid.UUID,
+        body: CancelTask,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(daybook.cancel(ctx, key, task_id, version_of(if_match), body), response)
+
+    @app.post("/v1/tasks/{task_id}/reassign")
+    def reassign_task(
+        task_id: uuid.UUID,
+        body: ReassignTask,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(daybook.reassign(ctx, key, task_id, version_of(if_match), body), response)
 
     # --- mental health safeguards (HS13, B11; ICRS 5.5.9) ----------------------
 
