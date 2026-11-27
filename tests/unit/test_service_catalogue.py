@@ -1,5 +1,6 @@
 """The hospital service catalogue: Annex A15 coverage plus ASTEMIA extensions."""
 
+import pathlib
 import re
 
 import pytest
@@ -12,9 +13,9 @@ CATALOGUE = load_catalogue()
 GROUPS = CATALOGUE["groups"]
 
 
-def test_every_kch_listing_position_maps_to_exactly_one_group() -> None:
+def test_every_directory_a_position_maps_to_exactly_one_group() -> None:
     """Annex A16 release evidence: every source position maps to one primary group."""
-    positions = [p for g in GROUPS for p in g["kch_positions"]]
+    positions = [p for g in GROUPS for p in g["directory_a_positions"]]
     assert sorted(positions) == list(range(1, 282))
 
 
@@ -81,7 +82,7 @@ def test_activation_rules() -> None:
 SERVICE_GROUP = {s["code"]: g["code"] for g in GROUPS for s in g["services"]}
 
 
-@pytest.mark.parametrize(("directory", "listings"), [("kch", 281), ("nhsggc", 172)])
+@pytest.mark.parametrize(("directory", "listings"), [("directory_a", 281), ("directory_b", 172)])
 def test_every_directory_listing_maps_to_exactly_one_service(directory: str, listings: int) -> None:
     entries = load_crosswalk(directory)["entries"]
     assert [e["position"] for e in entries] == list(range(1, listings + 1))
@@ -89,24 +90,28 @@ def test_every_directory_listing_maps_to_exactly_one_service(directory: str, lis
     assert unknown == []
 
 
-def test_kch_listings_sit_in_the_annex_a15_group() -> None:
-    """Service-level KCH mapping agrees with the group-level mapping in Annex A15."""
-    group_of_position = {p: g["code"] for g in GROUPS for p in g["kch_positions"]}
-    for e in load_crosswalk("kch")["entries"]:
+def test_directory_a_listings_sit_in_the_annex_a15_group() -> None:
+    """Service-level directory A mapping agrees with the group-level mapping in Annex A15."""
+    group_of_position = {p: g["code"] for g in GROUPS for p in g["directory_a_positions"]}
+    for e in load_crosswalk("directory_a")["entries"]:
         assert SERVICE_GROUP[e["service_code"]] == group_of_position[e["position"]], e
 
 
 @pytest.mark.parametrize(
     ("directory", "listing", "service"),
     [
-        ("kch", "The Havens", "Sexual assault referral centre"),
-        ("kch", "Breast cancer", "Breast care and screening"),
-        ("kch", "Mastectomy", "Breast surgery (lumpectomy and mastectomy)"),
-        ("kch", "Frank Cooksey Rehabilitation Unit", "Chronic pain rehabilitation programme"),
-        ("nhsggc", "WestMARC", "Prosthetics"),
-        ("nhsggc", "Esteem Glasgow", "Early intervention in psychosis"),
-        ("nhsggc", "Cash withdrawal (ATM)", "Visitor amenities"),
-        ("nhsggc", "Milk Bank Scotland", "Donor milk bank"),
+        ("directory_a", "The Havens", "Sexual assault referral centre"),
+        ("directory_a", "Breast cancer", "Breast care and screening"),
+        ("directory_a", "Mastectomy", "Breast surgery (lumpectomy and mastectomy)"),
+        (
+            "directory_a",
+            "Frank Cooksey Rehabilitation Unit",
+            "Chronic pain rehabilitation programme",
+        ),
+        ("directory_b", "WestMARC", "Prosthetics"),
+        ("directory_b", "Esteem Glasgow", "Early intervention in psychosis"),
+        ("directory_b", "Cash withdrawal (ATM)", "Visitor amenities"),
+        ("directory_b", "Milk Bank Scotland", "Donor milk bank"),
     ],
 )
 def test_crosswalk_examples(directory: str, listing: str, service: str) -> None:
@@ -125,11 +130,31 @@ def test_no_gp_in_catalogue_service_names() -> None:
     assert "Medical doctor out of hours" in {s["name"] for s in services}
 
 
-@pytest.mark.parametrize("directory", ["kch", "nhsggc"])
+@pytest.mark.parametrize("directory", ["directory_a", "directory_b"])
 def test_no_gp_or_nhs_in_directory_listing_names(directory: str) -> None:
     """ASTEMIA naming applies to the directory crosswalks too, without exceptions."""
-    import re
-
     banned = re.compile(r"(?<![A-Za-z])(GP|NHS|GGC)(?![a-z])")  # NHSGGC included
     listings = [e["listing"] for e in load_crosswalk(directory)["entries"]]
     assert [x for x in listings if banned.search(x)] == []
+
+
+def test_directories_carry_no_organisation_names() -> None:
+    """Both directories are named after the Astemia Medical Solutions for
+    Integrated Care Records Service. Web addresses are the publishers' own and
+    stay as they are."""
+    root = pathlib.Path(__file__).parents[2]
+    files = [*root.glob("src/astemia/catalogue/data/*.json"), root / "docs/service-catalogue.md"]
+    banned = re.compile(r"King.s College|Greater Glasgow|Clyde|\bKCH\b|NHSGGC|\bkch\b|nhsggc", re.I)
+    url = re.compile(r"https?://\S+")
+    hits = [
+        f"{f.name}: {line.strip()}"
+        for f in files
+        for line in f.read_text().splitlines()
+        if banned.search(url.sub("", line))
+    ]
+    assert hits == []
+    for directory in ("directory_a", "directory_b"):
+        assert (
+            "Astemia Medical Solutions for Integrated Care Records Service"
+            in (load_crosswalk(directory)["title"])
+        )

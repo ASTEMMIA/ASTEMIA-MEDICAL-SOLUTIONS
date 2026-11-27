@@ -100,8 +100,9 @@ As instructed, with no exceptions:
   "Astemia Medical Solutions Status" (`astemia_medical_solutions_status`),
   "Date of NHS Exit" becomes "Date of Astemia Medical Solutions Exit", and the
   business clinical service's "NHS BS Code / Name" becomes "Astemia Medical
-  Solutions BS Code / Name". Directory and organisation names follow it too,
-  for example "Astemia Medical Solutions Greater Glasgow and Clyde".
+  Solutions BS Code / Name". The two services A to Z directories are named
+  directories A and B of the Astemia Medical Solutions for Integrated Care
+  Records Service (migration 0009).
 
 Migration 0007 renamed the affected staging columns in place, so staged values
 are kept. The extract dictionary keeps the original label in `source_label`
@@ -123,8 +124,7 @@ ZETTER medical doctor columns (migration 0005). The CDS suffix `VGP`
 (variant grouping) is not a GP field and is unchanged. The extract dictionary
 keeps the original label in `source_label`.
 
-The rule has no exceptions. The Astemia Medical Solutions Greater Glasgow and
-Clyde directory listings are renamed too:
+The rule has no exceptions. Directory B listings are renamed too:
 "GP Service" becomes "Medical Doctor Service", "GP Out of Hours" becomes
 "Medical Doctor Out of Hours", and "Out of Hours GP Service" becomes "Out of
 Hours Medical Doctor Service" (migration 0006, including tenant search

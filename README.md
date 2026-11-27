@@ -62,10 +62,12 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
 50 department groups and 359 services. The full list, with both directory
 crosswalks, is in [docs/service-catalogue.md](docs/service-catalogue.md).
 
-* **King's College Hospital A to Z:** all 281 listings map to a specific
-  service. D01-D36 follow AMS-002 Annex A15.
-* **Astemia Medical Solutions Greater Glasgow and Clyde A to Z:** all 172 listings map to a
-  specific service. That includes non-clinical listings such as chaplaincy,
+Both directories are the services A to Z of the Astemia Medical Solutions for
+Integrated Care Records Service:
+
+* **Directory A:** all 281 listings map to a specific service. D01-D36 follow
+  AMS-002 Annex A15.
+* **Directory B:** all 172 listings map to a specific service. That includes non-clinical listings such as chaplaincy,
   interpreting, patient transport and visitor amenities, which go to D50
   Patient, family and visitor support.
 * **D37-D50 ASTEMIA extensions,** confirmed in pilot scope on 23 November

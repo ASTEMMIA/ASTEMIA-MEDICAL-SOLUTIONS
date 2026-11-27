@@ -9,7 +9,7 @@ from sqlalchemy import MetaData
 from astemia.adapters.db.staging import ErdEntity, build_staging_tables
 from astemia.adapters.db.types import UTCDateTime
 from astemia.adapters.identity.tokens import issue_dev_token
-from astemia.catalogue import directory_rows
+from astemia.catalogue import SCHEMA_CURRENT, directory_rows, template_rows
 from astemia.config import Settings, get_settings
 from astemia.domain import diagnostics as dx
 from astemia.domain.common import InvariantViolation
@@ -58,9 +58,18 @@ def test_erd_fields_that_clash_with_lineage_columns_are_prefixed() -> None:
 
 
 def test_directory_rows_cover_both_directories() -> None:
-    rows = directory_rows()
-    assert {r["directory"] for r in rows} == {"kch", "nhsggc"}
+    rows = directory_rows(SCHEMA_CURRENT)
+    assert {r["directory"] for r in rows} == {"directory_a", "directory_b"}
     assert len(rows) == 281 + 172
+
+
+def test_seed_rows_keep_the_migration_0004_form_by_default() -> None:
+    """Migration 0004 calls these with no arguments; 0009 renames afterwards."""
+    assert {r["directory"] for r in directory_rows()} == {"kch", "nhsggc"}
+    groups, _ = template_rows()
+    assert all("kch_positions" in g for g in groups)
+    current, _ = template_rows(SCHEMA_CURRENT)
+    assert [g["directory_a_positions"] for g in current] == [g["kch_positions"] for g in groups]
 
 
 def test_settings_are_cached() -> None:

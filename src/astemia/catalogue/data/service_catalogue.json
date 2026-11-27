@@ -1,7 +1,7 @@
 {
  "catalogue": "ASTEMIA hospital service catalogue",
  "version": "2026.11.3",
- "coverage_template": "the King's College Hospital Services A to Z directory (https://www.kch.nhs.uk/services/services-a-to-z/, snapshot 18 November 2026)",
+ "coverage_template": "the Astemia Medical Solutions for Integrated Care Records Service services A to Z, directory A (https://www.kch.nhs.uk/services/services-a-to-z/, snapshot 18 November 2026)",
  "groups": [
   {
    "code": "D01",
@@ -20,7 +20,7 @@
    ],
    "security_checks": "Require active ED context and paediatric proxy checks. Limit temporary identity access to authorised teams.",
    "acceptance": "Replay the same ambulance handover with a temporary patient ID. One arrival remains and the confirmed identity retains all triage events.",
-   "kch_positions": [
+   "directory_a_positions": [
     1,
     41,
     82,
@@ -98,7 +98,7 @@
    ],
    "security_checks": "Limit worklists to the service and facility. Require assigned ownership before completing a handover.",
    "acceptance": "Close an ambulatory visit with an outstanding investigation. The worklist still shows the named reviewer.",
-   "kch_positions": [
+   "directory_a_positions": [
     3,
     220
    ],
@@ -165,7 +165,7 @@
    ],
    "security_checks": "Restrict entry and sign-off to assigned credentialed staff. Keep each handover version and its recipient.",
    "acceptance": "Transfer a patient out of ICU. The old bed releases once and the ward receives one signed handover.",
-   "kch_positions": [
+   "directory_a_positions": [
     54,
     135,
     208
@@ -278,7 +278,7 @@
    ],
    "security_checks": "Check representative authority for applicable actions and scope social-care disclosure.",
    "acceptance": "Revoke an expired representative grant while retaining the active care-team task.",
-   "kch_positions": [
+   "directory_a_positions": [
     44,
     80,
     105,
@@ -371,7 +371,7 @@
    ],
    "security_checks": "Restrict device/result access to the treating team. Check community partner scope at transmission.",
    "acceptance": "Missed acknowledgement of a released investigation routes to the configured cardiology fallback only once.",
-   "kch_positions": [
+   "directory_a_positions": [
     32,
     33,
     34,
@@ -460,7 +460,7 @@
    ],
    "security_checks": "Apply approved result-release controls and scoped access for longitudinal records.",
    "acceptance": "A corrected lung-function report retains its original and reopens the clinician review.",
-   "kch_positions": [
+   "directory_a_positions": [
     27,
     29,
     38,
@@ -541,7 +541,7 @@
    ],
    "security_checks": "Require approved shared-team access. Restrict behavioural-health material in ordinary chart summaries.",
    "acceptance": "An amended plan changes future activity and preserves the prior version for completed reviews.",
-   "kch_positions": [
+   "directory_a_positions": [
     67,
     68,
     69,
@@ -653,7 +653,7 @@
    ],
    "security_checks": "Check dialysis role and site assignment and scope access to the linked procedure and device information.",
    "acceptance": "Retry recurring-session creation after partial failure. One session remains for each configured instance.",
-   "kch_positions": [
+   "directory_a_positions": [
     75,
     116,
     141,
@@ -743,7 +743,7 @@
    ],
    "security_checks": "Check endoscopy credential and patient consent evidence. Scope screening export to the approved recipient.",
    "acceptance": "One biopsy taken during endoscopy links to the procedure and its later result, with one named reviewer.",
-   "kch_positions": [
+   "directory_a_positions": [
     20,
     76,
     87,
@@ -811,7 +811,7 @@
    ],
    "security_checks": "Scope donor and recipient records independently when donor information is present. Restrict transplant status changes to the approved role.",
    "acceptance": "An ordinary ward user sees the allowed recipient summary while donor details remain restricted.",
-   "kch_positions": [
+   "directory_a_positions": [
     5,
     43,
     126,
@@ -898,7 +898,7 @@
    ],
    "security_checks": "Segregate sensitive images, scope image access by patient and preserve image consent and changes.",
    "acceptance": "A dermatology image remains inaccessible through a link copied from a different patient record.",
-   "kch_positions": [
+   "directory_a_positions": [
     6,
     66,
     231,
@@ -971,7 +971,7 @@
    ],
    "security_checks": "Apply sensitivity limitations and scope community team access to assigned patients. Apply recipient policy before lab release.",
    "acceptance": "An unsuccessful home visit creates a single reconciliation task. HIV notes remain hidden from a staff member without the applicable permission.",
-   "kch_positions": [
+   "directory_a_positions": [
     9,
     129,
     139,
@@ -1035,7 +1035,7 @@
    ],
    "security_checks": "Require credentialed signatures and verified case, procedure and recipient before theatre or ward handover.",
    "acceptance": "Cancel an ambulatory operation. Theatre capacity releases and its owner receives one follow-up task.",
-   "kch_positions": [
+   "directory_a_positions": [
     46,
     47,
     127,
@@ -1108,7 +1108,7 @@
    ],
    "security_checks": "Require approved procedural privileges and keep any override under a separate audited action.",
    "acceptance": "Attempt to book an unavailable asset or sign a case as an unauthorised role. The worklist stays consistent.",
-   "kch_positions": [
+   "directory_a_positions": [
     4,
     35,
     84,
@@ -1188,7 +1188,7 @@
    ],
    "security_checks": "Restrict procedure sign-off and transfers by role. Use approved clinical safety validation for laterality.",
    "acceptance": "A conflicting laterality prevents moving the case forward under the configured safety policy and records the discrepancy.",
-   "kch_positions": [
+   "directory_a_positions": [
     191,
     250,
     278
@@ -1276,7 +1276,7 @@
    ],
    "security_checks": "Check specialty role and procedural scope and restrict protected images to assigned patients.",
    "acceptance": "A urology user cannot retrieve the ophthalmology worklist without an applicable grant.",
-   "kch_positions": [
+   "directory_a_positions": [
     91,
     186,
     272
@@ -1375,7 +1375,7 @@
    ],
    "security_checks": "Apply specialty and minor confidentiality rules. Scope community dental sharing and sensitive dental psychology notes.",
    "acceptance": "Two procedures on different tooth sites remain separate and a hospital-only note stays out of a community referral.",
-   "kch_positions": [
+   "directory_a_positions": [
     2,
     40,
     50,
@@ -1520,7 +1520,7 @@
    ],
    "security_checks": "Limit raw pathology, genomic material if collected and MDT documents to the approved scope. Audit exceptional release.",
    "acceptance": "Amended pathology routes to the cancer MDT reviewer without silently overwriting the original staging evidence.",
-   "kch_positions": [
+   "directory_a_positions": [
     19,
     23,
     24,
@@ -1655,7 +1655,7 @@
    ],
    "security_checks": "Apply site-approved verification, qualification and distinct approval controls for medication steps.",
    "acceptance": "A superseded plan cannot be used for a new cycle. An already administered cycle preserves its plan version.",
-   "kch_positions": [
+   "directory_a_positions": [
     37
    ],
    "source": "ams-002-annex-a15",
@@ -1717,7 +1717,7 @@
    ],
    "security_checks": "Scope donor, cell product and recipient data by role and use. Require protected review of identity discrepancies.",
    "acceptance": "A therapy-product mismatch requires reconciliation and creates an auditable exception rather than an administration record.",
-   "kch_positions": [
+   "directory_a_positions": [
     13,
     14,
     15,
@@ -1834,7 +1834,7 @@
    ],
    "security_checks": "Verify approved recipients and purpose before family or partner disclosures. Segment sensitive preferences as applicable.",
    "acceptance": "Closing the clinical episode preserves the bereavement referral and authorisation evidence.",
-   "kch_positions": [
+   "directory_a_positions": [
     11,
     152,
     209
@@ -1899,7 +1899,7 @@
    ],
    "security_checks": "Scope device-linked recordings and cognitive assessments to approved users. Limit portal release under site rules.",
    "acceptance": "An amended video EEG report opens one review and remains hidden from the portal until released.",
-   "kch_positions": [
+   "directory_a_positions": [
     45,
     81,
     90,
@@ -2018,7 +2018,7 @@
    ],
    "security_checks": "Use assigned team grants and independently authorised image access. Restrict implant/device information updates to the owning team.",
    "acceptance": "An external stroke transfer includes the approved summary without exposing an unrestricted whole-chart export.",
-   "kch_positions": [
+   "directory_a_positions": [
     59,
     88,
     181,
@@ -2114,7 +2114,7 @@
    ],
    "security_checks": "Share agreed multidisciplinary fields while applying privacy to restricted discipline notes.",
    "acceptance": "A multidisciplinary review shows authorised outcome fields and does not disclose protected neuropsychology notes.",
-   "kch_positions": [
+   "directory_a_positions": [
     97,
     117,
     167,
@@ -2265,7 +2265,7 @@
    ],
    "security_checks": "Require maternal and neonatal permissions independently. Restrict pregnancy and related disclosure to approved context.",
    "acceptance": "A fetal scan links to the maternal episode and two newborn records retain distinct identifiers after a twin birth.",
-   "kch_positions": [
+   "directory_a_positions": [
     8,
     79,
     94,
@@ -2374,7 +2374,7 @@
    ],
    "security_checks": "Apply separate permissions to sensitive fertility or reproductive services and proxy restrictions before portal publication.",
    "acceptance": "A proxy with general access cannot retrieve a restricted report when the site policy excludes it.",
-   "kch_positions": [
+   "directory_a_positions": [
     48,
     83,
     93,
@@ -2502,7 +2502,7 @@
    ],
    "security_checks": "Check age policy and verified current authority. Mask pregnancy or parent information unless independently justified.",
    "acceptance": "Revoking guardianship blocks access to the child\\'s documents while preserving the clinical team\\'s access.",
-   "kch_positions": [
+   "directory_a_positions": [
     22,
     42,
     51,
@@ -2607,7 +2607,7 @@
    ],
    "security_checks": "Use separate youth and proxy release checks, with departmental permissions for notes and reports.",
    "acceptance": "A transfer between child specialties preserves the active plan and applies the new team's role without extending proxy rights.",
-   "kch_positions": [
+   "directory_a_positions": [
     7,
     10,
     12,
@@ -2754,7 +2754,7 @@
    ],
    "security_checks": "Prevent disclosure through routine search, appointment views, messages, proxy pages and exports. Use controlled chain of custody where relevant.",
    "acceptance": "An unauthorised user cannot infer a restricted episode from list counts, appointment notifications or an exported summary.",
-   "kch_positions": [
+   "directory_a_positions": [
     52,
     119,
     221,
@@ -2844,7 +2844,7 @@
    ],
    "security_checks": "Verify patient/accession linkage, grant short-lived study access, and audit viewer use.",
    "acceptance": "A mismatched accession requires reconciliation and cannot publish an image to the chart.",
-   "kch_positions": [
+   "directory_a_positions": [
     55,
     77,
     78,
@@ -2945,7 +2945,7 @@
    ],
    "security_checks": "Restrict modality worklists, procedure roles and study access to assigned staff and authorised referring teams.",
    "acceptance": "A general imaging operator cannot sign a specialist report without the matching credential and service grant.",
-   "kch_positions": [
+   "directory_a_positions": [
     56,
     131,
     136,
@@ -3024,7 +3024,7 @@
    ],
    "security_checks": "Separate collection, result release and unit issue permissions. Review unidentified or mismatched items before publication.",
    "acceptance": "Replay a rejection or issue message. Only one recollection task or allocation is created.",
-   "kch_positions": [
+   "directory_a_positions": [
     17
    ],
    "source": "ams-002-annex-a15",
@@ -3138,7 +3138,7 @@
    ],
    "security_checks": "Enforce role and privilege checks per action, protect patient details in stock views and audit approved overrides.",
    "acceptance": "A cancelled issue cannot be dispensed. A stock reversal references the original allocation.",
-   "kch_positions": [
+   "directory_a_positions": [
     215
    ],
    "source": "ams-002-annex-a15",
@@ -3223,7 +3223,7 @@
    ],
    "security_checks": "Separate booking from record filing and from clinical release. Check consent and recipient before connecting records across organisations.",
    "acceptance": "Ambiguous identity cannot publish a document. A legitimate booking proceeds after identity resolution.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "ams-002-annex-a15",
    "services": [
     {
@@ -3324,7 +3324,7 @@
    ],
    "security_checks": "Separate clinical, finance, HR and quality roles. Apply de-identification and disclosure controls to reporting.",
    "acceptance": "A finance user reconciles an invoice without retrieving clinical notes. A recalled asset becomes unavailable for procedure booking.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "ams-002-annex-a15",
    "services": [
     {
@@ -3470,7 +3470,7 @@
    ],
    "security_checks": "Apply jurisdiction and recipient scope to community disclosure and aggregated reporting.",
    "acceptance": "An unsuccessful visit retains the outcome and triggers one follow-up. Suppressed report cells cannot be recovered through drill-down.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "ams-002-annex-a15",
    "services": [
     {
@@ -3603,7 +3603,7 @@
    ],
    "security_checks": "Restrict audiology results to the treating team and the referring clinician. Apply paediatric proxy checks for newborn screening.",
    "acceptance": "Release a newborn hearing screen with a refer outcome. Exactly one follow-up appointment task is created and the parent proxy sees only the released result.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -3681,7 +3681,7 @@
    ],
    "security_checks": "Clinical photographs are restricted documents visible only to the treating team. Safeguarding flags show for non-accidental injury in children.",
    "acceptance": "Amend a burns surface-area assessment. The fluid plan task is reissued once and the earlier assessment remains in history.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -3758,7 +3758,7 @@
    ],
    "security_checks": "Records carry the mental_health sensitivity category and need a separate grant. Detention and legal-status changes require a named authorised professional.",
    "acceptance": "A clinician without the mental-health grant opens the chart. Mental-health records are withheld and counted, and the denial is audited.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -3889,7 +3889,7 @@
    ],
    "security_checks": "Isolation status is visible to all staff entering the area. Contact details are limited to the outbreak team. National notification is sent through the reporting interface.",
    "acceptance": "Confirm a Lassa fever result. One isolation alert, one notifiable report and one contact-tracing task are created, and a replayed result adds none.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -3982,7 +3982,7 @@
    ],
    "security_checks": "Guardian authority is checked for enrolment and discharge. Programme registers are restricted to the nutrition team.",
    "acceptance": "Record a weight-for-height below the severe threshold. The child is classified once and one stabilisation referral is created.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4041,7 +4041,7 @@
    ],
    "security_checks": "Results carry the genetics sensitivity category. Disclosure to relatives requires recorded consent.",
    "acceptance": "A relative's record is opened by the family's clinician without consent. Genetic results stay withheld and the access is audited.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4096,7 +4096,7 @@
    ],
    "security_checks": "Only credentialed radiographers record delivered fractions. Plan changes need clinical oncologist approval.",
    "acceptance": "Record the same fraction twice from a replayed device message. One delivered fraction remains and the course total is correct.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4150,7 +4150,7 @@
    ],
    "security_checks": "Crews see only incidents assigned to their vehicle. Temporary identities are reconciled at handover.",
    "acceptance": "Interrupt a handover after transmission. The emergency department receives one arrival and the crew record links once to the confirmed patient.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4206,7 +4206,7 @@
    ],
    "security_checks": "Legal holds block release and record deletion. Medico-legal reports are released only to authorised requesters.",
    "acceptance": "Attempt release of remains under an active legal hold. Release is refused and the attempt is audited.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4268,7 +4268,7 @@
    ],
    "security_checks": "A staff member's occupational-health record is hidden from their line manager and colleagues. Managers receive only the fitness outcome.",
    "acceptance": "A manager requests a staff member's exposure record. Only the fitness outcome is returned and the request is audited.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4331,7 +4331,7 @@
    ],
    "security_checks": "Donor screening answers are restricted to donor services. Reactive results trigger confidential recall only.",
    "acceptance": "Mark a unit reactive after release. The unit is quarantined once and the donor recall task is confidential.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4385,7 +4385,7 @@
    ],
    "security_checks": "Device orders are visible to the rehabilitation team and the supplier only.",
    "acceptance": "Cancel a device order after fitting is booked. The appointment is released once and supplier status is updated.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4441,7 +4441,7 @@
    ],
    "security_checks": "Device data is accepted only from enrolled devices bound to the patient. The patient portal shows readings under the release policy.",
    "acceptance": "A device sends a reading for a discharged virtual-ward patient. It is quarantined and no alert is raised.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4495,7 +4495,7 @@
    ],
    "security_checks": "Support staff see contact and need details only, never clinical content. Interpreter bookings carry the language and appointment, not the diagnosis.",
    "acceptance": "Book an interpreter for an appointment that is then rescheduled. The booking moves once and the interpreter sees no clinical detail.",
-   "kch_positions": [],
+   "directory_a_positions": [],
    "source": "astemia-extension",
    "services": [
     {
@@ -4582,12 +4582,12 @@
   }
  ],
  "crosswalks": {
-  "nhsggc": {
+  "directory_b": {
    "source": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/",
    "snapshot": "2026-11-23",
    "listings": 172
   },
-  "kch": {
+  "directory_a": {
    "source": "https://www.kch.nhs.uk/services/services-a-to-z/",
    "snapshot": "2026-11-23",
    "listings": 281
