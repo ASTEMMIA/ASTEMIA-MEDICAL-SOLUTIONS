@@ -13,6 +13,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application import views
+from astemia.application.careplans import chart_entries
 from astemia.application.context import RequestContext
 from astemia.application.discharge import signed_discharges
 from astemia.application.documents import filed_documents
@@ -88,6 +89,7 @@ class Queries:
             entries = signed_entries(session, tid, ids, visible)
             documents = filed_documents(session, tid, ids, visible)
             discharges = signed_discharges(session, tid, ids, visible)
+            conditions, care_plans = chart_entries(session, tid, ids, visible)
             return ChartOut(
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
                 encounters=[views.encounter(session, e) for e in encounters],
@@ -97,6 +99,8 @@ class Queries:
                 entries=entries,
                 documents=documents,
                 discharges=discharges,
+                conditions=conditions,
+                care_plans=care_plans,
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,

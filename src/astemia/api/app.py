@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import TokenVerifier
+from astemia.application.careplans import CarePlans
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
@@ -42,17 +43,21 @@ from astemia.application.schemas import (
     BookAppointment,
     CancelAppointment,
     CancelTask,
+    CarePlanOut,
     ChartOut,
     CloseBatch,
     CloseConcern,
     ClosePatient,
+    CompleteCycle,
     CompleteTask,
     ConcernOut,
     CreateEntry,
+    CreatePlan,
     CreateSlots,
     CreateTask,
     DecideReferral,
     Discharge,
+    DiscontinuePlan,
     DocumentOut,
     DraftDischarge,
     DuplicateGroup,
@@ -72,11 +77,13 @@ from astemia.application.schemas import (
     ReassignTask,
     ReceiveDocument,
     RecordAttendance,
+    RecordCondition,
     RecordIntervention,
     ReferralOut,
     ReferralRecordsOut,
     RegisterPatient,
     ReindexDocument,
+    ReleaseCycle,
     ReleaseReport,
     RequestEmergencyAccess,
     RescheduleAppointment,
@@ -86,6 +93,7 @@ from astemia.application.schemas import (
     ReviewEmergencyAccess,
     ReviewIntervention,
     ReviewTaskOut,
+    RevisePlan,
     ServiceOut,
     SetLegalStatus,
     SlotOut,
@@ -123,6 +131,7 @@ def create_app(
     documents = Documents(write_path, factory, policy)
     daybook = Daybook(write_path, factory, policy)
     discharges = Discharges(write_path, factory, policy)
+    care_plans = CarePlans(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -478,6 +487,75 @@ def create_app(
         if_match: Annotated[str | None, Header(alias="If-Match")] = None,
     ) -> dict[str, Any]:
         result = discharges.discharge(ctx, key, encounter_id, version_of(if_match), body)
+        return respond(result, response)
+
+    # --- conditions and care plans (HS12) ---------------------------------------
+
+    @app.post("/v1/patients/{patient_id}/conditions", status_code=201)
+    def record_condition(
+        patient_id: uuid.UUID,
+        body: RecordCondition,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+    ) -> dict[str, Any]:
+        return respond(care_plans.record_condition(ctx, key, patient_id, body), response)
+
+    @app.post("/v1/care-plans", status_code=201)
+    def create_care_plan(
+        body: CreatePlan, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(care_plans.create(ctx, key, body), response)
+
+    @app.get("/v1/care-plans/{plan_id}", response_model=CarePlanOut)
+    def read_care_plan(plan_id: uuid.UUID, ctx: Ctx) -> CarePlanOut:
+        return care_plans.get(ctx, plan_id)
+
+    @app.post("/v1/care-plans/{plan_id}/revisions")
+    def revise_care_plan(
+        plan_id: uuid.UUID,
+        body: RevisePlan,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(care_plans.revise(ctx, key, plan_id, version_of(if_match), body), response)
+
+    @app.post("/v1/care-plans/{plan_id}/discontinue")
+    def discontinue_care_plan(
+        plan_id: uuid.UUID,
+        body: DiscontinuePlan,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = care_plans.discontinue(ctx, key, plan_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/plan-cycles/{cycle_id}/complete")
+    def complete_plan_cycle(
+        cycle_id: uuid.UUID,
+        body: CompleteCycle,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = care_plans.complete_cycle(ctx, key, cycle_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/plan-cycles/{cycle_id}/release")
+    def release_plan_cycle(
+        cycle_id: uuid.UUID,
+        body: ReleaseCycle,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = care_plans.release_cycle(ctx, key, cycle_id, version_of(if_match), body)
         return respond(result, response)
 
     # --- Daybook tasks (UG03) ----------------------------------------------------
