@@ -298,6 +298,9 @@ class ChartOut(BaseModel):
     entries: list[EntrySummary] = Field(
         default_factory=list, description="Signed clinical notes, newest first."
     )
+    documents: list[DocumentSummary] = Field(
+        default_factory=list, description="Filed correspondence, newest first."
+    )
 
 
 class DuplicateGroup(BaseModel):
@@ -792,6 +795,102 @@ class EntrySummary(BaseModel):
     body: str
     signed_at: datetime
     signed_by_id: uuid.UUID
+
+
+# --- clinical correspondence (SA-12; UG04) ---------------------------------------------
+
+DocType = Annotated[str, StringConstraints(pattern=r"^[a-z_]{3,32}$")]
+
+
+class PatientHint(Strict):
+    """Who the sender says the document is about, for matching."""
+
+    family_name: Name
+    given_names: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
+    ]
+    birth_date: date
+    administrative_sex: AdministrativeSex
+    nin: str | None = Field(default=None, max_length=32)
+
+
+class ReceiveDocument(Strict):
+    sender: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=200)]
+    received_at: AwareDatetime
+    document_type: DocType = Field(description="For example letter, discharge_summary, result.")
+    title: str | None = Field(default=None, max_length=200)
+    media_type: str = Field(max_length=64)
+    content_base64: str = Field(max_length=14_000_000)
+    patient_hint: PatientHint | None = None
+
+
+class FileDocument(Strict):
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID | None = None
+    reviewer_id: uuid.UUID
+    title: str | None = Field(default=None, max_length=200)
+    adjudication: str | None = Field(
+        default=None,
+        max_length=500,
+        description="Required when more than one patient could match (UG04).",
+    )
+
+
+class ReindexDocument(Strict):
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID | None = None
+    title: str | None = Field(default=None, max_length=200)
+    document_type: DocType
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class ReviewDocument(Strict):
+    note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=1000)]
+
+
+class DocumentVersionOut(BaseModel):
+    version_number: int
+    digest: str
+    patient_id: uuid.UUID | None
+    encounter_id: uuid.UUID | None
+    title: str | None
+    document_type: str
+    reason: str
+    recorded_at: datetime
+    author_id: uuid.UUID | None
+
+
+class DocumentOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    sender: str
+    received_at: datetime
+    document_type: str
+    title: str | None
+    media_type: str
+    digest: str
+    scan: str
+    scan_reason: str | None
+    status: str
+    patient_id: uuid.UUID | None
+    encounter_id: uuid.UUID | None
+    reviewer_id: uuid.UUID | None
+    reviewed_at: datetime | None
+    review_note: str | None
+    adjudication: str | None
+    candidates: list[CandidateOut] = []
+    versions: list[DocumentVersionOut] = []
+
+
+class DocumentSummary(BaseModel):
+    id: uuid.UUID
+    sender: str
+    received_at: datetime
+    document_type: str
+    title: str | None
+    status: str
+    encounter_id: uuid.UUID | None
+    reviewed: bool
 
 
 ChartOut.model_rebuild()
