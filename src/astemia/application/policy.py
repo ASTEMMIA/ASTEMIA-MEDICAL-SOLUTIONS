@@ -169,6 +169,13 @@ class PolicyEngine(Protocol):
     ) -> Decision: ...
 
 
+def capabilities_for(roles: frozenset[str]) -> frozenset[str]:
+    caps: set[str] = set()
+    for role in roles:
+        caps |= ROLE_CAPABILITIES.get(role, frozenset())
+    return frozenset(caps)
+
+
 class PilotPolicy:
     """Role capabilities plus an active care relationship for chart access."""
 
@@ -176,10 +183,7 @@ class PilotPolicy:
         self.version = version
 
     def capabilities(self, ctx: RequestContext) -> frozenset[str]:
-        caps: set[str] = set()
-        for role in ctx.principal.roles:
-            caps |= ROLE_CAPABILITIES.get(role, frozenset())
-        return frozenset(caps)
+        return capabilities_for(ctx.principal.roles)
 
     def decide(
         self,

@@ -86,6 +86,73 @@ jobs:
           test "$(docker exec api id -u)" != "0"
           code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/v1/services)
           test "$code" = "401"
+          # The staff app ships in the image, with strict headers, and the
+          # development sign-in is off by default.
+          curl -fsS http://127.0.0.1:8000/app/ | grep -q '<div id="root">'
+          curl -fsSI http://127.0.0.1:8000/app/ | grep -qi "frame-ancestors 'none'"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000/v1/dev/accounts?tenant_id=0196f1a0-0000-7000-8000-000000000001")
+          test "$code" = "404"
       - name: Container logs
         if: always()
         run: docker logs api || true
+
+  web:
+    # The staff web app: types, unit tests, production build, no known
+    # high-severity vulnerabilities in what ships.
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - name: Types
+        run: npx tsc -p .
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npx vite build
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
+
+  web-e2e:
+    # Every seeded role in Chromium against the real API and MySQL 26.10, with
+    # axe-core accessibility scans and keyboard checks (web/e2e/run.sh).
+    needs: [web]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:26.10
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root
+          MYSQL_DATABASE: astemia_e2e
+          MYSQL_USER: astemia
+          MYSQL_PASSWORD: astemia
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-root"
+          --health-interval=5s --health-retries=30
+    env:
+      ASTEMIA_E2E_DATABASE_URL: mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia_e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+      - run: uv sync --frozen --all-groups
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+        working-directory: web
+      - name: Chromium for Playwright
+        working-directory: web
+        run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: Browser checks
+        run: SHOTS=${{ runner.temp }}/shots web/e2e/run.sh
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-shots
+          path: ${{ runner.temp }}/shots
+          if-no-files-found: ignore

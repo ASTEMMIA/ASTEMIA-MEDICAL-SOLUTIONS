@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     jwt_audience: str = "astemia-api"
 
     policy_version: str = "policy-2026.11-pilot"
+    # The staff web app: served at /app/ from this directory (the built web/dist).
+    web_dir: str | None = None
+    # Development sign-in for the web app: pick a seeded account and get a token.
+    # Off unless set, and never available in production.
+    dev_sign_in: bool = False
     idempotency_retention_hours: int = Field(default=72, ge=1)
 
 
