@@ -11,6 +11,7 @@ from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.identity import AdministrativeSex, ClosureReason
+from astemia.domain.notes import NoteType
 from astemia.domain.safeguards import (
     ConcernCategory,
     InterventionType,
@@ -293,6 +294,9 @@ class ChartOut(BaseModel):
     )
     legal_status: LegalStatusOut | None = Field(
         default=None, description="Mental health legal status in force (ICRS 5.5.15)."
+    )
+    entries: list[EntrySummary] = Field(
+        default_factory=list, description="Signed clinical notes, newest first."
     )
 
 
@@ -727,6 +731,67 @@ class AccessReportOut(BaseModel):
     entries: list[AccessEntry]
     by_actor: list[ActorSummary]
     flagged: int
+
+
+# --- clinical notes (SA-07; UG02, WF01 step 3) -----------------------------------------
+
+NoteBody = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=20000)]
+
+
+class CreateEntry(Strict):
+    note_type: NoteType
+    title: str | None = Field(default=None, max_length=200)
+    body: NoteBody
+    sensitivity: Sensitivity = Sensitivity.NORMAL
+
+
+class UpdateDraft(Strict):
+    body: NoteBody
+
+
+class AmendEntry(Strict):
+    body: NoteBody
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class RevisionOut(BaseModel):
+    id: uuid.UUID
+    revision_number: int
+    status: str
+    body: str
+    author_id: uuid.UUID | None
+    recorded_at: datetime
+    signed_at: datetime | None
+    signed_by_id: uuid.UUID | None
+    supersedes_id: uuid.UUID | None
+    amendment_reason: str | None
+
+
+class EntryOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID
+    note_type: str
+    title: str | None
+    status: str
+    sensitivity: str
+    author_id: uuid.UUID | None
+    revisions: list[RevisionOut]
+
+
+class EntrySummary(BaseModel):
+    """The current signed text of an entry, as the chart shows it."""
+
+    id: uuid.UUID
+    encounter_id: uuid.UUID
+    note_type: str
+    title: str | None
+    status: str
+    revision_number: int
+    body: str
+    signed_at: datetime
+    signed_by_id: uuid.UUID
 
 
 ChartOut.model_rebuild()

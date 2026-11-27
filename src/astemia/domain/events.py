@@ -26,6 +26,7 @@ class EventType(StrEnum):
     CONCERN_RAISED = "safeguarding_concern.raised"
     CONCERN_CLOSED = "safeguarding_concern.closed"
     ADVOCATE_APPOINTED = "patient_advocate.appointed"
+    ENTRY_SIGNED = "clinical_entry.signed"
     ENCOUNTER_ADMITTED = "encounter.admitted"
     ORDER_PLACED = "order.placed"
     RESULT_RELEASED = "result.released"

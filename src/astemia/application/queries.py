@@ -15,6 +15,7 @@ from astemia.adapters.db.models import (
 from astemia.application import views
 from astemia.application.context import RequestContext
 from astemia.application.errors import AccessDenied
+from astemia.application.notes import signed_entries
 from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import ChartOut
 from astemia.application.write_path import read_path
@@ -82,12 +83,14 @@ class Queries:
                     ResultReview.state.in_([ReviewState.OPEN.value, ReviewState.ESCALATED.value]),
                 )
             ).scalars()
+            entries = signed_entries(session, tid, ids, visible)
             return ChartOut(
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
                 encounters=[views.encounter(session, e) for e in encounters],
                 orders=[views.order(o) for o in orders],
                 reports=[views.report(session, r, masks=masks) for r in reports],
                 open_reviews=[views.review(r) for r in reviews if visible(r.sensitivity)],
+                entries=entries,
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,
