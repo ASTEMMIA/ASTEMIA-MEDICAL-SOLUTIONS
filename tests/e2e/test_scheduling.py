@@ -16,13 +16,17 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.models import (
     Appointment,
+    AuditEvent,
     LegitimateRelationship,
+    Organisation,
+    OrganisationSite,
     OutboxEvent,
+    Party,
     Slot,
     SlotHold,
 )
 from tests.conftest import Api
-from tests.e2e.test_api03_vertical_slice import admit, register
+from tests.e2e.test_api03_vertical_slice import admit, order, register, release
 
 TOMORROW = (datetime.now(UTC) + timedelta(days=1)).replace(microsecond=0)
 
@@ -348,14 +352,41 @@ def test_a_closed_record_cannot_be_booked_or_referred(api: Api) -> None:
     assert closed.status_code == 200, closed.text
     h = hold(api, "scheduler", slot["id"]).json()
     assert code(book(api, "scheduler", h["id"], pid)) == (409, "patient_not_bookable")
-    referral = {"patient_id": pid, "receiving_service": "cardiology", "reason": "chest pain"}
-    assert code(api.post("clinician", "/v1/referrals", referral)) == (
-        409,
-        "patient_not_bookable",
-    )
+    assert code(refer(api, pid)) == (409, "patient_not_bookable")
 
 
 # -- referral (HS05, WF06) ---------------------------------------------------------------
+
+
+def facility(factory: sessionmaker[Session], api: Api, kind: str) -> str:
+    """A synthetic organisation of the given care level, with one site."""
+    tid, now = api.tenant.tenant_id, datetime.now(UTC)
+    org, site = uuid.uuid7(), uuid.uuid7()
+    with factory() as s, s.begin():
+        s.add(Party(tenant_id=tid, id=org, recorded_at=now, party_type="organisation"))
+        s.flush()
+        s.add(
+            Organisation(
+                tenant_id=tid,
+                id=org,
+                recorded_at=now,
+                organisation_code=f"{kind[:8].upper()}-{org.hex[-6:]}",
+                organisation_name=f"Synthetic {kind.replace('_', ' ')}",
+                organisation_type=kind,
+            )
+        )
+        s.flush()
+        s.add(
+            OrganisationSite(
+                tenant_id=tid,
+                id=site,
+                recorded_at=now,
+                organisation_id=org,
+                site_identifier=f"S-{site.hex[-10:]}",
+                site_name="Main",
+            )
+        )
+    return str(site)
 
 
 def refer(api: Api, patient_id: str, who: str = "clinician", **extra: Any) -> Any:
@@ -364,6 +395,8 @@ def refer(api: Api, patient_id: str, who: str = "clinician", **extra: Any) -> An
         "/v1/referrals",
         {
             "patient_id": patient_id,
+            "referring_facility_id": str(api.tenant.facility_id),
+            "receiving_facility_id": str(api.tenant.second_facility_id),
             "receiving_service": "cardiology",
             "requesting_service": "general_medicine",
             "reason": "Exertional chest pain, abnormal ECG",
@@ -494,3 +527,79 @@ def booked_with_referral(api: Api, slot_id: str, pid: str, referral_id: str) -> 
     r = book(api, "scheduler", h["id"], pid, referral_id=referral_id)
     assert r.status_code == 201, r.text
     return r.json()
+
+
+def test_the_patients_history_goes_with_every_referral(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    """CEDA revision 1.5: a referral from a primary health centre (or any
+    provider) to a general, teaching or specialist hospital always carries the
+    patient's historical records. The package is built when the referral is
+    submitted; the referrer cannot leave it out."""
+    phc = facility(factory, api, "primary_health_centre")
+    teaching = facility(factory, api, "teaching_hospital")
+    pid = register(api)
+    first = admit(api, pid, visit="V-PHC-1", facility_id=phc)
+    o = order(api, pid, first["id"])
+    report = release(api, o["id"])
+    second = admit(api, pid, visit="V-PHC-2", facility_id=phc)
+    admit(api, pid, visit="V-MH-1", facility_id=phc, sensitivity="mental_health")
+
+    body = {"referring_facility_id": phc, "receiving_facility_id": teaching}
+    assert code(refer(api, pid, referring_facility_id=phc, receiving_facility_id=phc)) == (
+        422,
+        "same_facility",
+    )
+    assert code(refer(api, pid, **{**body, "receiving_facility_id": str(uuid.uuid4())})) == (
+        404,
+        "not_found",
+    )
+    sent = refer(api, pid, **body)
+    assert sent.status_code == 201, sent.text
+    ref = sent.json()
+    assert (ref["referring_level"], ref["receiving_level"]) == (
+        "primary_health_centre",
+        "teaching_hospital",
+    )
+    assert ref["records_count"] == 3 + 1 + 1  # three encounters, one order, one report
+    # Care recorded after the referral is not part of what was sent.
+    admit(api, pid, visit="V-PHC-3", facility_id=phc)
+
+    # The teaching hospital's triage team reads the history it received.
+    path = f"/v1/referrals/{ref['id']}/records"
+    received = api.get("scheduler", path)
+    assert received.status_code == 200, received.text
+    pack = received.json()
+    assert {e["id"] for e in pack["encounters"]} == {first["id"], second["id"]}
+    assert pack["withheld_records"] == 1  # the mental health encounter is withheld
+    assert [x["id"] for x in pack["orders"]] == [o["id"]]
+    assert [r["id"] for r in pack["reports"]] == [report["id"]]
+    assert pack["reports"][0]["observations"][0]["flag"] == "H"
+    assert pack["patient"]["identifiers"][0]["value"] == "*******8901"
+    assert "identifier.value" in pack["masked_fields"]
+    # The referrer sees what they sent, unmasked.
+    mine = api.get("clinician", path).json()
+    assert mine["patient"]["identifiers"][0]["value"] == "12345678901"
+    # Sensitive records stay withheld unless the reader holds that access too.
+    assert len(mine["encounters"]) == 2 and mine["withheld_records"] == 1
+    assert api.get("clinician2", path).status_code == 403
+    assert api.get("scheduler", f"/v1/referrals/{uuid.uuid4()}/records").status_code == 404
+
+    # A rejected referral no longer opens the package to the receiving side.
+    api.post(
+        "scheduler",
+        f"/v1/referrals/{ref['id']}/decision",
+        {"decision": "rejected", "reason": "Refer to the cardiology clinic instead"},
+        **if_match(1),
+    )
+    assert code(api.get("scheduler", path)) == (403, "referral_rejected")
+    assert api.get("clinician", path).status_code == 200  # the referrer still can
+    with factory() as s:
+        reads = s.execute(
+            select(AuditEvent.outcome, AuditEvent.actor_subject).where(
+                AuditEvent.tenant_id == api.tenant.tenant_id,
+                AuditEvent.action == "referral.records",
+            )
+        ).all()
+    assert [o for o, _ in reads].count("success") == 3
+    assert [o for o, _ in reads].count("denied") == 2

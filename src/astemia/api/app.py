@@ -48,6 +48,7 @@ from astemia.application.schemas import (
     ProvisionCatalogue,
     RecordAttendance,
     ReferralOut,
+    ReferralRecordsOut,
     RegisterPatient,
     ReleaseReport,
     RequestEmergencyAccess,
@@ -278,6 +279,10 @@ def create_app(
         return scheduling.referrals(
             ctx, receiving_service=receiving_service, status=status, limit=limit
         )
+
+    @app.get("/v1/referrals/{referral_id}/records", response_model=ReferralRecordsOut)
+    def referral_records(referral_id: uuid.UUID, ctx: Ctx) -> ReferralRecordsOut:
+        return scheduling.records(ctx, referral_id)
 
     @app.post("/v1/referrals/{referral_id}/decision")
     def decide_referral(

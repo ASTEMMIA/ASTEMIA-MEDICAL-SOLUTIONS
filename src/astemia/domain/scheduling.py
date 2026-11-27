@@ -128,3 +128,32 @@ def move_referral(current: ReferralStatus, target: ReferralStatus) -> ReferralSt
 def check_decision(decision: ReferralStatus, reason: str | None) -> None:
     if decision is ReferralStatus.REJECTED and not reason:
         raise InvariantViolation("a rejected referral needs a reason", code="reason_required")
+
+
+class CareLevel(StrEnum):
+    """The level of care an organisation provides (its organisation_type)."""
+
+    PRIMARY = "primary_health_centre"
+    GENERAL = "general_hospital"
+    TEACHING = "teaching_hospital"
+    SPECIALIST = "specialist_hospital"
+
+
+def care_level(organisation_type: str) -> CareLevel | None:
+    try:
+        return CareLevel(organisation_type)
+    except ValueError:
+        return None
+
+
+class RecordType(StrEnum):
+    """What a referral's records package carries (CEDA revision 1.5)."""
+
+    ENCOUNTER = "encounter"
+    ORDER = "service_request"
+    REPORT = "diagnostic_report"
+
+
+def check_facilities(referring: object, receiving: object) -> None:
+    if referring == receiving:
+        raise InvariantViolation("a referral goes to a different facility", code="same_facility")

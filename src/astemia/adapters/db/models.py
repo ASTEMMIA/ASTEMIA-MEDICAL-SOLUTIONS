@@ -801,6 +801,8 @@ class Referral(Envelope, Base):
         fk(["tenant_id", "referrer_id"], "practitioner"),
         fk(["tenant_id", "decided_by_id"], "practitioner"),
         fk(["tenant_id", "source_encounter_id"], "encounter"),
+        fk(["tenant_id", "referring_facility_id"], "organisation_site"),
+        fk(["tenant_id", "receiving_facility_id"], "organisation_site"),
         Index(None, "tenant_id", "receiving_service", "status"),
         Index(None, "tenant_id", "patient_id"),
         TABLE_OPTS,
@@ -819,6 +821,34 @@ class Referral(Envelope, Base):
     decided_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
     decided_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     decision_reason: Mapped[str | None] = mapped_column(String(500))
+    # From where to where, and at what level of care (CEDA revision 1.5). Required
+    # by the API; nullable only so the columns could be added to a live table.
+    referring_facility_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    receiving_facility_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    referring_level: Mapped[str | None] = mapped_column(String(32))
+    receiving_level: Mapped[str | None] = mapped_column(String(32))
+    records_count: Mapped[int | None] = mapped_column(Integer)
+
+
+class ReferralRecord(Base):
+    """The patient's historical records that travel with a referral, fixed when
+    it is submitted. Mandatory: a referral always carries every encounter,
+    order and diagnostic report of the patient (CEDA revision 1.5)."""
+
+    __tablename__ = "referral_record"
+    __table_args__ = (
+        fk(["tenant_id", "referral_id"], "referral"),
+        UniqueConstraint("tenant_id", "referral_id", "record_type", "record_id"),
+        TABLE_OPTS,
+    )
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    referral_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    record_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    record_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
 
 
 class Appointment(Envelope, Base):

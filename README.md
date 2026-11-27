@@ -61,7 +61,8 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/appointments/{id}/reschedule` | Move to a newly held slot; the original stands if that fails. Needs `If-Match` |
   | `POST /v1/appointments/{id}/cancel` | Cancel and free the slot. Needs `If-Match` |
   | `POST /v1/appointments/{id}/attendance` | Attended (opens the visit), no-show or failed connection. Needs `If-Match` |
-  | `POST /v1/referrals` | Refer a patient; refused when the patient has no care records |
+  | `POST /v1/referrals` | Refer a patient from one facility to another. The patient's historical records are attached automatically; refused when there are none |
+  | `GET /v1/referrals/{id}/records` | The historical records that came with a referral, for the receiving triage team and the referrer, masked and audited |
   | `GET /v1/referrals` | Triage worklist by `status` and `receiving_service`, urgent first (scheduler) |
   | `POST /v1/referrals/{id}/decision` | Accept, or reject with a reason. Needs `If-Match` |
   | `POST /v1/emergency-grants` | Emergency access: state a purpose, get read-only chart access to one patient for 30 minutes (clinician) |

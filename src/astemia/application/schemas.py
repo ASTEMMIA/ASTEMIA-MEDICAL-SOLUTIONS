@@ -513,6 +513,11 @@ class AppointmentOut(BaseModel):
 
 class SubmitReferral(Strict):
     patient_id: uuid.UUID
+    referring_facility_id: uuid.UUID
+    receiving_facility_id: uuid.UUID = Field(
+        description="The general, teaching or specialist hospital (or other facility) "
+        "the patient is referred to. The patient's historical records always go with it."
+    )
     encounter_id: uuid.UUID | None = Field(
         default=None,
         description="The care episode whose records go with the referral; defaults to "
@@ -544,3 +549,21 @@ class ReferralOut(BaseModel):
     decided_at: datetime | None
     decision_reason: str | None
     recorded_at: datetime
+    referring_facility_id: uuid.UUID | None
+    receiving_facility_id: uuid.UUID | None
+    referring_level: str | None
+    receiving_level: str | None
+    records_count: int | None
+
+
+class ReferralRecordsOut(BaseModel):
+    """The patient's historical records that travel with a referral, as the
+    receiving team may see them: masked and with sensitive records withheld."""
+
+    referral: ReferralOut
+    patient: PatientOut
+    encounters: list[EncounterOut]
+    orders: list[OrderOut]
+    reports: list[ReportOut]
+    masked_fields: list[str]
+    withheld_records: int

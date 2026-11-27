@@ -18,18 +18,23 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.models import (
     Appointment,
+    DiagnosticReport,
     Encounter,
+    Organisation,
     OrganisationSite,
     Patient,
     Practitioner,
     Referral,
+    ReferralRecord,
+    ServiceRequest,
     Slot,
     SlotHold,
 )
+from astemia.application import views
 from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.commands import open_encounter
 from astemia.application.context import RequestContext
-from astemia.application.errors import Conflict, Unprocessable
+from astemia.application.errors import AccessDenied, Conflict, NotFound, Unprocessable
 from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import (
     AppointmentOut,
@@ -40,14 +45,21 @@ from astemia.application.schemas import (
     HoldOut,
     RecordAttendance,
     ReferralOut,
+    ReferralRecordsOut,
     RescheduleAppointment,
     SlotOut,
     SubmitReferral,
 )
 from astemia.application.views import merged_from
-from astemia.application.write_path import CommandResult, Unit, WritePath, read_path
+from astemia.application.write_path import (
+    CommandResult,
+    Unit,
+    WritePath,
+    audit_row,
+    read_path,
+)
 from astemia.domain import scheduling as sch
-from astemia.domain.common import DomainError, new_id
+from astemia.domain.common import DomainError, Sensitivity, new_id
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.events import EventType
 from astemia.domain.identity import OPEN_STATUSES
@@ -140,6 +152,11 @@ def referral_out(row: Referral) -> ReferralOut:
         decided_at=row.decided_at,
         decision_reason=row.decision_reason,
         recorded_at=row.recorded_at,
+        referring_facility_id=row.referring_facility_id,
+        receiving_facility_id=row.receiving_facility_id,
+        referring_level=row.referring_level,
+        receiving_level=row.receiving_level,
+        records_count=row.records_count,
     )
 
 
@@ -226,6 +243,39 @@ def _care_records(u: Unit, patient_id: uuid.UUID, encounter_id: uuid.UUID | None
             code="no_care_records",
         )
     return latest
+
+
+def _package_records(u: Unit, referral: Referral) -> int:
+    """Attach every historical record of the patient, and of any record merged
+    into it, to the referral. Not optional: the receiving hospital always gets
+    the patient's history with the referral (CEDA revision 1.5)."""
+    family = [referral.patient_id, *merged_from(u.session, u.ctx.tenant_id, referral.patient_id)]
+    tid = u.ctx.tenant_id
+    sources: list[tuple[sch.RecordType, Any, Any]] = [
+        (sch.RecordType.ENCOUNTER, Encounter, Encounter.period_start),
+        (sch.RecordType.ORDER, ServiceRequest, ServiceRequest.recorded_at),
+        (sch.RecordType.REPORT, DiagnosticReport, DiagnosticReport.released_at),
+    ]
+    count = 0
+    for kind, model, when in sources:
+        for record_id, patient_id, at in u.session.execute(
+            select(model.id, model.patient_id, when).where(
+                model.tenant_id == tid, model.patient_id.in_(family)
+            )
+        ).all():
+            u.session.add(
+                ReferralRecord(
+                    tenant_id=tid,
+                    id=new_id(),
+                    referral_id=referral.id,
+                    record_type=kind.value,
+                    record_id=record_id,
+                    patient_id=patient_id,
+                    recorded_at=at,
+                )
+            )
+            count += 1
+    return count
 
 
 class Scheduling:
@@ -650,7 +700,22 @@ class Scheduling:
             if patient.status not in BOOKABLE:
                 raise Conflict(f"patient is {patient.status}", code="patient_not_bookable")
             source = _care_records(u, patient.id, cmd.encounter_id)
+            _domain(
+                lambda: sch.check_facilities(cmd.referring_facility_id, cmd.receiving_facility_id)
+            )
+            levels = [
+                sch.care_level(
+                    u.get(
+                        Organisation, u.get(OrganisationSite, fid).organisation_id
+                    ).organisation_type
+                )
+                for fid in (cmd.referring_facility_id, cmd.receiving_facility_id)
+            ]
             referral = Referral(
+                referring_facility_id=cmd.referring_facility_id,
+                receiving_facility_id=cmd.receiving_facility_id,
+                referring_level=levels[0].value if levels[0] else None,
+                receiving_level=levels[1].value if levels[1] else None,
                 patient_id=patient.id,
                 referrer_id=referrer,
                 source_encounter_id=source.id,
@@ -663,6 +728,7 @@ class Scheduling:
             )
             u.session.add(referral)
             u.session.flush()
+            referral.records_count = _package_records(u, referral)
             decision = u.authorize("referral:create", patient_id=patient.id)
             # The reason stays out of the event: it is clinical text.
             event = u.emit(
@@ -675,6 +741,9 @@ class Scheduling:
                     "referral_id": str(referral.id),
                     "patient_id": str(patient.id),
                     "source_encounter_id": str(source.id),
+                    "receiving_facility_id": str(cmd.receiving_facility_id),
+                    "receiving_level": referral.receiving_level,
+                    "records_count": referral.records_count,
                     "receiving_service": referral.receiving_service,
                     "priority": referral.priority,
                 },
@@ -781,3 +850,98 @@ class Scheduling:
             patient_id=None,
             reader=read,
         )
+
+    def records(self, ctx: RequestContext, referral_id: uuid.UUID) -> ReferralRecordsOut:
+        """The records package, for the receiving team (who triage referrals)
+        and for the referrer. Masks and sensitive-record withholding apply as
+        for a chart read, and the read is audited before anything is returned.
+        A rejected referral no longer opens the package to the receiving side."""
+        with self.factory() as session:
+            tid = ctx.tenant_id
+            referral = session.execute(
+                select(Referral).where(Referral.tenant_id == tid, Referral.id == referral_id)
+            ).scalar_one_or_none()
+            if referral is None:
+                raise NotFound("referral not found")
+            if ctx.principal.practitioner_id == referral.referrer_id:
+                decision = self.policy.decide(
+                    session, ctx, "chart:read", patient_id=referral.patient_id
+                )
+            else:
+                decision = self.policy.decide(session, ctx, "referral:triage")
+                if decision.allowed and referral.status == sch.ReferralStatus.REJECTED:
+                    decision = Decision(
+                        False, uuid.uuid7(), decision.policy_version, "referral_rejected"
+                    )
+            if not decision.allowed:
+                session.add(
+                    audit_row(
+                        ctx,
+                        decision,
+                        "referral.records",
+                        "referral",
+                        referral.id,
+                        referral.patient_id,
+                        "denied",
+                    )
+                )
+                session.commit()
+                raise AccessDenied(decision.reason, code=decision.reason, conceal=decision.conceal)
+            masks = decision.masks
+            packaged: dict[str, list[uuid.UUID]] = {k.value: [] for k in sch.RecordType}
+            for kind, record_id in session.execute(
+                select(ReferralRecord.record_type, ReferralRecord.record_id).where(
+                    ReferralRecord.tenant_id == tid, ReferralRecord.referral_id == referral.id
+                )
+            ).all():
+                packaged[kind].append(record_id)
+            withheld = 0
+
+            def visible(sensitivity: str) -> bool:
+                nonlocal withheld
+                if sensitivity == Sensitivity.NORMAL or f"sensitivity:{sensitivity}" not in masks:
+                    return True
+                withheld += 1
+                return False
+
+            def load(model: Any, kind: sch.RecordType, order: Any) -> list[Any]:
+                return [
+                    r
+                    for r in session.execute(
+                        select(model)
+                        .where(model.tenant_id == tid, model.id.in_(packaged[kind.value]))
+                        .order_by(order)
+                    ).scalars()
+                    if visible(r.sensitivity)
+                ]
+
+            encounters = load(Encounter, sch.RecordType.ENCOUNTER, Encounter.period_start.desc())
+            orders = load(ServiceRequest, sch.RecordType.ORDER, ServiceRequest.recorded_at.desc())
+            reports = load(
+                DiagnosticReport, sch.RecordType.REPORT, DiagnosticReport.released_at.desc()
+            )
+            patient = session.execute(
+                select(Patient).where(Patient.tenant_id == tid, Patient.id == referral.patient_id)
+            ).scalar_one()
+            out = ReferralRecordsOut(
+                referral=referral_out(referral),
+                patient=views.patient(session, patient, masks=masks, at=ctx.now),
+                encounters=[views.encounter(session, e) for e in encounters],
+                orders=[views.order(o) for o in orders],
+                reports=[views.report(session, r, masks=masks) for r in reports],
+                masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
+                withheld_records=withheld,
+            )
+            session.add(
+                audit_row(
+                    ctx,
+                    decision,
+                    "referral.records",
+                    "referral",
+                    referral.id,
+                    referral.patient_id,
+                    "success",
+                )
+            )
+            session.commit()
+        return out
