@@ -716,6 +716,35 @@ class MergeLink(Envelope, Base):
     )
 
 
+class EmergencyGrant(Envelope, Base):
+    """CEDA SA-04 EmergencyGrant (SEC-04, WF02 step 4): time-boxed, read-only
+    access to one patient's chart for a practitioner with no care relationship,
+    with a recorded purpose and a privacy review."""
+
+    __tablename__ = "emergency_grant"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "practitioner_id"], "practitioner"),
+        fk(["tenant_id", "reviewed_by_id"], "practitioner"),
+        Index(None, "tenant_id", "practitioner_id", "patient_id", "expires_at"),
+        Index(None, "tenant_id", "reviewed_at", "review_due_at"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    practitioner_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    purpose: Mapped[str] = mapped_column(String(500), nullable=False)
+    scope: Mapped[str] = mapped_column(String(32), nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    step_up: Mapped[str] = mapped_column(String(16), nullable=False)
+    review_due_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    review_outcome: Mapped[str | None] = mapped_column(String(16))
+    review_note: Mapped[str | None] = mapped_column(String(500))
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""

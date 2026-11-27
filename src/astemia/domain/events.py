@@ -10,6 +10,9 @@ class EventType(StrEnum):
     PATIENT_CLOSED = "patient.closed"
     IDENTITY_REVIEW_OPENED = "identity_review.opened"
     IDENTITY_REVIEW_RESOLVED = "identity_review.resolved"
+    # The privacy alert for every emergency access grant (SEC-04).
+    EMERGENCY_ACCESS_GRANTED = "emergency_access.granted"
+    EMERGENCY_ACCESS_REVIEWED = "emergency_access.reviewed"
     ENCOUNTER_ADMITTED = "encounter.admitted"
     ORDER_PLACED = "order.placed"
     RESULT_RELEASED = "result.released"

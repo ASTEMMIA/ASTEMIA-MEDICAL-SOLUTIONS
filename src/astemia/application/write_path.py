@@ -179,7 +179,8 @@ def audit_row(
         outcome=outcome,
         policy_version=decision.policy_version,
         decision_id=decision.decision_id,
-        reason_code=None if decision.allowed else decision.reason,
+        # A plain permit needs no reason; a denial or an emergency grant does.
+        reason_code=None if decision.allowed and decision.reason == "permit" else decision.reason,
         correlation_id=ctx.correlation_id,
         event_id=event_id,
     )

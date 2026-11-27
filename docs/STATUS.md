@@ -12,10 +12,11 @@ references are to AMS-002 CEDA section 11.2.
 | Identity (API-01) | Bearer tokens verified (signature, issuer, audience, expiry); tenant and roles from active membership only | same |
 | Write path (DATA-02, API-02) | Policy, Idempotency-Key with replay and concurrent-race replay, expected version, one transaction for state, audit and outbox | `tests/db_integration/test_runtime.py`, `tests/e2e/test_api03_vertical_slice.py` |
 | Access control | Role capabilities, legitimate relationships (direct and workgroup), concealed 404s, identifier masking, sensitive-record withholding, audited denials | `tests/e2e/` |
+| Emergency access (SEC-04, WF02 step 4) | A clinician with no care relationship states a purpose and gets read-only chart access to one patient for 30 minutes; identifiers masked; orders still refused; one live grant at a time; re-checked at every read, so the first read after expiry is refused; emergency reads audited as such; a privacy alert event per grant; a privacy officer's review queue due within one working day, with overdue flags and no self-review. Step-up authentication is recorded as `not_available` until the production identity provider exists | `tests/e2e/test_emergency_access.py`, `tests/unit/test_emergency_access_rules.py` |
 | API-03 vertical slice | Register, admit (with A&E detail), chart read, order, result release and amendment, acknowledgement by owner or backup | `tests/e2e/test_api03_vertical_slice.py` |
 | Medicare to NIN | NIN binds; Medicare kept only as previous identifier | same |
 | Outbox (DATA-03) | Relay with backoff on broker failure; consumer deduplication | `tests/db_integration/` |
-| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0011 apply, reverse and match the models | `alembic check`, migration tests |
+| Database schema | 128 tables from CEDA section 3 and the five ERDs; migrations 0001-0012 apply, reverse and match the models | `alembic check`, migration tests |
 | Migration staging (MIG-01 tables) | 66 verbatim `stg_*` tables with lineage; a re-run batch adds zero duplicates | `tests/db_integration/test_integrity.py` |
 | Service catalogue (CAT-01..05) | 50 groups, 359 services; provision, activate, retire, search; admissions bound to active services per facility | `tests/e2e/test_service_catalogue.py` |
 | Directory coverage | All 281 directory A and 170 directory B listings mapped to a service | `tests/unit/test_service_catalogue.py` |
@@ -43,4 +44,4 @@ code reads or writes them yet. They are not features until listed above.
 | Patient portal, billing, inventory, workforce | HS16-HS18 | Partly (directory) |
 | Warehouse, dashboards, intelligence engine | section 9 | No |
 | Multilingual patient voice | section 12 | No |
-| Production identity provider (OIDC), KMS, WORM audit storage | section 7-8 | No |
+| Production identity provider (OIDC) with MFA and step-up (including for emergency access), KMS, WORM audit storage | section 7-8 | No |

@@ -30,8 +30,8 @@ DEV_TENANT = uuid.UUID("0196f1a0-0000-7000-8000-000000000001")
 def seed_dev(
     factory: sessionmaker[Session] | None = None, tenant_id: uuid.UUID = DEV_TENANT
 ) -> dict[str, str]:
-    """A synthetic pilot tenant: one hospital, a registrar, two clinicians and
-    a laboratory scientist. Synthetic data only (CEDA 11.2)."""
+    """A synthetic pilot tenant: one hospital, a registrar, two clinicians, a
+    laboratory scientist and a privacy officer. Synthetic data only (CEDA 11.2)."""
     factory = factory or default_session_factory()
     now = datetime.now(UTC)
     ids: dict[str, str] = {"tenant_id": str(tenant_id)}
@@ -83,6 +83,7 @@ def seed_dev(
             "clinician": ("Dr Clinician One", ["clinician"]),
             "clinician2": ("Dr Clinician Two", ["clinician"]),
             "scientist": ("Lab Scientist One", ["lab_scientist"]),
+            "privacy": ("Privacy Officer One", ["privacy_officer"]),
         }
         for subject, (name, roles) in people.items():
             pid = party("person")

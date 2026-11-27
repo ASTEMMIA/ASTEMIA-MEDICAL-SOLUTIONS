@@ -19,6 +19,7 @@ from astemia.adapters.identity.tokens import TokenVerifier
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
+from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
 from astemia.application.identity_review import IdentityReview
 from astemia.application.patient_index import PatientIndex
@@ -32,6 +33,7 @@ from astemia.application.schemas import (
     CloseBatch,
     ClosePatient,
     DuplicateGroup,
+    EmergencyGrantOut,
     MatchOut,
     MatchQuery,
     MergePatient,
@@ -40,8 +42,10 @@ from astemia.application.schemas import (
     ProvisionCatalogue,
     RegisterPatient,
     ReleaseReport,
+    RequestEmergencyAccess,
     ResolveReview,
     RetireService,
+    ReviewEmergencyAccess,
     ReviewTaskOut,
     ServiceOut,
     UnmergePatient,
@@ -65,6 +69,7 @@ def create_app(
     queries = Queries(factory, policy)
     index = PatientIndex(write_path, factory, policy)
     review = IdentityReview(write_path, factory, policy)
+    emergency = EmergencyAccess(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -159,6 +164,33 @@ def create_app(
     @app.get("/v1/patients/{patient_id}/chart", response_model=ChartOut)
     def chart(patient_id: uuid.UUID, ctx: Ctx) -> ChartOut:
         return queries.chart(ctx, patient_id)
+
+    # --- emergency access (SEC-04, WF02 step 4) -------------------------------
+
+    @app.post("/v1/emergency-grants", status_code=201)
+    def request_emergency_access(
+        body: RequestEmergencyAccess, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(emergency.request(ctx, key, body), response)
+
+    @app.get("/v1/emergency-grants", response_model=list[EmergencyGrantOut])
+    def emergency_grants(
+        ctx: Ctx, reviewed: bool = False, limit: Annotated[int, Query(ge=1, le=200)] = 50
+    ) -> list[EmergencyGrantOut]:
+        return emergency.grants(ctx, reviewed=reviewed, limit=limit)
+
+    @app.post("/v1/emergency-grants/{grant_id}/review")
+    def review_emergency_access(
+        grant_id: uuid.UUID,
+        body: ReviewEmergencyAccess,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        tag = (if_match or "").removeprefix("W/").strip('"')
+        expected = int(tag) if tag.isdigit() else None
+        return respond(emergency.review(ctx, key, grant_id, expected, body), response)
 
     @app.post("/v1/orders", status_code=201)
     def place_order(
