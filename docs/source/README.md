@@ -5,7 +5,7 @@ what is derived from them.
 
 | File | What it is | Derived in the code |
 |---|---|---|
-| `AMS-002_CEDA.docx` | AMS-002 Canonical Enterprise Data Architecture, with the ASTEMIA Health SaaS Functional Specification v1.2 merged in as Annex A. Revision 1.1 (27 November 2026) adds section 14, build status and decisions | Architecture, write path, API-03 slice, service catalogue D01-D36 (Annex A15-A16) |
+| `AMS-002_CEDA.docx` | AMS-002 Canonical Enterprise Data Architecture, with the ASTEMIA Health SaaS Functional Specification v1.2 merged in as Annex A. Revision 1.1 (27 November 2026) adds section 14, build status and decisions; revision 1.2 (27 November 2026) applies the Astemia Medical Solutions naming rule and records how the build applies it | Architecture, write path, API-03 slice, service catalogue D01-D36 (Annex A15-A16) |
 | `erd/AMS_MASTER_SCHEMA_WIP_ERP.vsdx` | AMS master schema ERD | `src/astemia/adapters/db/erd/ams_master_schema_wip_erp.json` |
 | `erd/ZETTER_AMS_SCHEMA_ERD.vsdx` | ZETTER AMS schema ERD | `.../erd/zetter_ams_erd.json` |
 | `erd/PDi_AMS_SCHEMA_ERP.vsdx` | Patient demographics (PDi) schema ERD | `.../erd/pdi_ams_schema_erp.json` |
