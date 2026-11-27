@@ -54,6 +54,16 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/encounters` | Admit, with optional A&E detail |
   | `GET /v1/patients/{id}/chart` | Read the chart: masked, audited before return, concealed 404 without a legitimate relationship |
   | `POST /v1/orders` | Place an order |
+  | `POST /v1/slots` | Create a run of slots for a clinician, service and site (scheduler) |
+  | `GET /v1/slots` | Search by `facility_id`, `service`, `practitioner_id`, `slot_type`, `from`, `to`; `available_only=true` |
+  | `POST /v1/slots/{id}/hold` | Hold a slot for 5 minutes; returns the hold token |
+  | `POST /v1/appointments` | Book with a live hold, optionally against an accepted referral |
+  | `POST /v1/appointments/{id}/reschedule` | Move to a newly held slot; the original stands if that fails. Needs `If-Match` |
+  | `POST /v1/appointments/{id}/cancel` | Cancel and free the slot. Needs `If-Match` |
+  | `POST /v1/appointments/{id}/attendance` | Attended (opens the visit), no-show or failed connection. Needs `If-Match` |
+  | `POST /v1/referrals` | Refer a patient; refused when the patient has no care records |
+  | `GET /v1/referrals` | Triage worklist by `status` and `receiving_service`, urgent first (scheduler) |
+  | `POST /v1/referrals/{id}/decision` | Accept, or reject with a reason. Needs `If-Match` |
   | `POST /v1/emergency-grants` | Emergency access: state a purpose, get read-only chart access to one patient for 30 minutes (clinician) |
   | `GET /v1/emergency-grants` | Privacy review queue, oldest deadline first; `reviewed=true` for the history (privacy officer) |
   | `POST /v1/emergency-grants/{id}/review` | Record whether the access was appropriate. Needs `If-Match` |

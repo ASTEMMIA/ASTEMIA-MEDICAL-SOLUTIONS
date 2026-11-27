@@ -41,6 +41,8 @@ ROLES = {
     "psychiatrist": ["clinician", "sensitive_reader"],
     "steward": ["identity_steward"],
     "privacy": ["privacy_officer"],
+    "scheduler": ["scheduler"],
+    "scheduler2": ["scheduler"],
     # A clinician who is also a privacy officer may not review their own grant.
     "dual": ["clinician", "privacy_officer"],
 }

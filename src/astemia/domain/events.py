@@ -13,6 +13,12 @@ class EventType(StrEnum):
     # The privacy alert for every emergency access grant (SEC-04).
     EMERGENCY_ACCESS_GRANTED = "emergency_access.granted"
     EMERGENCY_ACCESS_REVIEWED = "emergency_access.reviewed"
+    APPOINTMENT_BOOKED = "appointment.booked"
+    APPOINTMENT_RESCHEDULED = "appointment.rescheduled"
+    APPOINTMENT_CANCELLED = "appointment.cancelled"
+    APPOINTMENT_OUTCOME_RECORDED = "appointment.outcome_recorded"
+    REFERRAL_SUBMITTED = "referral.submitted"
+    REFERRAL_DECIDED = "referral.decided"
     ENCOUNTER_ADMITTED = "encounter.admitted"
     ORDER_PLACED = "order.placed"
     RESULT_RELEASED = "result.released"

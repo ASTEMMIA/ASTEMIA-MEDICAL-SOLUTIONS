@@ -22,7 +22,26 @@ from astemia.domain.access import GRANT_SCOPE, is_live
 # clinical capability: clinical access requires a separate approved grant.
 ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     "registrar": frozenset(
-        {"patient:register", "patient:search", "encounter:admit", "catalogue:read"}
+        {
+            "patient:register",
+            "patient:search",
+            "encounter:admit",
+            "catalogue:read",
+            "schedule:book",
+            "appointment:attend",
+        }
+    ),
+    # Schedulers (UG01) run clinic templates and bookings and triage the
+    # referrals that arrive for their services. No clinical capability.
+    "scheduler": frozenset(
+        {
+            "schedule:manage",
+            "schedule:book",
+            "appointment:attend",
+            "referral:triage",
+            "patient:search",
+            "catalogue:read",
+        }
     ),
     "clinician": frozenset(
         {
@@ -35,6 +54,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "catalogue:read",
             # SEC-04: may ask for time-boxed, read-only emergency access.
             "emergency:request",
+            "referral:create",
+            "appointment:attend",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -52,7 +73,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
 }
 
 # Capabilities that need a legitimate care relationship with the patient.
-RELATIONSHIP_BOUND = frozenset({"chart:read", "order:create"})
+RELATIONSHIP_BOUND = frozenset({"chart:read", "order:create", "referral:create"})
 
 
 @dataclass(frozen=True, slots=True)
