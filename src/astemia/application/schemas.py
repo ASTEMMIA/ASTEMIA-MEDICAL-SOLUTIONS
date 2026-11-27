@@ -9,6 +9,7 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstrai
 
 from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
+from astemia.domain.discharge import Disposition, OutstandingKind
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.identity import AdministrativeSex, ClosureReason
 from astemia.domain.notes import NoteType
@@ -229,6 +230,7 @@ class EncounterOut(Resource):
     period_end: datetime | None = None
     clinical_service_id: uuid.UUID | None = None
     ae: AeAttendanceOut | None = None
+    disposition: str | None = None
 
 
 class OrderOut(Resource):
@@ -302,6 +304,9 @@ class ChartOut(BaseModel):
     )
     documents: list[DocumentSummary] = Field(
         default_factory=list, description="Filed correspondence, newest first."
+    )
+    discharges: list[DischargeSummaryOut] = Field(
+        default_factory=list, description="Signed discharge summaries, newest first."
     )
 
 
@@ -951,6 +956,53 @@ class TaskOut(BaseModel):
     completed_by_id: uuid.UUID | None
     outcome_note: str | None
     history: list[AssignmentOut]
+
+
+# --- discharge (HS05, WF06 step 3, ST08) -----------------------------------------------
+
+
+class DraftDischarge(Strict):
+    disposition: Disposition
+    summary: NoteBody
+    follow_up: str | None = Field(default=None, max_length=2000)
+
+
+class OutstandingItem(Strict):
+    kind: OutstandingKind
+    description: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)
+    ] = Field(description="Shown as the task subject: no clinical detail.")
+    owner_id: uuid.UUID | None = None
+    queue: str | None = Field(default=None, max_length=64)
+    due_at: AwareDatetime
+    exception_reason: str | None = Field(
+        default=None,
+        max_length=500,
+        description="When no owner can be named: a supervised exception (HS05).",
+    )
+
+
+class Discharge(Strict):
+    discharged_at: AwareDatetime
+    outstanding: list[OutstandingItem] = Field(default_factory=list, max_length=50)
+
+
+class DischargeSummaryOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    encounter_id: uuid.UUID
+    patient_id: uuid.UUID
+    status: str
+    disposition: str
+    summary: str
+    follow_up: str | None
+    author_id: uuid.UUID | None
+    discharged_at: datetime | None
+    signed_at: datetime | None
+    signed_by_id: uuid.UUID | None
+    tasks: list[uuid.UUID] = Field(
+        default_factory=list, description="Tasks opened for the outstanding items."
+    )
 
 
 ChartOut.model_rebuild()

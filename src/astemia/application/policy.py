@@ -73,6 +73,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "document:review",
             # Daybook (UG03).
             "task:assign",
+            # Discharge (HS05, ST08): authorised sign-off.
+            "discharge:sign",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -130,6 +132,7 @@ RELATIONSHIP_BOUND = frozenset(
         "note:sign",
         "note:sign_nursing",
         "document:review",
+        "discharge:sign",
     }
 )
 
