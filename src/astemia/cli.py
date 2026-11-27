@@ -5,9 +5,12 @@ import json
 import logging
 import time
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 
-from astemia.adapters.broker.base import LoggingBroker
+from sqlalchemy.orm import Session, sessionmaker
+
+from astemia.adapters.broker.base import Broker, LoggingBroker
 from astemia.adapters.db.models import (
     Membership,
     Organisation,
@@ -24,18 +27,20 @@ from astemia.workers.outbox_relay import relay_once
 DEV_TENANT = uuid.UUID("0196f1a0-0000-7000-8000-000000000001")
 
 
-def seed_dev() -> dict[str, str]:
+def seed_dev(
+    factory: sessionmaker[Session] | None = None, tenant_id: uuid.UUID = DEV_TENANT
+) -> dict[str, str]:
     """A synthetic pilot tenant: one hospital, a registrar, two clinicians and
     a laboratory scientist. Synthetic data only (CEDA 11.2)."""
-    factory = default_session_factory()
+    factory = factory or default_session_factory()
     now = datetime.now(UTC)
-    ids: dict[str, str] = {"tenant_id": str(DEV_TENANT)}
+    ids: dict[str, str] = {"tenant_id": str(tenant_id)}
     with factory() as s, s.begin():
-        if s.get(Tenant, DEV_TENANT) is not None:
+        if s.get(Tenant, tenant_id) is not None:
             raise SystemExit("development tenant already seeded")
         s.add(
             Tenant(
-                id=DEV_TENANT,
+                id=tenant_id,
                 name="ASTEMIA Pilot Hospital (synthetic)",
                 country_profile="NG",
                 created_at=now,
@@ -45,14 +50,14 @@ def seed_dev() -> dict[str, str]:
 
         def party(kind: str) -> uuid.UUID:
             pid = uuid.uuid7()
-            s.add(Party(tenant_id=DEV_TENANT, id=pid, recorded_at=now, party_type=kind))
+            s.add(Party(tenant_id=tenant_id, id=pid, recorded_at=now, party_type=kind))
             s.flush()
             return pid
 
         org = party("organisation")
         s.add(
             Organisation(
-                tenant_id=DEV_TENANT,
+                tenant_id=tenant_id,
                 id=org,
                 recorded_at=now,
                 organisation_code="PILOT01",
@@ -64,7 +69,7 @@ def seed_dev() -> dict[str, str]:
         s.flush()
         s.add(
             OrganisationSite(
-                tenant_id=DEV_TENANT,
+                tenant_id=tenant_id,
                 id=site,
                 recorded_at=now,
                 organisation_id=org,
@@ -83,7 +88,7 @@ def seed_dev() -> dict[str, str]:
             pid = party("person")
             s.add(
                 Practitioner(
-                    tenant_id=DEV_TENANT,
+                    tenant_id=tenant_id,
                     id=pid,
                     recorded_at=now,
                     professional_id=f"HCP-{subject.upper()}",
@@ -94,7 +99,7 @@ def seed_dev() -> dict[str, str]:
             s.flush()
             s.add(
                 Membership(
-                    tenant_id=DEV_TENANT,
+                    tenant_id=tenant_id,
                     subject=f"{subject}@pilot.astemia.local",
                     practitioner_id=pid,
                     roles=roles,
@@ -105,24 +110,44 @@ def seed_dev() -> dict[str, str]:
     return ids
 
 
-def main() -> None:
+def run_relay(
+    factory: sessionmaker[Session],
+    broker: Broker,
+    interval: float = 1.0,
+    max_cycles: int | None = None,
+    sleep: Callable[[float], None] = time.sleep,
+) -> int:
+    """Relay outbox events until stopped; sleeps only when a cycle found nothing.
+    Returns the number of events published."""
+    published = cycles = 0
+    while max_cycles is None or cycles < max_cycles:
+        sent = relay_once(factory, broker)
+        published += sent
+        cycles += 1
+        if sent == 0:
+            sleep(interval)
+    return published
+
+
+def main(argv: list[str] | None = None, factory: sessionmaker[Session] | None = None) -> None:
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(prog="astemia")
     sub = parser.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("seed-dev")
-    tok = sub.add_parser("token")
+    seed = sub.add_parser("seed-dev", help="create the synthetic pilot tenant")
+    seed.add_argument("--tenant", default=str(DEV_TENANT))
+    tok = sub.add_parser("token", help="issue a development bearer token")
     tok.add_argument("subject")
     tok.add_argument("--tenant", default=str(DEV_TENANT))
-    relay = sub.add_parser("relay")
+    relay = sub.add_parser("relay", help="publish outbox events")
     relay.add_argument("--interval", type=float, default=1.0)
-    args = parser.parse_args()
+    relay.add_argument("--max-cycles", type=int, default=None)
+    args = parser.parse_args(argv)
     settings = get_settings()
     if args.cmd == "seed-dev":
-        print(json.dumps(seed_dev(), indent=2))
+        print(json.dumps(seed_dev(factory, uuid.UUID(args.tenant)), indent=2))
     elif args.cmd == "token":
         print(issue_dev_token(settings, args.subject, uuid.UUID(args.tenant)))
-    elif args.cmd == "relay":
-        factory, broker = default_session_factory(), LoggingBroker()
-        while True:
-            if relay_once(factory, broker) == 0:
-                time.sleep(args.interval)
+    else:
+        run_relay(
+            factory or default_session_factory(), LoggingBroker(), args.interval, args.max_cycles
+        )

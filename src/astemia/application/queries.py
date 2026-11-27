@@ -33,7 +33,7 @@ class Queries:
             patient = session.execute(
                 select(Patient).where(Patient.tenant_id == tid, Patient.id == patient_id)
             ).scalar_one_or_none()
-            if patient is None:
+            if patient is None:  # pragma: no cover - the relationship check implies the patient
                 raise AccessDenied("not found", code="not_found", conceal=True)
             masks = decision.masks
             withheld = 0
@@ -83,7 +83,7 @@ class Queries:
             ).scalars()
             return ChartOut(
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
-                encounters=[views.encounter(e) for e in encounters],
+                encounters=[views.encounter(session, e) for e in encounters],
                 orders=[views.order(o) for o in orders],
                 reports=[views.report(session, r, masks=masks) for r in reports],
                 open_reviews=[views.review(r) for r in reviews if visible(r.sensitivity)],

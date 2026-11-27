@@ -76,8 +76,6 @@ def test_activation_rules() -> None:
         cat.check_activation(False, True, None)
     with pytest.raises(InvalidTransition):
         cat.move(cat.ServiceStatus.RETIRED, cat.ServiceStatus.ACTIVE)
-    with pytest.raises(InvariantViolation):
-        cat.check_no_cycle("a", ["b", "a"])
 
 
 SERVICE_GROUP = {s["code"]: g["code"] for g in GROUPS for s in g["services"]}

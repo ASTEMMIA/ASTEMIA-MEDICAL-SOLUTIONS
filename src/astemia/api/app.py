@@ -10,6 +10,7 @@ from fastapi import Depends, FastAPI, Header, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.session import default_session_factory
@@ -74,6 +75,9 @@ def create_app(
                     "correlation_id": request.state.correlation_id,
                 }
             },
+            # Set here as well as in the middleware: unexpected exceptions are
+            # handled outside it, and their responses must carry the ID too.
+            headers={"X-Correlation-ID": request.state.correlation_id},
         )
 
     @app.exception_handler(ApplicationError)
@@ -115,9 +119,14 @@ def create_app(
         return {"status": "ok"}
 
     @app.get("/health/ready", include_in_schema=False)
-    def ready() -> dict[str, str]:
-        with factory() as s:
-            s.execute(text("SELECT 1"))
+    def ready(response: Response) -> dict[str, str]:
+        try:
+            with factory() as s:
+                s.execute(text("SELECT 1"))
+        except SQLAlchemyError:
+            log.warning("readiness check: database unavailable")
+            response.status_code = 503
+            return {"status": "unavailable"}
         return {"status": "ready"}
 
     @app.post("/v1/patients", status_code=201)
