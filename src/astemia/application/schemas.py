@@ -3,14 +3,14 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
 from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.encounter import EncounterClass
-from astemia.domain.identity import AdministrativeSex
+from astemia.domain.identity import AdministrativeSex, ClosureReason
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
@@ -117,6 +117,37 @@ class Acknowledge(Strict):
     note: str | None = Field(default=None, max_length=1000)
 
 
+Reason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=255)]
+
+
+class MergePatient(Strict):
+    """Merge this (prior) record into the survivor (ICRS 3.2.12, 3.2.33)."""
+
+    survivor_id: uuid.UUID
+    reason: Reason
+
+
+class UnmergePatient(Strict):
+    reason: Reason
+
+
+class ClosePatient(Strict):
+    """Close a record in the index (ICRS 3.2.18-3.2.19)."""
+
+    reason: ClosureReason
+    exit_date: date
+
+
+class ClosureItem(ClosePatient):
+    patient_id: uuid.UUID
+
+
+class CloseBatch(Strict):
+    """A batch of closures, for example a list of death registrations (ICRS 3.2.20)."""
+
+    items: list[ClosureItem] = Field(min_length=1, max_length=500)
+
+
 # --- outputs ------------------------------------------------------------------
 
 
@@ -150,6 +181,23 @@ class PatientOut(Resource):
     status: str
     names: list[NameOut] = []
     identifiers: list[IdentifierOut] = []
+    date_of_exit: date | None = None
+    merged_into: uuid.UUID | None = None
+
+
+class AeAttendanceOut(BaseModel):
+    attendance_number: str
+    arrival_mode: str
+    attendance_category: str
+    patient_group: str | None = None
+    referral_source: str | None = None
+    incident_location_type: str | None = None
+    arrival_at: datetime
+    initial_assessment_at: datetime | None = None
+    seen_for_treatment_at: datetime | None = None
+    conclusion_at: datetime | None = None
+    departure_at: datetime | None = None
+    attendance_disposal: str | None = None
 
 
 class EncounterOut(Resource):
@@ -163,6 +211,8 @@ class EncounterOut(Resource):
     state: str
     period_start: datetime
     period_end: datetime | None = None
+    clinical_service_id: uuid.UUID | None = None
+    ae: AeAttendanceOut | None = None
 
 
 class OrderOut(Resource):
@@ -223,6 +273,16 @@ class ChartOut(BaseModel):
     open_reviews: list[ReviewOut]
     masked_fields: list[str]
     withheld_records: int
+    merged_from: list[uuid.UUID] = []
+
+
+class DuplicateGroup(BaseModel):
+    """Open index records that share family name, date of birth and sex."""
+
+    family_name: str
+    birth_date: date
+    administrative_sex: str
+    patient_ids: list[uuid.UUID]
 
 
 # --- service catalogue (Annex A16) ---------------------------------------------
@@ -270,3 +330,60 @@ class ProvisionOut(BaseModel):
     groups: int
     services_created: int
     services_existing: int
+
+
+# --- identity review (UG02, WF01 steps 1 and 4) ------------------------------------
+
+
+class MatchQuery(Strict):
+    """Search before registering. Demographics travel in the body, never in a URL."""
+
+    family_name: Name
+    given_names: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
+    ]
+    birth_date: date
+    birth_date_precision: EffectivePrecision = EffectivePrecision.DAY
+    administrative_sex: AdministrativeSex
+    mother_name: str | None = Field(default=None, max_length=200)
+    identifiers: list[IdentifierIn] = Field(default_factory=list, max_length=10)
+
+
+class CandidateOut(BaseModel):
+    """A possible duplicate, with only enough shown to tell people apart."""
+
+    id: uuid.UUID
+    status: str
+    score: int
+    band: str | None
+    reasons: list[str]
+    family_name: str
+    given_initial: str
+    birth_year: int
+    administrative_sex: str
+    identifiers: list[IdentifierOut]
+
+
+class MatchOut(BaseModel):
+    candidates: list[CandidateOut]
+
+
+class ResolveReview(Strict):
+    resolution: Literal["distinct"] = Field(
+        description="A merge (POST /v1/patients/{id}/merge) resolves the task itself."
+    )
+    reason: Reason
+
+
+class ReviewTaskOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    score: int
+    reasons: list[str]
+    origin: str | None
+    note: str | None
+    resolved: bool
+    resolution: str | None
+    resolved_at: datetime | None
+    resolved_by_id: uuid.UUID | None
+    records: list[CandidateOut]

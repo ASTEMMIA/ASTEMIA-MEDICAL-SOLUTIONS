@@ -93,7 +93,8 @@ def load_erds() -> list[ErdEntity]:
                     slot["fields"] = list(e["fields"])
                 slot["wide"] = True
             elif not slot["wide"]:
-                # Union by column key: 'NHS Number', 'nhs_number' and
+                # Union by column key: the ERDs' spellings of one field (for example the three
+                # spellings of the national identifier) and
                 # 'medicare_number' variants of one field become one column.
                 keys = {column_name(f) for f in slot["fields"]}
                 for f in e["fields"]:
@@ -113,9 +114,11 @@ def staging_table_name(entity: ErdEntity) -> str:
     return name[:60]
 
 
-def build_staging_tables(metadata: MetaData) -> dict[str, Table]:
+def build_staging_tables(
+    metadata: MetaData, entities: list[ErdEntity] | None = None
+) -> dict[str, Table]:
     tables: dict[str, Table] = {}
-    for entity in load_erds():
+    for entity in load_erds() if entities is None else entities:
         if entity.wide:
             continue
         name = staging_table_name(entity)

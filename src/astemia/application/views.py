@@ -1,13 +1,17 @@
 """Read models: canonical rows to API resources, applying policy masks."""
 
+import uuid
 from datetime import datetime
 
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from astemia.adapters.db.models import (
+    AeAttendance,
     DiagnosticReport,
+    DuplicateCandidate,
     Encounter,
+    MergeLink,
     Observation,
     ObservationRevision,
     Patient,
@@ -17,6 +21,8 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application.schemas import (
+    AeAttendanceOut,
+    CandidateOut,
     EncounterOut,
     IdentifierOut,
     NameOut,
@@ -25,7 +31,9 @@ from astemia.application.schemas import (
     PatientOut,
     ReportOut,
     ReviewOut,
+    ReviewTaskOut,
 )
+from astemia.domain import identity as idn
 
 
 def _mask(value: str) -> str:
@@ -45,6 +53,44 @@ def current_names(session: Session, patient: Patient, at: datetime) -> list[Pers
             .order_by(PersonName.name_type, PersonName.name_number)
         ).scalars()
     )
+
+
+# A merge link in force: a merge that has not been reversed by an unmerge.
+MERGE, UNMERGE, REVERSED = "merge", "unmerge", "reversed"
+
+
+def merged_into(session: Session, row: Patient) -> uuid.UUID | None:
+    return session.execute(
+        select(MergeLink.survivor_id)
+        .where(
+            MergeLink.tenant_id == row.tenant_id,
+            MergeLink.prior_id == row.id,
+            MergeLink.action == MERGE,
+            MergeLink.reconciliation_status != REVERSED,
+        )
+        .order_by(MergeLink.recorded_at.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+
+
+def merged_from(session: Session, tenant_id: uuid.UUID, survivor_id: uuid.UUID) -> list[uuid.UUID]:
+    """Every record merged into the survivor, directly or through a chain."""
+    found: list[uuid.UUID] = []
+    frontier = [survivor_id]
+    while frontier:
+        priors = list(
+            session.execute(
+                select(MergeLink.prior_id).where(
+                    MergeLink.tenant_id == tenant_id,
+                    MergeLink.survivor_id.in_(frontier),
+                    MergeLink.action == MERGE,
+                    MergeLink.reconciliation_status != REVERSED,
+                )
+            ).scalars()
+        )
+        frontier = [p for p in priors if p not in found and p != survivor_id]
+        found += frontier
+    return found
 
 
 def patient(session: Session, row: Patient, *, masks: frozenset[str], at: datetime) -> PatientOut:
@@ -79,6 +125,8 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
         birth_date_precision=row.birth_date_precision,
         administrative_sex=row.administrative_sex,
         status=row.status,
+        date_of_exit=row.date_of_exit,
+        merged_into=merged_into(session, row),
         identifiers=[
             IdentifierOut(
                 issuer=i.issuer,
@@ -91,8 +139,16 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
     )
 
 
-def encounter(row: Encounter) -> EncounterOut:
-    return EncounterOut.model_validate(row, from_attributes=True)
+def encounter(session: Session, row: Encounter) -> EncounterOut:
+    out = EncounterOut.model_validate(row, from_attributes=True)
+    ae = session.execute(
+        select(AeAttendance).where(
+            AeAttendance.tenant_id == row.tenant_id, AeAttendance.encounter_id == row.id
+        )
+    ).scalar_one_or_none()
+    if ae is not None:
+        out.ae = AeAttendanceOut.model_validate(ae, from_attributes=True)
+    return out
 
 
 def order(row: ServiceRequest) -> OrderOut:
@@ -136,3 +192,57 @@ def report(session: Session, row: DiagnosticReport, *, masks: frozenset[str]) ->
         for o, r in rows
     ]
     return out
+
+
+# --- identity review --------------------------------------------------------------
+
+
+def candidate(
+    session: Session,
+    row: Patient,
+    match: idn.MatchScore,
+    *,
+    masks: frozenset[str],
+    at: datetime,
+) -> CandidateOut:
+    """Enough to tell two people apart, and no more (WF01 step 1)."""
+    full = patient(session, row, masks=masks, at=at)
+    return CandidateOut(
+        id=row.id,
+        status=row.status,
+        score=match.score,
+        band=match.band.value if match.band else None,
+        reasons=list(match.reasons),
+        family_name=full.family_name,
+        given_initial=full.given_names[:1],
+        birth_year=row.birth_date.year,
+        administrative_sex=row.administrative_sex,
+        identifiers=full.identifiers,
+    )
+
+
+def review_task(
+    session: Session, row: DuplicateCandidate, *, masks: frozenset[str], at: datetime
+) -> ReviewTaskOut:
+    match = idn.MatchScore(int(row.weighting), tuple(row.reasons or ()))
+    records = session.execute(
+        select(Patient)
+        .where(
+            Patient.tenant_id == row.tenant_id,
+            Patient.id.in_([row.record1_id, row.record2_id]),
+        )
+        .order_by(Patient.id)
+    ).scalars()
+    return ReviewTaskOut(
+        id=row.id,
+        version=row.version,
+        score=match.score,
+        reasons=list(match.reasons),
+        origin=row.origin,
+        note=row.note,
+        resolved=row.resolved,
+        resolution=row.resolution,
+        resolved_at=row.resolved_at,
+        resolved_by_id=row.resolved_by_id,
+        records=[candidate(session, p, match, masks=masks, at=at) for p in records],
+    )

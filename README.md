@@ -57,15 +57,41 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/diagnostic-reports` | Release a result. A second release is an amendment that reopens exactly one review |
   | `POST /v1/result-reviews/{id}/acknowledge` | Acknowledge a result. Needs `If-Match` |
 
+* **Patient index** (ICRS module 102). Registration also returns
+  `possible_duplicates`, an alert that never blocks:
+
+  | Endpoint | Purpose |
+  |---|---|
+  | `GET /v1/patient-index` | Search by `nin`, or by `family_name` (prefix) with optional `given_name` and `birth_date` |
+  | `GET /v1/patient-index/duplicates` | Housekeeping list of probable duplicates (identity steward) |
+  | `POST /v1/patient-index/match` | Scored, explained near-match search before registering (demographics in the body), masked and audited |
+  | `GET /v1/identity-review-tasks` | Open (or, with `resolved=true`, closed) identity review tasks (identity steward) |
+  | `POST /v1/identity-review-tasks/{id}/resolve` | Record that a pair are different people. Needs `If-Match`; a merge resolves the pair's task itself |
+  | `POST /v1/patients/{id}/merge` | Merge this record into `survivor_id`. Needs `If-Match` |
+  | `POST /v1/merge-links/{id}/unmerge` | Reverse a merge |
+  | `POST /v1/patients/{id}/close` | Close for death, moving away or discharge. Needs `If-Match` |
+  | `POST /v1/patient-index/closures` | Close a batch, for example death registrations; reports each item |
+
+## Integrated Care Records Service build
+
+The owner's scope is modules 101 to 120 of the Integrated Care Records Service
+specification (`docs/source/ASTEMIA_CONSULTATION.docx`) and the components
+listed with them. [docs/icrs-traceability.md](docs/icrs-traceability.md) shows,
+per module, how many of the 971 numbered requirements it owns and how many are
+delivered, each with the test that proves it.
+
 ## Hospital service catalogue
 
 50 department groups and 359 services. The full list, with both directory
 crosswalks, is in [docs/service-catalogue.md](docs/service-catalogue.md).
 
-* **King's College Hospital A to Z:** all 281 listings map to a specific
-  service. D01-D36 follow AMS-002 Annex A15.
-* **NHS Greater Glasgow and Clyde A to Z:** all 172 listings map to a
-  specific service. That includes non-clinical listings such as chaplaincy,
+Both directories are the services A to Z of the Astemia Medical Solutions for
+Integrated Care Records Service:
+
+* **Directory A:** all 281 listings map to a specific service. D01-D36 follow
+  AMS-002 Annex A15.
+* **Directory B:** all 170 listings map to a specific service (two listings were
+  removed on 27 November 2026). That includes non-clinical listings such as chaplaincy,
   interpreting, patient transport and visitor amenities, which go to D50
   Patient, family and visitor support.
 * **D37-D50 ASTEMIA extensions,** confirmed in pilot scope on 23 November

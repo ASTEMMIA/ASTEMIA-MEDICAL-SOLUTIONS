@@ -26,8 +26,8 @@ def main() -> None:
         f"* **D01-D36** ({len(spec)} groups, {n_spec} services) are the department groups of",
         "  AMS-002 Annex A15, which assigns every listing of",
         f"  {cat['coverage_template']}",
-        "  to one primary group. Services found only in the NHS Greater Glasgow and Clyde",
-        "  directory were added to these groups where they belong.",
+        "  to one primary group. Services found only in directory B were added to these",
+        "  groups where they belong.",
         f"* **D37-D{len(groups):02d}** ({len(ext)} groups, {n_ext} services) are ASTEMIA extension",
         "  groups: services a comprehensive general hospital and the Nigeria country profile",
         "  need, and D50 for the non-clinical patient, family and visitor support listings.",
@@ -69,21 +69,19 @@ def main() -> None:
         lines += [f"**Canonical records** {', '.join(g['canonical_records'])}", ""]
         lines += [f"**Security checks** {g['security_checks']}", ""]
         lines += [f"**Acceptance** {g['acceptance']}", ""]
-        if g["kch_positions"]:
-            lines += [f"**KCH A to Z positions** {', '.join(map(str, g['kch_positions']))}", ""]
+        if g["directory_a_positions"]:
+            positions = ", ".join(map(str, g["directory_a_positions"]))
+            lines += [f"**Directory A positions** {positions}", ""]
         lines += ["| Code | Service | Ages | Settings |", "|---|---|---|---|"]
         for s in g["services"]:
             settings = " ".join(abbrev[c] for c in s["care_settings"])
             lines.append(f"| {s['code']} | {s['name']} | {s['age_policy']} | {settings} |")
         lines.append("")
     names = {s["code"]: s["name"] for g in groups for s in g["services"]}
-    for key, title in (
-        ("kch", "King's College Hospital"),
-        ("nhsggc", "NHS Greater Glasgow and Clyde"),
-    ):
+    for key in ("directory_a", "directory_b"):
         cw = load_crosswalk(key)
         lines += [
-            f"## Appendix: {title} services A to Z crosswalk",
+            f"## Appendix: {cw['title']} crosswalk",
             "",
             f"Source {cw['source']}, snapshot {cw['snapshot']}, {len(cw['entries'])} listings.",
             "",

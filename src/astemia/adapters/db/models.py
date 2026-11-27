@@ -686,6 +686,11 @@ class DuplicateCandidate(Envelope, Base):
     resolution: Mapped[str | None] = mapped_column(String(16))
     resolved_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     resolved_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    # Identity review task (WF01): why the pair was raised, where, and the notes
+    # of the registrar and the steward.
+    reasons: Mapped[list[str] | None] = mapped_column(JSON)
+    origin: Mapped[str | None] = mapped_column(String(16))
+    note: Mapped[str | None] = mapped_column(String(500))
 
 
 class MergeLink(Envelope, Base):
@@ -802,7 +807,7 @@ class ServiceTemplateGroup(Base):
     canonical_records: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     security_checks: Mapped[str] = mapped_column(String(1000), nullable=False)
     acceptance: Mapped[str] = mapped_column(String(1000), nullable=False)
-    kch_positions: Mapped[list[int]] = mapped_column(JSON, nullable=False)
+    directory_a_positions: Mapped[list[int]] = mapped_column(JSON, nullable=False)
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     catalogue_version: Mapped[str] = mapped_column(String(16), nullable=False)
 
@@ -820,8 +825,9 @@ class ServiceTemplate(Base):
 
 class ServiceDirectoryListing(Base):
     """Public services A-Z directory listings mapped to catalogue services
-    (King's College Hospital, NHS Greater Glasgow and Clyde). Listing names
-    become search aliases when a tenant provisions the catalogue (CAT-02)."""
+    (directories A and B of the Astemia Medical Solutions for Integrated Care
+    Records Service). Listing names become search aliases when a tenant
+    provisions the catalogue (CAT-02)."""
 
     __tablename__ = "service_directory_listing"
     __table_args__ = (fk(["service_code"], "service_template", ["code"]), TABLE_OPTS)

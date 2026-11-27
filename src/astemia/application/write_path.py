@@ -15,7 +15,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, NoReturn
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -82,7 +82,7 @@ class Unit:
 
     def deny(
         self, reason: str, *, conceal: bool = False, patient_id: uuid.UUID | None = None
-    ) -> None:
+    ) -> NoReturn:
         """Refuse after a resource-level check; the denial is audited."""
         decision = Decision(False, uuid.uuid7(), self.policy.version, reason, conceal=conceal)
         raise _Denied(decision, reason, patient_id)
@@ -285,7 +285,7 @@ def read_path[T](
     capability: str,
     action: str,
     resource_type: str,
-    patient_id: uuid.UUID,
+    patient_id: uuid.UUID | None,
     reader: Callable[[Session, Decision], T],
 ) -> T:
     """Scoped query: decide, read with masks, and commit the audit event before

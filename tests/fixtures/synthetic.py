@@ -23,6 +23,7 @@ class SyntheticTenant:
     tenant_id: uuid.UUID
     organisation_id: uuid.UUID
     facility_id: uuid.UUID
+    second_facility_id: uuid.UUID
     practitioners: dict[str, uuid.UUID]
     workgroup_id: uuid.UUID
 
@@ -37,6 +38,16 @@ ROLES = {
     "nurse": ["nurse"],
     "scientist": ["lab_scientist"],
     "admin": ["tenant_admin"],
+    "psychiatrist": ["clinician", "sensitive_reader"],
+    "steward": ["identity_steward"],
+}
+# Members with no practitioner record (e.g. service accounts) and one with no
+# catalogue access, for the negative authorisation paths.
+UNLINKED = {
+    "unlinked_clinician": ["clinician"],
+    "unlinked_scientist": ["lab_scientist"],
+    "no_catalogue": ["sensitive_reader"],
+    "unlinked_steward": ["identity_steward"],
 }
 
 
@@ -77,6 +88,27 @@ def make_tenant(factory: sessionmaker[Session]) -> SyntheticTenant:
                 site_name="Main",
             )
         )
+        site2 = uuid.uuid7()
+        s.add(
+            OrganisationSite(
+                tenant_id=tid,
+                id=site2,
+                recorded_at=now,
+                organisation_id=org,
+                site_identifier=f"T{tid.hex[:6]}",
+                site_name="Annex",
+            )
+        )
+        for who, roles in UNLINKED.items():
+            s.add(
+                Membership(
+                    tenant_id=tid,
+                    subject=f"{who}@{tid.hex[:8]}.test",
+                    practitioner_id=None,
+                    roles=roles,
+                    valid_from=now,
+                )
+            )
         for who, roles in ROLES.items():
             pid = party("person")
             s.add(
@@ -122,4 +154,4 @@ def make_tenant(factory: sessionmaker[Session]) -> SyntheticTenant:
                 effective_from=now,
             )
         )
-    return SyntheticTenant(tid, org, site, practitioners, wg)
+    return SyntheticTenant(tid, org, site, site2, practitioners, wg)
