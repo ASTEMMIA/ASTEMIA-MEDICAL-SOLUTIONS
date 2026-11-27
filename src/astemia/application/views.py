@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from astemia.adapters.db.models import (
     AeAttendance,
     DiagnosticReport,
+    DuplicateCandidate,
     Encounter,
     MergeLink,
     Observation,
@@ -21,6 +22,7 @@ from astemia.adapters.db.models import (
 )
 from astemia.application.schemas import (
     AeAttendanceOut,
+    CandidateOut,
     EncounterOut,
     IdentifierOut,
     NameOut,
@@ -29,7 +31,9 @@ from astemia.application.schemas import (
     PatientOut,
     ReportOut,
     ReviewOut,
+    ReviewTaskOut,
 )
+from astemia.domain import identity as idn
 
 
 def _mask(value: str) -> str:
@@ -188,3 +192,57 @@ def report(session: Session, row: DiagnosticReport, *, masks: frozenset[str]) ->
         for o, r in rows
     ]
     return out
+
+
+# --- identity review --------------------------------------------------------------
+
+
+def candidate(
+    session: Session,
+    row: Patient,
+    match: idn.MatchScore,
+    *,
+    masks: frozenset[str],
+    at: datetime,
+) -> CandidateOut:
+    """Enough to tell two people apart, and no more (WF01 step 1)."""
+    full = patient(session, row, masks=masks, at=at)
+    return CandidateOut(
+        id=row.id,
+        status=row.status,
+        score=match.score,
+        band=match.band.value if match.band else None,
+        reasons=list(match.reasons),
+        family_name=full.family_name,
+        given_initial=full.given_names[:1],
+        birth_year=row.birth_date.year,
+        administrative_sex=row.administrative_sex,
+        identifiers=full.identifiers,
+    )
+
+
+def review_task(
+    session: Session, row: DuplicateCandidate, *, masks: frozenset[str], at: datetime
+) -> ReviewTaskOut:
+    match = idn.MatchScore(int(row.weighting), tuple(row.reasons or ()))
+    records = session.execute(
+        select(Patient)
+        .where(
+            Patient.tenant_id == row.tenant_id,
+            Patient.id.in_([row.record1_id, row.record2_id]),
+        )
+        .order_by(Patient.id)
+    ).scalars()
+    return ReviewTaskOut(
+        id=row.id,
+        version=row.version,
+        score=match.score,
+        reasons=list(match.reasons),
+        origin=row.origin,
+        note=row.note,
+        resolved=row.resolved,
+        resolution=row.resolution,
+        resolved_at=row.resolved_at,
+        resolved_by_id=row.resolved_by_id,
+        records=[candidate(session, p, match, masks=masks, at=at) for p in records],
+    )

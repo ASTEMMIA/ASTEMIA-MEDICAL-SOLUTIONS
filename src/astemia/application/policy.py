@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from astemia.adapters.db.models import LegitimateRelationship, WorkgroupTeamMembership
 from astemia.application.context import RequestContext
+from astemia.application.views import merged_from
 
 # Capability grants per role. Platform and tenant administrators get no
 # clinical capability: clinical access requires a separate approved grant.
@@ -132,7 +133,8 @@ class PilotPolicy:
             select(lr.id)
             .where(
                 lr.tenant_id == ctx.tenant_id,
-                lr.patient_id == patient_id,
+                # A clinician caring for a record merged into this one keeps access.
+                lr.patient_id.in_([patient_id, *merged_from(session, ctx.tenant_id, patient_id)]),
                 or_(
                     lr.practitioner_id == ctx.principal.practitioner_id, lr.workgroup_id.in_(teams)
                 ),

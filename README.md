@@ -64,6 +64,9 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   |---|---|
   | `GET /v1/patient-index` | Search by `nin`, or by `family_name` (prefix) with optional `given_name` and `birth_date` |
   | `GET /v1/patient-index/duplicates` | Housekeeping list of probable duplicates (identity steward) |
+  | `POST /v1/patient-index/match` | Scored, explained near-match search before registering (demographics in the body), masked and audited |
+  | `GET /v1/identity-review-tasks` | Open (or, with `resolved=true`, closed) identity review tasks (identity steward) |
+  | `POST /v1/identity-review-tasks/{id}/resolve` | Record that a pair are different people. Needs `If-Match`; a merge resolves the pair's task itself |
   | `POST /v1/patients/{id}/merge` | Merge this record into `survivor_id`. Needs `If-Match` |
   | `POST /v1/merge-links/{id}/unmerge` | Reverse a merge |
   | `POST /v1/patients/{id}/close` | Close for death, moving away or discharge. Needs `If-Match` |
