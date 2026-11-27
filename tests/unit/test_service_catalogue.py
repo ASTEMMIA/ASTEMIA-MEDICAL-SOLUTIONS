@@ -82,10 +82,20 @@ def test_activation_rules() -> None:
 SERVICE_GROUP = {s["code"]: g["code"] for g in GROUPS for s in g["services"]}
 
 
-@pytest.mark.parametrize(("directory", "listings"), [("directory_a", 281), ("directory_b", 172)])
-def test_every_directory_listing_maps_to_exactly_one_service(directory: str, listings: int) -> None:
-    entries = load_crosswalk(directory)["entries"]
-    assert [e["position"] for e in entries] == list(range(1, listings + 1))
+@pytest.mark.parametrize(
+    ("directory", "positions", "listings"), [("directory_a", 281, 281), ("directory_b", 172, 170)]
+)
+def test_every_directory_listing_maps_to_exactly_one_service(
+    directory: str, positions: int, listings: int
+) -> None:
+    """Positions keep the publisher's order; removed listings leave a recorded gap."""
+    cw = load_crosswalk(directory)
+    entries = cw["entries"]
+    removed = set(cw.get("removed_positions", []))
+    assert [e["position"] for e in entries] == [
+        p for p in range(1, positions + 1) if p not in removed
+    ]
+    assert len(entries) == listings
     unknown = [e for e in entries if e["service_code"] not in SERVICE_GROUP]
     assert unknown == []
 
@@ -109,7 +119,6 @@ def test_directory_a_listings_sit_in_the_annex_a15_group() -> None:
             "Chronic pain rehabilitation programme",
         ),
         ("directory_b", "WestMARC", "Prosthetics"),
-        ("directory_b", "Esteem Glasgow", "Early intervention in psychosis"),
         ("directory_b", "Cash withdrawal (ATM)", "Visitor amenities"),
         ("directory_b", "Milk Bank Scotland", "Donor milk bank"),
     ],
@@ -158,3 +167,9 @@ def test_directories_carry_no_organisation_names() -> None:
             "Astemia Medical Solutions for Integrated Care Records Service"
             in (load_crosswalk(directory)["title"])
         )
+
+
+def test_removed_directory_b_listings_stay_removed() -> None:
+    listings = {e["listing"] for e in load_crosswalk("directory_b")["entries"]}
+    assert not listings & {"Esteem Glasgow", "Glasgow City Youth Health Service"}
+    assert load_crosswalk("directory_b")["removed_positions"] == [41, 52]

@@ -2,6 +2,8 @@
  "title": "Directory B of the Astemia Medical Solutions for Integrated Care Records Service services A to Z",
  "source": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/",
  "snapshot": "2026-11-23",
+ "removed_positions": [41, 52],
+ "removed": "Two listings were removed from directory B on 27 November 2026. Positions keep the publisher's order, so they are not renumbered.",
  "entries": [
   {
    "position": 1,
@@ -244,12 +246,6 @@
    "service_code": "D37-01"
   },
   {
-   "position": 41,
-   "listing": "Esteem Glasgow",
-   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/esteem-glasgow/",
-   "service_code": "D39-07"
-  },
-  {
    "position": 42,
    "listing": "Epilepsy",
    "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/epilepsy/",
@@ -308,12 +304,6 @@
    "listing": "GIRFEC – Getting it right for every child",
    "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/girfec-getting-it-right-for-every-child/",
    "service_code": "D29-04"
-  },
-  {
-   "position": 52,
-   "listing": "Glasgow City Youth Health Service",
-   "url": "https://www.nhsggc.scot/hospitals-services/services-a-to-z/glasgow-city-youth-health-service/",
-   "service_code": "D36-08"
   },
   {
    "position": 53,

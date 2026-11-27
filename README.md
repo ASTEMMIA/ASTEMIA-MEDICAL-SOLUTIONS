@@ -67,7 +67,8 @@ Integrated Care Records Service:
 
 * **Directory A:** all 281 listings map to a specific service. D01-D36 follow
   AMS-002 Annex A15.
-* **Directory B:** all 172 listings map to a specific service. That includes non-clinical listings such as chaplaincy,
+* **Directory B:** all 170 listings map to a specific service (two listings were
+  removed on 27 November 2026). That includes non-clinical listings such as chaplaincy,
   interpreting, patient transport and visitor amenities, which go to D50
   Patient, family and visitor support.
 * **D37-D50 ASTEMIA extensions,** confirmed in pilot scope on 23 November

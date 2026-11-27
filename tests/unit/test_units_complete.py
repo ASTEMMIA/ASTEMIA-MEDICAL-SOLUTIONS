@@ -60,7 +60,7 @@ def test_erd_fields_that_clash_with_lineage_columns_are_prefixed() -> None:
 def test_directory_rows_cover_both_directories() -> None:
     rows = directory_rows(SCHEMA_CURRENT)
     assert {r["directory"] for r in rows} == {"directory_a", "directory_b"}
-    assert len(rows) == 281 + 172
+    assert len(rows) == 281 + 170
 
 
 def test_seed_rows_keep_the_migration_0004_form_by_default() -> None:

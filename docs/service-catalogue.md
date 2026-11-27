@@ -1428,7 +1428,7 @@ Source https://www.kch.nhs.uk/services/services-a-to-z/, snapshot 2026-11-23, 28
 
 ## Appendix: Directory B of the Astemia Medical Solutions for Integrated Care Records Service services A to Z crosswalk
 
-Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 2026-11-23, 172 listings.
+Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 2026-11-23, 170 listings.
 
 | # | Listing | Service |
 |---|---|---|
@@ -1472,7 +1472,6 @@ Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 202
 | 38 | ECG Service | D05-03 Non-invasive cardiac diagnostics |
 | 39 | Enhanced Recovery Area | D03-09 Enhanced recovery after surgery |
 | 40 | (ENT) Ear, Nose and Throat Surgery | D37-01 Ear nose and throat surgery |
-| 41 | Esteem Glasgow | D39-07 Early intervention in psychosis |
 | 42 | Epilepsy | D22-02 Epilepsy |
 | 43 | Fracture Clinic | D15-05 Fracture clinic |
 | 44 | Food in hospitals | D35-12 Patient catering |
@@ -1483,7 +1482,6 @@ Source https://www.nhsggc.scot/hospitals-services/services-a-to-z/, snapshot 202
 | 49 | Medical Doctor Out of Hours | D36-07 Medical doctor out of hours |
 | 50 | Medical Doctor Service | D36-01 Primary and preventive care |
 | 51 | GIRFEC – Getting it right for every child | D29-04 Safeguarding |
-| 52 | Glasgow City Youth Health Service | D36-08 Youth health service |
 | 53 | Gynaecology Clinics | D26-01 General and endocrine gynaecology |
 | 54 | Gynaecology Oncology | D18-04 Gynaecological cancers |
 | 55 | Gynaecology – Pre-operativeAssessment (South Sector) | D14-05 Preoperative assessment |
