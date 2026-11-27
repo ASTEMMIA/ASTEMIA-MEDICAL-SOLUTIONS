@@ -147,8 +147,8 @@ def mount_staff(
     root = Path(settings.web_dir).resolve()
     index = root / "index.html"
 
-    @app.get("/app", include_in_schema=False)
-    @app.get("/app/{path:path}", include_in_schema=False)
+    @app.api_route("/app", methods=["GET", "HEAD"], include_in_schema=False)
+    @app.api_route("/app/{path:path}", methods=["GET", "HEAD"], include_in_schema=False)
     def web_app(path: str = "") -> Response:
         """Files from the built app; any other path is a client-side route."""
         target = (root / path).resolve()

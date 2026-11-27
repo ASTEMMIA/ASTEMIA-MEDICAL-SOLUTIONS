@@ -87,10 +87,12 @@ await run("foundation", async (page, context) => {
 
   // Phone width: no sideways scrolling.
   await page.setViewportSize({ width: 360, height: 780 });
-  check(
-    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
-    "no horizontal scrolling at 360 px",
+  const wide = await page.evaluate(() =>
+    [...document.querySelectorAll("body *")]
+      .filter((e) => e.getBoundingClientRect().right > window.innerWidth + 0.5)
+      .map((e) => `${e.tagName.toLowerCase()}${e.className ? "." + e.className : ""} "${e.textContent.slice(0, 30)}"`),
   );
+  check(wide.length === 0, `no horizontal scrolling at 360 px${wide.length ? ` (too wide: ${wide.join(", ")})` : ""}`);
   await shot(page, "03-account-phone");
   await page.setViewportSize({ width: 1280, height: 900 });
 

@@ -88,3 +88,5 @@ def test_the_built_app_is_served_with_strict_headers(dev_client: TestClient) -> 
     escape = dev_client.get("/app/..%2F..%2Fpyproject.toml")
     assert "<title>ASTEMIA</title>" in escape.text  # never a file outside the app
     assert dev_client.get("/app").status_code == 200
+    head = dev_client.head("/app/")  # health checks and proxies ask for headers only
+    assert head.status_code == 200 and head.headers["X-Frame-Options"] == "DENY"
