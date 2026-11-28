@@ -27,13 +27,13 @@ from astemia.adapters.db.models import (
 )
 from astemia.application.context import RequestContext
 from astemia.application.daybook import open_task
-from astemia.application.errors import Conflict, Unprocessable
-from astemia.application.policy import PolicyEngine
+from astemia.application.errors import Conflict, NotFound, Unprocessable
+from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import Discharge, DischargeSummaryOut, DraftDischarge
-from astemia.application.write_path import CommandResult, Unit, WritePath
+from astemia.application.write_path import CommandResult, Unit, WritePath, read_path
 from astemia.domain import discharge as dg
 from astemia.domain import encounter as enc
-from astemia.domain.common import DomainError, new_id
+from astemia.domain.common import DomainError, Sensitivity, new_id
 from astemia.domain.diagnostics import ReviewState, ServiceRequestStatus
 from astemia.domain.events import EventType
 from astemia.domain.tasks import Priority, TaskType
@@ -154,6 +154,39 @@ class Discharges:
                     Encounter.tenant_id == ctx.tenant_id, Encounter.id == encounter_id
                 )
             ).scalar_one_or_none()
+
+    def get(self, ctx: RequestContext, encounter_id: uuid.UUID) -> DischargeSummaryOut:
+        """A visit's discharge summary, draft or signed, for its care team; so a
+        draft can be reopened and edited. Sensitive visits are withheld as in
+        the chart."""
+        patient_id = self._patient_of(ctx, encounter_id)
+        if patient_id is None:
+            raise NotFound("not found")
+
+        def read(session: Session, decision: Decision) -> DischargeSummaryOut:
+            row = session.execute(
+                select(DischargeSummary).where(
+                    DischargeSummary.tenant_id == ctx.tenant_id,
+                    DischargeSummary.encounter_id == encounter_id,
+                )
+            ).scalar_one_or_none()
+            if row is None or (
+                row.sensitivity != Sensitivity.NORMAL
+                and f"sensitivity:{row.sensitivity}" in decision.masks
+            ):
+                raise NotFound("no discharge summary for this visit")
+            return summary_out(session, row)
+
+        return read_path(
+            self.factory,
+            self.policy,
+            ctx,
+            capability="chart:read",
+            action="discharge_summary.read",
+            resource_type="discharge_summary",
+            patient_id=patient_id,
+            reader=read,
+        )
 
     def draft(
         self,

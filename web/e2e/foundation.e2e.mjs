@@ -11,6 +11,9 @@ const PEOPLE = [
   ["Lab Scientist One", "Lab scientist", "Release results"],
   ["Identity Steward One", "Identity steward", "Merge and unmerge patient records"],
   ["Records Clerk One", "Records clerk", "Receive and file correspondence"],
+  ["Team Supervisor One", "Team supervisor", "Supervise every Daybook task"],
+  ["Safeguarding Lead One", "Safeguarding lead", "Review restrictive interventions and concerns"],
+  ["Patient Advocate One", "Patient advocate", "See who accessed a patient's record"],
   ["Privacy Officer One", "Privacy officer", "Review emergency access"],
   ["Scheduler One", "Scheduler", "Book, reschedule and cancel appointments"],
 ];
