@@ -44,6 +44,11 @@ CONSTRAINT_CONFLICTS = {
     "uq_slot_tenant_id_practitioner_id_starts_at": "slot_exists",
     "uq_slot_hold_tenant_id_slot_id_live_marker": "slot_held",
     "uq_appointment_tenant_id_slot_id_booked_marker": "slot_booked",
+    "uq_ward_tenant_id_code": "ward_code_exists",
+    "uq_bed_tenant_id_ward_id_code": "bed_code_exists",
+    # Two requests raced for one bed, or one encounter: the database keeps one.
+    "uq_bed_occupancy_tenant_id_bed_id_active_marker": "bed_occupied",
+    "uq_bed_occupancy_tenant_id_encounter_id_active_marker": "already_in_bed",
 }
 
 

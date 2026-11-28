@@ -149,6 +149,12 @@ export type AppointmentOut = {
   encounter_id: string | null;
 };
 
+export type AssignBed = {
+  bed_id: string;
+  isolation?: boolean;
+  reason?: string | null;
+};
+
 export type AssignmentOut = {
   assignee_id: string | null;
   queue: string | null;
@@ -158,6 +164,18 @@ export type AssignmentOut = {
 };
 
 export type AttendanceOutcome = "attended" | "no_show" | "failed_connection";
+
+export type BedOut = {
+  id: string;
+  version: number;
+  code: string;
+  status: BedStatus;
+  isolation_capable: boolean;
+  status_reason: string | null;
+  occupancy: OccupancyOut | null;
+};
+
+export type BedStatus = "available" | "closed";
 
 export type BookAppointment = {
   hold_id: string;
@@ -325,6 +343,11 @@ export type ConditionOut = {
   author_id: string | null;
 };
 
+export type CreateBed = {
+  code: string;
+  isolation_capable?: boolean;
+};
+
 export type CreateEntry = {
   note_type: NoteType;
   title?: string | null;
@@ -366,6 +389,13 @@ export type CreateTask = {
   assignee_id?: string | null;
   /** A role, e.g. nurse. */
   queue?: string | null;
+};
+
+export type CreateWard = {
+  facility_id: string;
+  code: string;
+  name: string;
+  specialty?: string | null;
 };
 
 export type DecideReferral = {
@@ -509,6 +539,8 @@ export type EndIntervention = {
   injury?: boolean;
   injury_detail?: string | null;
 };
+
+export type EndReason = "transfer" | "discharge";
 
 export type EntryOut = {
   id: string;
@@ -701,6 +733,22 @@ export type ObservationOut = {
   ref_low?: string | null;
   ref_high?: string | null;
   flag?: string | null;
+};
+
+export type OccupancyOut = {
+  id: string;
+  bed_id: string;
+  bed_code: string;
+  ward_id: string;
+  ward_code: string;
+  encounter_id: string;
+  patient_id: string;
+  start_at: string;
+  end_at: string | null;
+  end_reason: EndReason | null;
+  isolation: boolean;
+  reason: string | null;
+  previous_id: string | null;
 };
 
 export type OrderOut = {
@@ -1083,6 +1131,11 @@ export type ServiceOut = {
 
 export type SessionType = "dialysis" | "treatment_cycle" | "monitoring" | "review";
 
+export type SetBedStatus = {
+  status: BedStatus;
+  reason?: string | null;
+};
+
 export type SetLegalStatus = {
   status: LegalStatus;
   /** The law and power, required when detained. */
@@ -1091,6 +1144,10 @@ export type SetLegalStatus = {
   valid_until?: string | null;
   authorised_by_id: string;
   reason: string;
+};
+
+export type SetWardStatus = {
+  active: boolean;
 };
 
 export type SlotOut = {
@@ -1163,3 +1220,16 @@ export type ValidationError = {
 };
 
 export type ValueType = "quantity" | "string" | "coded";
+
+export type WardOut = {
+  id: string;
+  version: number;
+  facility_id: string;
+  code: string;
+  name: string;
+  specialty: string | null;
+  active: boolean;
+  beds: BedOut[];
+  available: number;
+  occupied: number;
+};

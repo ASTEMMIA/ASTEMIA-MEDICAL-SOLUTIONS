@@ -7,6 +7,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
+from astemia.domain.beds import BedStatus, EndReason
 from astemia.domain.careplans import Certainty, Pathway, SessionType
 from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
@@ -1220,3 +1221,72 @@ class CarePlanSummary(BaseModel):
 
 
 ChartOut.model_rebuild()
+
+
+# --- wards, beds and occupancy (HS03, WF02 step 3) ----------------------------------
+
+
+class CreateWard(Strict):
+    facility_id: uuid.UUID
+    code: Code
+    name: str = Field(min_length=1, max_length=200)
+    specialty: Code | None = None
+
+
+class CreateBed(Strict):
+    code: Code
+    isolation_capable: bool = False
+
+
+class SetBedStatus(Strict):
+    status: BedStatus
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class SetWardStatus(Strict):
+    active: bool
+
+
+class AssignBed(Strict):
+    bed_id: uuid.UUID
+    isolation: bool = False
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class OccupancyOut(BaseModel):
+    id: uuid.UUID
+    bed_id: uuid.UUID
+    bed_code: str
+    ward_id: uuid.UUID
+    ward_code: str
+    encounter_id: uuid.UUID
+    patient_id: uuid.UUID
+    start_at: datetime
+    end_at: datetime | None
+    end_reason: EndReason | None
+    isolation: bool
+    reason: str | None
+    previous_id: uuid.UUID | None
+
+
+class BedOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    code: str
+    status: BedStatus
+    isolation_capable: bool
+    status_reason: str | None
+    occupancy: OccupancyOut | None
+
+
+class WardOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    facility_id: uuid.UUID
+    code: str
+    name: str
+    specialty: str | None
+    active: bool
+    beds: list[BedOut]
+    available: int
+    occupied: int

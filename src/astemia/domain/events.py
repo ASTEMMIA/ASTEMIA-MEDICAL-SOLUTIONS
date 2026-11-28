@@ -37,6 +37,8 @@ class EventType(StrEnum):
     TASK_REMINDER = "task.reminder"
     TASK_ESCALATED = "task.escalated"
     ENCOUNTER_DISCHARGED = "encounter.discharged"
+    BED_ASSIGNED = "encounter.bed_assigned"
+    PATIENT_TRANSFERRED = "encounter.transferred"
     CONDITION_RECORDED = "condition.recorded"
     CARE_PLAN_REVISED = "care_plan.revised"
     CARE_PLAN_DISCONTINUED = "care_plan.discontinued"

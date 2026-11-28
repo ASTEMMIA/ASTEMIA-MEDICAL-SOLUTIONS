@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import TokenVerifier
 from astemia.api.staff import mount_staff
+from astemia.application.beds import Beds
 from astemia.application.careplans import CarePlans
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
@@ -43,6 +44,7 @@ from astemia.application.schemas import (
     AdmitEncounter,
     AmendEntry,
     AppointAdvocate,
+    AssignBed,
     BookAppointment,
     CancelAppointment,
     CancelTask,
@@ -56,10 +58,12 @@ from astemia.application.schemas import (
     CompleteCycle,
     CompleteTask,
     ConcernOut,
+    CreateBed,
     CreateEntry,
     CreatePlan,
     CreateSlots,
     CreateTask,
+    CreateWard,
     DecideReferral,
     Discharge,
     DiscontinuePlan,
@@ -77,6 +81,7 @@ from astemia.application.schemas import (
     MatchOut,
     MatchQuery,
     MergePatient,
+    OccupancyOut,
     PatientOut,
     PlaceOrder,
     PractitionerOut,
@@ -103,12 +108,15 @@ from astemia.application.schemas import (
     ReviewTaskOut,
     RevisePlan,
     ServiceOut,
+    SetBedStatus,
     SetLegalStatus,
+    SetWardStatus,
     SlotOut,
     SubmitReferral,
     TaskOut,
     UnmergePatient,
     UpdateDraft,
+    WardOut,
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
@@ -147,6 +155,7 @@ def create_app(
     documents = Documents(write_path, factory, policy)
     daybook = Daybook(write_path, factory, policy)
     discharges = Discharges(write_path, factory, policy)
+    beds = Beds(write_path, factory, policy)
     care_plans = CarePlans(write_path, factory, policy)
     directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
@@ -537,6 +546,76 @@ def create_app(
     ) -> dict[str, Any]:
         result = discharges.discharge(ctx, key, encounter_id, version_of(if_match), body)
         return respond(result, response)
+
+    # --- wards, beds and transfers (HS03, WF02 step 3) ---------------------------
+
+    @app.post("/v1/wards", status_code=201)
+    def create_ward(
+        body: CreateWard, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(beds.create_ward(ctx, key, body), response)
+
+    @app.get("/v1/wards", response_model=list[WardOut])
+    def bed_board(ctx: Ctx, facility_id: uuid.UUID | None = None) -> list[WardOut]:
+        return beds.board(ctx, facility_id)
+
+    @app.post("/v1/wards/{ward_id}/status")
+    def set_ward_status(
+        ward_id: uuid.UUID,
+        body: SetWardStatus,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = beds.set_ward_status(ctx, key, ward_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/wards/{ward_id}/beds", status_code=201)
+    def create_bed(
+        ward_id: uuid.UUID, body: CreateBed, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(beds.create_bed(ctx, key, ward_id, body), response)
+
+    @app.post("/v1/beds/{bed_id}/status")
+    def set_bed_status(
+        bed_id: uuid.UUID,
+        body: SetBedStatus,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = beds.set_bed_status(ctx, key, bed_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/encounters/{encounter_id}/bed", status_code=201)
+    def assign_bed(
+        encounter_id: uuid.UUID,
+        body: AssignBed,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = beds.assign(ctx, key, encounter_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/encounters/{encounter_id}/transfer")
+    def transfer_patient(
+        encounter_id: uuid.UUID,
+        body: AssignBed,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = beds.transfer(ctx, key, encounter_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.get("/v1/encounters/{encounter_id}/movements", response_model=list[OccupancyOut])
+    def encounter_movements(encounter_id: uuid.UUID, ctx: Ctx) -> list[OccupancyOut]:
+        return beds.movements(ctx, encounter_id)
 
     # --- conditions and care plans (HS12) ---------------------------------------
 

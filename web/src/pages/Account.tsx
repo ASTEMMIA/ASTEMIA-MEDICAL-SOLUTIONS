@@ -44,6 +44,9 @@ export const CAPABILITY_NAMES: Record<string, string> = {
   "condition:record": "Record conditions",
   "careplan:manage": "Create and revise care plans",
   "careplan:deliver": "Record care plan sessions",
+  "bed:read": "See the bed board",
+  "bed:assign": "Give patients beds and transfer them",
+  "bed:manage": "Set up wards and beds",
 };
 
 export function Account() {
