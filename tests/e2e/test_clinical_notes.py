@@ -196,6 +196,23 @@ def test_sensitive_notes_are_withheld_and_dead_encounters_refuse_notes(
     assert chart["entries"] == [] and chart["withheld_records"] == 1
     assert api.get("clinician", f"/v1/entries/{note['id']}").status_code == 404
     assert api.get("clinician", f"/v1/entries/{uuid.uuid4()}").status_code == 404
+    # A correction needs the note in view, so it is refused as if unknown.
+    fix = {"body": "Corrected", "reason": "Typo"}
+    path = f"/v1/entries/{note['id']}"
+    assert api.post("clinician", f"{path}/amendments", fix, **if_match(2)).status_code == 404
+    # The author can still write and sign a new one; responses show only their own words.
+    second = write(
+        api,
+        enc["id"],
+        note_type="mental_health_assessment",
+        body="Draft",
+        sensitivity="mental_health",
+    ).json()
+    p2 = f"/v1/entries/{second['id']}"
+    edited = api.post("clinician", f"{p2}/draft", {"body": "More"}, **if_match(1))
+    assert [r["body"] for r in edited.json()["revisions"]] == ["More"]
+    done = api.post("clinician", f"{p2}/sign", {}, **if_match(2))
+    assert done.status_code == 200 and len(done.json()["revisions"]) == 1
     with factory() as s, s.begin():
         s.execute(
             update(Encounter).where(Encounter.id == uuid.UUID(enc["id"])).values(state="cancelled")

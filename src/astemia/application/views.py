@@ -165,39 +165,58 @@ def review(row: ResultReview) -> ReviewOut:
     return ReviewOut.model_validate(row, from_attributes=True)
 
 
-def report(session: Session, row: DiagnosticReport, *, masks: frozenset[str]) -> ReportOut:
-    rows = session.execute(
+def reports(
+    session: Session, rows: list[DiagnosticReport], *, masks: frozenset[str]
+) -> list[ReportOut]:
+    """Reports with their observations, loaded in one query for all of them, so
+    a chart with many results costs the same number of queries as one with few
+    (NFR-02)."""
+    if not rows:
+        return []
+    found = session.execute(
         select(Observation, ObservationRevision)
         .join(
             ObservationRevision,
             (ObservationRevision.tenant_id == Observation.tenant_id)
             & (ObservationRevision.observation_id == Observation.id),
         )
-        .where(Observation.tenant_id == row.tenant_id, ObservationRevision.report_id == row.id)
+        .where(
+            Observation.tenant_id == rows[0].tenant_id,
+            ObservationRevision.report_id.in_([r.id for r in rows]),
+        )
         .order_by(Observation.code_system, Observation.code)
     ).all()
-    out = ReportOut.model_validate(row, from_attributes=True)
-    out.observations = [
-        ObservationOut(
-            observation_id=o.id,
-            revision_id=r.id,
-            revision=r.revision,
-            code_system=o.code_system,
-            code=o.code,
-            display=o.display,
-            status=r.status,
-            value_type=r.value_type,
-            quantity=r.value_quantity,
-            unit=r.value_unit,
-            text=r.value_text,
-            value_code=r.value_code,
-            ref_low=r.ref_low,
-            ref_high=r.ref_high,
-            flag=r.flag,
+    by_report: dict[uuid.UUID, list[ObservationOut]] = {r.id: [] for r in rows}
+    for o, r in found:
+        by_report[r.report_id].append(
+            ObservationOut(
+                observation_id=o.id,
+                revision_id=r.id,
+                revision=r.revision,
+                code_system=o.code_system,
+                code=o.code,
+                display=o.display,
+                status=r.status,
+                value_type=r.value_type,
+                quantity=r.value_quantity,
+                unit=r.value_unit,
+                text=r.value_text,
+                value_code=r.value_code,
+                ref_low=r.ref_low,
+                ref_high=r.ref_high,
+                flag=r.flag,
+            )
         )
-        for o, r in rows
-    ]
+    out = []
+    for row in rows:
+        item = ReportOut.model_validate(row, from_attributes=True)
+        item.observations = by_report[row.id]
+        out.append(item)
     return out
+
+
+def report(session: Session, row: DiagnosticReport, *, masks: frozenset[str]) -> ReportOut:
+    return reports(session, [row], masks=masks)[0]
 
 
 # --- identity review --------------------------------------------------------------

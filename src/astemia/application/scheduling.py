@@ -949,7 +949,10 @@ class Scheduling:
                     )
                 )
                 session.commit()
-                raise AccessDenied(decision.reason, code=decision.reason, conceal=decision.conceal)
+                # Only the receiving team learns that a rejected referral exists; to
+                # anyone else a refusal looks the same as an unknown referral.
+                hide = decision.conceal or decision.reason != "referral_rejected"
+                raise AccessDenied(decision.reason, code=decision.reason, conceal=hide)
             masks = decision.masks
             packaged: dict[str, list[uuid.UUID]] = {k.value: [] for k in sch.RecordType}
             for kind, record_id in session.execute(
@@ -991,7 +994,7 @@ class Scheduling:
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
                 encounters=[views.encounter(session, e) for e in encounters],
                 orders=[views.order(o) for o in orders],
-                reports=[views.report(session, r, masks=masks) for r in reports],
+                reports=views.reports(session, reports, masks=masks),
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
             )

@@ -46,7 +46,7 @@ from astemia.application.schemas import (
 )
 from astemia.application.write_path import CommandResult, Unit, WritePath, read_path
 from astemia.domain import careplans as cp
-from astemia.domain.common import DomainError, new_id
+from astemia.domain.common import DomainError, Sensitivity, new_id
 from astemia.domain.events import EventType
 from astemia.domain.tasks import TaskStatus, TaskType
 
@@ -562,6 +562,11 @@ class CarePlans:
             plan = session.execute(
                 select(CarePlan).where(CarePlan.tenant_id == ctx.tenant_id, CarePlan.id == plan_id)
             ).scalar_one()
+            if (
+                plan.sensitivity != Sensitivity.NORMAL
+                and f"sensitivity:{plan.sensitivity}" in decision.masks
+            ):
+                raise NotFound("not found")  # withheld, as in the chart
             return plan_out(session, plan)
 
         return read_path(

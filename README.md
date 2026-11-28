@@ -228,6 +228,15 @@ Then open http://127.0.0.1:8000/app/ and pick a seeded account. While working
 on the screens, `cd web && npm run dev` serves them with hot reload on port
 5173 and forwards `/v1` to the API.
 
+The audit trail is append-only: migration 0021 adds triggers that refuse any
+update or delete of an audit event. With binary logging on, MySQL needs
+`log_bin_trust_function_creators = 1` once per server before migrating (set
+by `compose.yaml` and in CI; on a managed database, in its parameter group):
+
+```bash
+mysql -uroot -p -e "SET PERSIST log_bin_trust_function_creators = 1"
+```
+
 `ASTEMIA_DATABASE_URL` selects the database
 (`mysql+mysqlconnector://user:pass@host:3306/astemia`). Development tokens
 use HS256 with `ASTEMIA_JWT_KEY` and are refused when

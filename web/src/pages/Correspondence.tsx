@@ -73,7 +73,8 @@ function Doc({ doc, onFiled }: { doc: DocumentOut; onFiled: (m: string) => void 
         {doc.scan_reason && ` · ${doc.scan_reason}`}
         {doc.reviewer_id && ` · reviewer ${person(doc.reviewer_id)}`}
       </p>
-      {doc.status !== "rejected" && <OpenDocument id={doc.id} label={label} />}
+      {/* Intake only: once filed, the document is opened from the patient's chart by the care team. */}
+      {doc.status === "quarantined" && <OpenDocument id={doc.id} label={label} />}
       {doc.status === "quarantined" && <FileForm doc={doc} onDone={onFiled} />}
     </article>
   );

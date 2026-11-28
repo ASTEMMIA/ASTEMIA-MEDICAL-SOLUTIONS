@@ -582,7 +582,8 @@ def test_the_patients_history_goes_with_every_referral(
     assert mine["patient"]["identifiers"][0]["value"] == "12345678901"
     # Sensitive records stay withheld unless the reader holds that access too.
     assert len(mine["encounters"]) == 2 and mine["withheld_records"] == 1
-    assert api.get("clinician2", path).status_code == 403
+    # Someone with no part in the referral cannot tell it exists.
+    assert api.get("clinician2", path).status_code == 404
     assert api.get("scheduler", f"/v1/referrals/{uuid.uuid4()}/records").status_code == 404
 
     # A rejected referral no longer opens the package to the receiving side.

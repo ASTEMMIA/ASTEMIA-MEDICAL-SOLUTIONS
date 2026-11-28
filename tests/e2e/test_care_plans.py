@@ -9,10 +9,10 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from astemia.adapters.db.models import LegitimateRelationship, Task
+from astemia.adapters.db.models import CarePlan, LegitimateRelationship, Task
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit, register
 
@@ -87,6 +87,24 @@ def test_conditions_build_the_problem_list(api: Api) -> None:
     assert api.post("clinician2", f"/v1/patients/{pid}/conditions", body).status_code == 404
     chart = api.get("clinician", f"/v1/patients/{pid}/chart").json()
     assert [c["code"] for c in chart["conditions"]] == ["N18.5"]  # refuted is not listed
+
+
+def test_a_sensitive_plan_is_withheld_when_opened_directly(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    pid = register(api)
+    admit(api, pid)
+    made = plan(api, pid).json()
+    assert api.get("clinician", f"/v1/care-plans/{made['id']}").status_code == 200
+    with factory() as s, s.begin():
+        s.execute(
+            update(CarePlan)
+            .where(CarePlan.id == uuid.UUID(made["id"]))
+            .values(sensitivity="mental_health")
+        )
+    # Withheld from the chart, and so from a direct link too.
+    assert api.get("clinician", f"/v1/patients/{pid}/chart").json()["care_plans"] == []
+    assert api.get("clinician", f"/v1/care-plans/{made['id']}").status_code == 404
 
 
 def test_a_revision_changes_future_sessions_and_completed_ones_keep_theirs(

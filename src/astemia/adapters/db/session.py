@@ -17,6 +17,9 @@ def build_engine(url: str, *, pool_size: int = 10, pool_recycle: int = 1800) -> 
         pool_recycle=pool_recycle,
         pool_pre_ping=True,
         isolation_level="READ COMMITTED",
+        # Errors and logs never carry the values of a statement: they can be
+        # names, dates of birth, NINs or note text (security review, 28 November 2026).
+        hide_parameters=True,
     )
 
     @event.listens_for(engine, "connect")

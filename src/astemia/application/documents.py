@@ -11,6 +11,7 @@ Correcting the indexing adds a version that keeps the original digest.
 import base64
 import binascii
 import uuid
+from dataclasses import replace
 from datetime import timedelta
 from typing import Any
 
@@ -43,7 +44,7 @@ from astemia.application.schemas import (
 from astemia.application.write_path import CommandResult, Unit, WritePath, audit_row
 from astemia.domain import documents as dc
 from astemia.domain import identity as idn
-from astemia.domain.common import DomainError, EffectivePrecision, new_id
+from astemia.domain.common import DomainError, EffectivePrecision, Sensitivity, new_id
 from astemia.domain.events import EventType
 from astemia.domain.tasks import TaskStatus, TaskType
 
@@ -495,24 +496,29 @@ class Documents:
     def _open(
         self, session: Session, ctx: RequestContext, document_id: uuid.UUID, action: str
     ) -> tuple[Document, Decision]:
-        """A records clerk opens any document; anyone else only a filed one, on
-        a patient whose chart they may read. Decided and audited before return."""
+        """A records clerk opens a document in intake; once filed, only those who
+        may read the patient's chart, subject to its sensitivity. Decided and
+        audited before return."""
         doc = session.execute(
             select(Document).where(Document.tenant_id == ctx.tenant_id, Document.id == document_id)
         ).scalar_one_or_none()
         if doc is None:
             raise NotFound("not found")
-        decision = self.policy.decide(session, ctx, "document:index")
-        if (
-            not decision.allowed
-            and doc.patient_id is not None
-            and doc.status
-            in (
-                dc.DocumentStatus.FILED,
-                dc.DocumentStatus.REVIEWED,
-            )
-        ):
+        filed = doc.status in (dc.DocumentStatus.FILED, dc.DocumentStatus.REVIEWED)
+        if not filed:
+            # Intake: the records clerk's work, before the document is on a chart.
+            decision = self.policy.decide(session, ctx, "document:index")
+        else:
+            # Once filed it is part of the patient's record: only the care team
+            # opens it, and a sensitive one stays withheld as in the chart
+            # (security review, 28 November 2026).
             decision = self.policy.decide(session, ctx, "chart:read", patient_id=doc.patient_id)
+            if (
+                decision.allowed
+                and doc.sensitivity != Sensitivity.NORMAL
+                and f"sensitivity:{doc.sensitivity}" in decision.masks
+            ):
+                decision = replace(decision, allowed=False, reason="not_found", conceal=True)
         outcome = "success" if decision.allowed else "denied"
         session.add(audit_row(ctx, decision, action, "document", doc.id, doc.patient_id, outcome))
         session.commit()
@@ -565,7 +571,7 @@ class Documents:
                 .order_by(Document.received_at, Document.id)
                 .limit(limit)
             ).scalars()
-            return [
+            out = [
                 document_out(
                     session,
                     d,
@@ -575,3 +581,6 @@ class Documents:
                 )
                 for d in rows
             ]
+            # Indexing details only: the reviewer's clinical note is for the
+            # care team, not intake (security review, 28 November 2026).
+            return [o.model_copy(update={"review_note": None}) for o in out]

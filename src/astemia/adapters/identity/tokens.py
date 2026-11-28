@@ -64,8 +64,8 @@ def issue_dev_token(
     settings: Settings, subject: str, tenant_id: uuid.UUID, ttl_s: int = 3600
 ) -> str:
     """Development and test helper. Production tokens come from the identity provider."""
-    if settings.environment == "production":
-        raise RuntimeError("development tokens are disabled in production")
+    if not settings.is_development:
+        raise RuntimeError(f"development tokens are disabled in {settings.environment}")
     now = int(datetime.now(UTC).timestamp())
     return jwt.encode(
         {

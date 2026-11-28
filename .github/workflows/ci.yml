@@ -34,6 +34,8 @@ jobs:
       ASTEMIA_TEST_DATABASE_URL: mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia_test
     steps:
       - uses: actions/checkout@v4
+      - name: Allow the audit triggers (migration 0021)
+        run: docker run --rm --network host mysql:26.10 mysql -h127.0.0.1 -uroot -pci-root -e "SET PERSIST log_bin_trust_function_creators = 1"
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.14"
@@ -71,6 +73,8 @@ jobs:
       DB_URL: mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia
     steps:
       - uses: actions/checkout@v4
+      - name: Allow the audit triggers (migration 0021)
+        run: docker run --rm --network host mysql:26.10 mysql -h127.0.0.1 -uroot -pci-root -e "SET PERSIST log_bin_trust_function_creators = 1"
       - name: Build the image
         run: docker build -t astemia:ci .
       - name: Migrate
@@ -136,6 +140,8 @@ jobs:
       ASTEMIA_E2E_DATABASE_URL: mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia_e2e
     steps:
       - uses: actions/checkout@v4
+      - name: Allow the audit triggers (migration 0021)
+        run: docker run --rm --network host mysql:26.10 mysql -h127.0.0.1 -uroot -pci-root -e "SET PERSIST log_bin_trust_function_creators = 1"
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.14"

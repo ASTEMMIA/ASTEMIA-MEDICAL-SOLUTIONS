@@ -619,7 +619,8 @@ export type LegalStatusOut = {
   valid_from: string;
   valid_until: string | null;
   authorised_by_id: string;
-  reason: string;
+  /** Withheld (null) from readers without the mental health grant. */
+  reason: string | null;
   ended_at: string | null;
   current: boolean;
   lapsed: boolean;

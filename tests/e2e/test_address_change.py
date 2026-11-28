@@ -51,6 +51,8 @@ def test_a_move_keeps_the_old_address_as_history(api: Api, factory: sessionmaker
     moved = change(api, pid, 1)
     assert moved.status_code == 200, moved.text
     assert moved.json()["version"] == 2
+    nin = next(i for i in moved.json()["identifiers"] if i["issuer"] == "NG-NIN")
+    assert nin["value"] != "12345678901"  # the registrar's own masks apply
     assert moved.json()["address"]["town"] == "Abuja"
 
     history = api.get("registrar", f"/v1/patients/{pid}/addresses").json()

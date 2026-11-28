@@ -767,7 +767,9 @@ class LegalStatusOut(BaseModel):
     valid_from: datetime
     valid_until: datetime | None
     authorised_by_id: uuid.UUID
-    reason: str
+    reason: str | None = Field(
+        description="Withheld (null) from readers without the mental health grant."
+    )
     ended_at: datetime | None
     current: bool
     lapsed: bool

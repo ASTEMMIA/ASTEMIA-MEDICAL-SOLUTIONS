@@ -182,6 +182,13 @@ class Safeguards:
                 raise AccessDenied(
                     decision.reason, code=decision.reason, conceal=patient_id is not None
                 )
+            # A lead's capability is not bound to a relationship, so nothing
+            # above has looked the patient up: one outside this tenant (or no
+            # patient at all) is concealed like any other (tenant isolation).
+            if patient_id is not None and session.get(Patient, (ctx.tenant_id, patient_id)) is None:
+                session.add(audit_row(ctx, decision, action, "patient", patient_id, None, "denied"))
+                session.commit()
+                raise AccessDenied("not found", code="not_found", conceal=True)
             result = reader(session, decision)
             session.add(
                 audit_row(ctx, decision, action, "patient", patient_id, patient_id, "success")
@@ -683,6 +690,10 @@ class Safeguards:
                 select(Membership.roles).where(
                     Membership.tenant_id == u.ctx.tenant_id,
                     Membership.practitioner_id == cmd.practitioner_id,
+                    # Only a current appointment counts, not a lapsed or suspended one.
+                    Membership.active.is_(True),
+                    Membership.valid_from <= u.ctx.now,
+                    (Membership.valid_to.is_(None)) | (Membership.valid_to > u.ctx.now),
                 )
             ).scalars()
             if not any("patient_advocate" in r for r in roles):
