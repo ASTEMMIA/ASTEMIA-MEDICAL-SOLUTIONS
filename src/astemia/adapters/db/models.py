@@ -1249,6 +1249,81 @@ class BedOccupancy(Envelope, Base):
     active_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
 
 
+class Theatre(Envelope, Base):
+    """An operating theatre of a facility: an asset sessions are booked in."""
+
+    __tablename__ = "theatre"
+    __table_args__ = (
+        fk(["tenant_id", "facility_id"], "organisation_site"),
+        UniqueConstraint("tenant_id", "code"),
+        TABLE_OPTS,
+    )
+
+    facility_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+
+class TheatreSession(Envelope, Base):
+    """A block of theatre time. booked_minutes is kept on the row, under its lock,
+    so two bookings cannot both take the last of the time."""
+
+    __tablename__ = "theatre_session"
+    __table_args__ = (
+        fk(["tenant_id", "theatre_id"], "theatre"),
+        UniqueConstraint("tenant_id", "theatre_id", "starts_at"),
+        TABLE_OPTS,
+    )
+
+    theatre_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    capacity_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    booked_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    status_reason: Mapped[str | None] = mapped_column(String(500))
+
+
+class TheatreCase(Envelope, Base):
+    """CEDA TheatreCase (HS03, WF05): one operation for one encounter in one
+    session, with its safety checklist, the procedure record and the recovery
+    handover to an accountable recipient."""
+
+    __tablename__ = "theatre_case"
+    __table_args__ = (
+        fk(["tenant_id", "session_id"], "theatre_session"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "surgeon_id"], "practitioner"),
+        fk(["tenant_id", "care_plan_id"], "care_plan"),
+        fk(["tenant_id", "handover_recipient_id"], "practitioner"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    session_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    encounter_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    surgeon_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    care_plan_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    procedure: Mapped[str] = mapped_column(String(200), nullable=False)
+    procedure_code: Mapped[str | None] = mapped_column(String(64))
+    laterality: Mapped[str] = mapped_column(String(16), nullable=False)
+    estimated_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    checklist: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    override_reason: Mapped[str | None] = mapped_column(String(500))
+    started_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    completed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    procedure_note: Mapped[str | None] = mapped_column(Text)
+    cancelled_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    cancellation_reason: Mapped[str | None] = mapped_column(String(500))
+    handover_recipient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    handed_over_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    handover_note: Mapped[str | None] = mapped_column(String(2000))
+
+
 class Condition(Envelope, Coded, Base):
     """CEDA Condition: a coded problem with its certainty and onset, and the
     condition register it puts the patient on (HS12)."""

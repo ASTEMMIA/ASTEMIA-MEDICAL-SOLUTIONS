@@ -46,7 +46,9 @@ from astemia.application.schemas import (
     AppointAdvocate,
     AssignBed,
     BookAppointment,
+    BookTheatreCase,
     CancelAppointment,
+    CancelCase,
     CancelTask,
     CarePlanOut,
     ChangeAddress,
@@ -55,6 +57,7 @@ from astemia.application.schemas import (
     CloseBatch,
     CloseConcern,
     ClosePatient,
+    CompleteCase,
     CompleteCycle,
     CompleteTask,
     ConcernOut,
@@ -63,6 +66,8 @@ from astemia.application.schemas import (
     CreatePlan,
     CreateSlots,
     CreateTask,
+    CreateTheatre,
+    CreateTheatreSession,
     CreateWard,
     DecideReferral,
     Discharge,
@@ -75,6 +80,7 @@ from astemia.application.schemas import (
     EntryOut,
     FacilityOut,
     FileDocument,
+    HandOverCase,
     InterventionOut,
     LabOrderOut,
     LegalStatusOut,
@@ -90,6 +96,7 @@ from astemia.application.schemas import (
     ReassignTask,
     ReceiveDocument,
     RecordAttendance,
+    RecordChecklistStep,
     RecordCondition,
     RecordIntervention,
     ReferralOut,
@@ -110,14 +117,20 @@ from astemia.application.schemas import (
     ServiceOut,
     SetBedStatus,
     SetLegalStatus,
+    SetSessionStatus,
     SetWardStatus,
     SlotOut,
+    StartCase,
     SubmitReferral,
     TaskOut,
+    TheatreCaseOut,
+    TheatreOut,
+    TheatreSessionOut,
     UnmergePatient,
     UpdateDraft,
     WardOut,
 )
+from astemia.application.theatre import Theatres
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
 from astemia.domain.documents import DocumentStatus
@@ -156,6 +169,7 @@ def create_app(
     daybook = Daybook(write_path, factory, policy)
     discharges = Discharges(write_path, factory, policy)
     beds = Beds(write_path, factory, policy)
+    theatres = Theatres(write_path, factory, policy)
     care_plans = CarePlans(write_path, factory, policy)
     directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
@@ -616,6 +630,128 @@ def create_app(
     @app.get("/v1/encounters/{encounter_id}/movements", response_model=list[OccupancyOut])
     def encounter_movements(encounter_id: uuid.UUID, ctx: Ctx) -> list[OccupancyOut]:
         return beds.movements(ctx, encounter_id)
+
+    # --- theatres (HS03, WF05 step 2) --------------------------------------------
+
+    @app.post("/v1/theatres", status_code=201)
+    def create_theatre(
+        body: CreateTheatre, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(theatres.create_theatre(ctx, key, body), response)
+
+    @app.get("/v1/theatres", response_model=list[TheatreOut])
+    def list_theatres(ctx: Ctx) -> list[TheatreOut]:
+        return theatres.theatres(ctx)
+
+    @app.post("/v1/theatres/{theatre_id}/status")
+    def set_theatre_status(
+        theatre_id: uuid.UUID,
+        body: SetWardStatus,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.set_theatre_status(ctx, key, theatre_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatres/{theatre_id}/sessions", status_code=201)
+    def create_theatre_session(
+        theatre_id: uuid.UUID,
+        body: CreateTheatreSession,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+    ) -> dict[str, Any]:
+        return respond(theatres.create_session(ctx, key, theatre_id, body), response)
+
+    @app.get("/v1/theatre-sessions", response_model=list[TheatreSessionOut])
+    def list_theatre_sessions(
+        ctx: Ctx, theatre_id: uuid.UUID | None = None
+    ) -> list[TheatreSessionOut]:
+        return theatres.sessions(ctx, theatre_id)
+
+    @app.post("/v1/theatre-sessions/{session_id}/status")
+    def set_theatre_session_status(
+        session_id: uuid.UUID,
+        body: SetSessionStatus,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.set_session_status(ctx, key, session_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatre-cases", status_code=201)
+    def book_theatre_case(
+        body: BookTheatreCase, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(theatres.book(ctx, key, body), response)
+
+    @app.get("/v1/theatre-cases/{case_id}", response_model=TheatreCaseOut)
+    def read_theatre_case(case_id: uuid.UUID, ctx: Ctx) -> TheatreCaseOut:
+        return theatres.get(ctx, case_id)
+
+    @app.post("/v1/theatre-cases/{case_id}/checklist")
+    def record_checklist_step(
+        case_id: uuid.UUID,
+        body: RecordChecklistStep,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.record_step(ctx, key, case_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatre-cases/{case_id}/start")
+    def start_theatre_case(
+        case_id: uuid.UUID,
+        body: StartCase,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.start(ctx, key, case_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatre-cases/{case_id}/complete")
+    def complete_theatre_case(
+        case_id: uuid.UUID,
+        body: CompleteCase,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.complete(ctx, key, case_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatre-cases/{case_id}/cancel")
+    def cancel_theatre_case(
+        case_id: uuid.UUID,
+        body: CancelCase,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.cancel(ctx, key, case_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/theatre-cases/{case_id}/handover")
+    def hand_over_theatre_case(
+        case_id: uuid.UUID,
+        body: HandOverCase,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = theatres.hand_over(ctx, key, case_id, version_of(if_match), body)
+        return respond(result, response)
 
     # --- conditions and care plans (HS12) ---------------------------------------
 

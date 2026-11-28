@@ -37,6 +37,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             # Bed management (HS03): give an admitted patient a bed, transfer them.
             "bed:read",
             "bed:assign",
+            "theatre:read",
         }
     ),
     # Schedulers (UG01) run clinic templates and bookings and triage the
@@ -47,6 +48,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "schedule:book",
             "appointment:attend",
             "referral:triage",
+            # Theatre lists (HS03): book and cancel cases.
+            "theatre:read",
+            "theatre:book",
             "patient:search",
             "address:read",
             "catalogue:read",
@@ -89,6 +93,11 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "careplan:deliver",
             "bed:read",
             "bed:assign",
+            # Theatre (HS03, WF05): book, run the checklist, operate, hand over.
+            "theatre:read",
+            "theatre:book",
+            "theatre:checklist",
+            "theatre:perform",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -116,15 +125,27 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "task:assign",
             # Nurses deliver plan sessions such as dialysis (HS12).
             "careplan:deliver",
-            # The ward team moves patients between beds (HS03).
+            # The ward team moves patients between beds (HS03) and theatre
+            # nurses record the safety checklist (WF05).
             "bed:read",
             "bed:assign",
+            "theatre:read",
+            "theatre:checklist",
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     # They also set up wards and beds, and open and close them (HS03).
-    "tenant_admin": frozenset({"catalogue:read", "catalogue:manage", "bed:read", "bed:manage"}),
+    "tenant_admin": frozenset(
+        {
+            "catalogue:read",
+            "catalogue:manage",
+            "bed:read",
+            "bed:manage",
+            "theatre:read",
+            "theatre:manage",
+        }
+    ),
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
     "records_clerk": frozenset(

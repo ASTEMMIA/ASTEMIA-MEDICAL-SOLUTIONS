@@ -124,6 +124,27 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         "nurse", f"/v1/encounters/{enc['id']}/bed", {"bed_id": bed}, **{"If-Match": '"1"'}
     )
     assert placed.status_code == 201, placed.text
+    t = api.post(
+        "admin",
+        "/v1/theatres",
+        {"facility_id": str(api.tenant.facility_id), "code": "T1", "name": "Theatre 1"},
+    ).json()
+    start = NOW + timedelta(days=1)
+    times = {"starts_at": start.isoformat(), "ends_at": (start + timedelta(hours=2)).isoformat()}
+    slot = api.post("admin", f"/v1/theatres/{t['id']}/sessions", times).json()
+    case = api.post(
+        "scheduler",
+        "/v1/theatre-cases",
+        {
+            "session_id": slot["id"],
+            "encounter_id": enc["id"],
+            "surgeon_id": str(api.tenant.practitioners["clinician"]),
+            "procedure": "Hernia repair",
+            "laterality": "left",
+            "estimated_minutes": 60,
+        },
+    )
+    assert case.status_code == 201, case.text
     with factory() as s:
         link = s.scalar(select(MergeLink.id).where(MergeLink.prior_id == uuid.UUID(prior["id"])))
     return {
@@ -148,6 +169,9 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         "facility_id": str(api.tenant.facility_id),
         "ward_id": ward["id"],
         "bed_id": bed,
+        "theatre_id": t["id"],
+        "session_id": slot["id"],
+        "case_id": case.json()["id"],
     }
 
 
@@ -233,6 +257,17 @@ def _body(path: str, a: dict[str, str]) -> dict[str, Any]:
         "/beds/{bed_id}/status": {"status": "closed"},
         "/bed": {"bed_id": a["bed_id"]},
         "/transfer": {"bed_id": a["bed_id"]},
+        "/theatres/{theatre_id}/status": {"active": False},
+        "/theatres/{theatre_id}/sessions": {
+            "starts_at": (NOW + timedelta(days=3)).isoformat(),
+            "ends_at": (NOW + timedelta(days=3, hours=1)).isoformat(),
+        },
+        "/theatre-sessions/{session_id}/status": {"status": "unavailable"},
+        "/theatre-cases/{case_id}/checklist": {"step": "sign_in"},
+        "/theatre-cases/{case_id}/start": {"override_reason": "Emergency"},
+        "/theatre-cases/{case_id}/complete": {"procedure_note": "Done", "override_reason": "x"},
+        "/theatre-cases/{case_id}/cancel": {"reason": "Unwell"},
+        "/theatre-cases/{case_id}/handover": {"recipient_id": a["practitioner_id"]},
     }
     for suffix, body in bodies.items():
         if path.endswith(suffix):
