@@ -162,7 +162,8 @@ await run("clinical", async (page) => {
   await pair.getByLabel("Reason").fill("Different mothers; confirmed by phone");
   await pair.getByRole("button", { name: "Record decision" }).click();
   await page.getByText(/Recorded as different people/).waitFor();
-  check(await page.getByText("No pairs are waiting for review.").isVisible(), "the pair leaves the review list");
+  await page.getByText("No pairs are waiting for review.").waitFor();
+  check(true, "the pair leaves the review list");
 
   // The chart at phone width scrolls tables inside themselves, not the page.
   await signOut(page);
