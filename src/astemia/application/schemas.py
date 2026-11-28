@@ -1564,3 +1564,84 @@ class InterfaceMessageOut(BaseModel):
     resource_id: uuid.UUID | None
     recorded_at: datetime
     processed_at: datetime | None
+
+
+# --- migration of existing patient records (MIG-01 to MIG-03) ---------------------------
+
+LegacyText = Annotated[str, StringConstraints(max_length=255)] | None
+
+
+class LegacyRow(Strict):
+    """A legacy row as extracted: values are text, checked only at load."""
+
+    row_key: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    person_number: Annotated[str, StringConstraints(min_length=1, max_length=64)]
+
+
+class LegacyPerson(LegacyRow):
+    nin: LegacyText = None
+    gender: LegacyText = None
+    date_of_birth: LegacyText = None
+    date_of_death: LegacyText = None
+
+
+class LegacyName(LegacyRow):
+    title: LegacyText = None
+    forename: LegacyText = None
+    other_names: LegacyText = None
+    surname: LegacyText = None
+    mother_name: LegacyText = None
+    valid_to: LegacyText = None
+
+
+class LegacyAddress(LegacyRow):
+    address_line1: LegacyText = None
+    address_line2: LegacyText = None
+    address_line3: LegacyText = None
+    state: LegacyText = None
+    local_government_area: LegacyText = None
+    postcode: LegacyText = None
+    effective_to: LegacyText = None
+
+
+class StageBatch(Strict):
+    source_system: Code
+    description: str = Field(min_length=1, max_length=200)
+    persons: list[LegacyPerson] = Field(default_factory=list, max_length=5000)
+    names: list[LegacyName] = Field(default_factory=list, max_length=10000)
+    addresses: list[LegacyAddress] = Field(default_factory=list, max_length=10000)
+
+
+class MigrationBatchOut(BaseModel):
+    id: uuid.UUID
+    source_system: str
+    description: str
+    status: str
+    staged_persons: int
+    staged_names: int
+    staged_addresses: int
+    already_staged: int
+    loaded: int
+    quarantined: int
+
+
+class ReconciliationOut(BaseModel):
+    """Every staged person in exactly one outcome, and each loaded patient's
+    identity as mapped compared with the live record."""
+
+    batch_id: uuid.UUID
+    status: str
+    source_persons: int
+    loaded: int
+    quarantined: int
+    not_processed: int
+    quarantine_reasons: dict[str, int]
+    patients_from_source: int
+    identity_mismatches: list[uuid.UUID]
+    reconciled: bool
+
+
+class MigrationExceptionOut(BaseModel):
+    source_row_key: str
+    reason: str
+    detail: str | None

@@ -60,6 +60,8 @@ export const CAPABILITY_NAMES: Record<string, string> = {
   "imaging:report": "Sign radiology reports and addenda",
   "interface:submit": "Send HL7 messages from other systems",
   "interface:monitor": "Watch the interface message log",
+  "migration:run": "Stage and load legacy patient records",
+  "migration:read": "See migration reconciliation and exceptions",
 };
 
 export function Account() {

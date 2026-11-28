@@ -773,6 +773,38 @@ export type LabOrderOut = {
 
 export type Laterality = "left" | "right" | "bilateral" | "not_applicable";
 
+export type LegacyAddress = {
+  row_key: string;
+  person_number: string;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  address_line3?: string | null;
+  state?: string | null;
+  local_government_area?: string | null;
+  postcode?: string | null;
+  effective_to?: string | null;
+};
+
+export type LegacyName = {
+  row_key: string;
+  person_number: string;
+  title?: string | null;
+  forename?: string | null;
+  other_names?: string | null;
+  surname?: string | null;
+  mother_name?: string | null;
+  valid_to?: string | null;
+};
+
+export type LegacyPerson = {
+  row_key: string;
+  person_number: string;
+  nin?: string | null;
+  gender?: string | null;
+  date_of_birth?: string | null;
+  date_of_death?: string | null;
+};
+
 /** The patient's legal status under mental health law (ICRS 5.5.9). */
 export type LegalStatus = "informal" | "emergency_holding" | "detained_assessment" | "detained_treatment" | "community_treatment";
 
@@ -827,6 +859,25 @@ export type MeOut = {
 export type MergePatient = {
   survivor_id: string;
   reason: string;
+};
+
+export type MigrationBatchOut = {
+  id: string;
+  source_system: string;
+  description: string;
+  status: string;
+  staged_persons: number;
+  staged_names: number;
+  staged_addresses: number;
+  already_staged: number;
+  loaded: number;
+  quarantined: number;
+};
+
+export type MigrationExceptionOut = {
+  source_row_key: string;
+  reason: string;
+  detail: string | null;
 };
 
 export type Modality = "in_person" | "video" | "phone" | "home";
@@ -1058,6 +1109,20 @@ export type ReceiveStudy = {
   pacs_reference: string;
   patient_identifier: PatientIdentifierIn;
   birth_date: string;
+};
+
+/** Every staged person in exactly one outcome, and each loaded patient's identity as mapped compared with the live record. */
+export type ReconciliationOut = {
+  batch_id: string;
+  status: string;
+  source_persons: number;
+  loaded: number;
+  quarantined: number;
+  not_processed: number;
+  quarantine_reasons: Record<string, unknown>;
+  patients_from_source: number;
+  identity_mismatches: string[];
+  reconciled: boolean;
 };
 
 export type RecordAttendance = {
@@ -1366,6 +1431,14 @@ export type SlotOut = {
 };
 
 export type SlotType = "new" | "follow_up" | "urgent";
+
+export type StageBatch = {
+  source_system: string;
+  description: string;
+  persons?: LegacyPerson[];
+  names?: LegacyName[];
+  addresses?: LegacyAddress[];
+};
 
 export type StartCase = {
   override_reason?: string | null;

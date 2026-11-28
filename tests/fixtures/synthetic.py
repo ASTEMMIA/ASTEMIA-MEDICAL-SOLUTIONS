@@ -60,6 +60,7 @@ UNLINKED = {
     "unlinked_scientist": ["lab_scientist"],
     "unlinked_radiologist": ["radiologist"],
     "interface": ["interface_engine"],
+    "migrator": ["data_migration_officer"],
     "no_catalogue": ["sensitive_reader"],
     "unlinked_steward": ["identity_steward"],
     "unlinked_privacy": ["privacy_officer"],
