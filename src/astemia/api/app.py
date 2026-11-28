@@ -120,6 +120,14 @@ log = logging.getLogger("astemia.api")
 _CORRELATION = re.compile(r"^[A-Za-z0-9._-]{8,64}$")
 
 
+API_HEADERS = {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+}
+
+
 def create_app(
     settings: Settings | None = None, factory: sessionmaker[Session] | None = None
 ) -> FastAPI:
@@ -154,6 +162,11 @@ def create_app(
         request.state.correlation_id = cid
         response = await call_next(request)
         response.headers["X-Correlation-ID"] = cid
+        if request.url.path.startswith(("/v1/", "/health")):
+            # Patient data is never cached, sniffed or sent on as a referrer;
+            # browsers keep to HTTPS once they have seen it (security review).
+            for name, value in API_HEADERS.items():
+                response.headers.setdefault(name, value)
         return response
 
     def error(request: Request, status: int, code: str, message: str) -> JSONResponse:

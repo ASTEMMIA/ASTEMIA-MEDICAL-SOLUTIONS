@@ -12,6 +12,9 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
       - --default-time-zone=+00:00
+      # The audit trail's append-only triggers (migration 0021) need this
+      # while binary logging is on.
+      - --log-bin-trust-function-creators=1
     ports: ["3306:3306"]
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pdevroot"]

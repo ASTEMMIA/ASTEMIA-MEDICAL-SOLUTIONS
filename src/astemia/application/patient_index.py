@@ -565,7 +565,14 @@ class PatientIndex:
                 patient_id=patient.id,
                 event_id=event,
             )
-            return CommandResult(200, _out(u, patient))
+            # Shown with the caller's own masks: a registrar sees a masked NIN
+            # here as in search (security review, 28 November 2026).
+            return CommandResult(
+                200,
+                views.patient(u.session, patient, masks=decision.masks, at=u.ctx.now).model_dump(
+                    mode="json"
+                ),
+            )
 
         return self.wp.run(
             ctx,

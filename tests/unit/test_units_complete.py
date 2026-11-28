@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytest
+from pydantic import SecretStr
 from sqlalchemy import MetaData
 
 from astemia.adapters.db.staging import ErdEntity, build_staging_tables
@@ -79,8 +80,9 @@ def test_settings_are_cached() -> None:
 def test_development_tokens_are_refused_in_production() -> None:
     import uuid
 
+    strong = Settings(environment="production", jwt_key=SecretStr("k" * 32))
     with pytest.raises(RuntimeError, match="disabled in production"):
-        issue_dev_token(Settings(environment="production"), "x@y", uuid.uuid7())
+        issue_dev_token(strong, "x@y", uuid.uuid7())
 
 
 def test_asgi_entry_point_builds_the_app() -> None:

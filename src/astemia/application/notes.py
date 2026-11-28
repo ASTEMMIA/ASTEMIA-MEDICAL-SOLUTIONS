@@ -68,9 +68,12 @@ def _revisions(session: Session, entry: ClinicalEntry) -> list[EntryRevision]:
     )
 
 
-def entry_out(session: Session, entry: ClinicalEntry, viewer: uuid.UUID | None) -> EntryOut:
+def entry_out(
+    session: Session, entry: ClinicalEntry, viewer: uuid.UUID | None, *, own_only: bool = False
+) -> EntryOut:
     """Signed revisions for everyone allowed to read the chart; a draft only
-    for its author."""
+    for its author. `own_only` limits the revisions to the viewer's own, for a
+    writer who may not read the rest of a sensitive note."""
     return EntryOut(
         id=entry.id,
         version=entry.version,
@@ -84,8 +87,16 @@ def entry_out(session: Session, entry: ClinicalEntry, viewer: uuid.UUID | None) 
         revisions=[
             revision_out(r)
             for r in _revisions(session, entry)
-            if r.status == nt.RevisionStatus.SIGNED or r.author_id == viewer
+            if r.author_id == viewer or (r.status == nt.RevisionStatus.SIGNED and not own_only)
         ],
+    )
+
+
+def withheld(entry: ClinicalEntry, decision: Decision) -> bool:
+    """A sensitive note the reader may not see, as in the chart."""
+    return (
+        entry.sensitivity != Sensitivity.NORMAL
+        and f"sensitivity:{entry.sensitivity}" in decision.masks
     )
 
 
@@ -267,7 +278,12 @@ class Notes:
                 entry.id,
                 patient_id=entry.patient_id,
             )
-            body = entry_out(u.session, entry, u.ctx.principal.practitioner_id)
+            body = entry_out(
+                u.session,
+                entry,
+                u.ctx.principal.practitioner_id,
+                own_only=withheld(entry, decision),
+            )
             return CommandResult(200, body.model_dump(mode="json"))
 
         return self.wp.run(
@@ -330,7 +346,12 @@ class Notes:
                 patient_id=entry.patient_id,
                 event_id=event,
             )
-            body = entry_out(u.session, entry, u.ctx.principal.practitioner_id)
+            body = entry_out(
+                u.session,
+                entry,
+                u.ctx.principal.practitioner_id,
+                own_only=withheld(entry, decision),
+            )
             return CommandResult(200, body.model_dump(mode="json"))
 
         return self.wp.run(
@@ -371,6 +392,8 @@ class Notes:
             entry.version += 1
             u.session.flush()
             decision = u.authorize("note:write", patient_id=entry.patient_id)
+            if withheld(entry, decision):
+                u.deny("not_found", conceal=True, patient_id=entry.patient_id)
             u.audit(
                 decision,
                 "clinical_entry.amend",
@@ -436,11 +459,8 @@ class Notes:
                     ClinicalEntry.tenant_id == ctx.tenant_id, ClinicalEntry.id == entry_id
                 )
             ).scalar_one()
-            if (
-                entry.sensitivity != Sensitivity.NORMAL
-                and f"sensitivity:{entry.sensitivity}" in decision.masks
-            ):
-                raise NotFound("not found")  # withheld, as in the chart
+            if withheld(entry, decision):
+                raise NotFound("not found")
             return entry_out(session, entry, ctx.principal.practitioner_id)
 
         return read_path(

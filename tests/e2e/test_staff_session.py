@@ -26,6 +26,11 @@ def test_me_names_the_person_their_tenant_and_what_they_may_do(api: Api) -> None
     assert unlinked["practitioner_id"] is None
     assert unlinked["display_name"] == api.tenant.subject("unlinked_clinician")
     assert api.client.get("/v1/me").status_code == 401
+    for response in (r, api.client.get("/v1/me")):  # with data, and refused
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert response.headers["Referrer-Policy"] == "no-referrer"
+        assert response.headers["Strict-Transport-Security"].startswith("max-age=")
 
 
 def test_development_sign_in_is_off_by_default(api: Api) -> None:
@@ -68,7 +73,9 @@ def test_development_sign_in_when_enabled(api: Api, dev_client: TestClient) -> N
 
 
 def test_never_in_production(settings: Settings, factory: sessionmaker[Session], api: Api) -> None:
-    prod = settings.model_copy(update={"dev_sign_in": True, "environment": "production"})
+    # model_copy skips validation, so this is the route's own guard, behind the
+    # startup check in Settings.
+    prod = settings.model_copy(update={"dev_sign_in": True, "environment": "staging"})
     client = TestClient(create_app(prod, factory), raise_server_exceptions=False)
     tid = api.tenant.tenant_id
     assert client.get(f"/v1/dev/accounts?tenant_id={tid}").status_code == 404

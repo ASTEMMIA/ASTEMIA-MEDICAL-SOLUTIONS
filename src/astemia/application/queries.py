@@ -1,6 +1,7 @@
 """Scoped queries. GET /v1/patients/{id}/chart (API-03)."""
 
 import uuid
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
@@ -20,10 +21,25 @@ from astemia.application.documents import filed_documents
 from astemia.application.errors import AccessDenied
 from astemia.application.notes import signed_entries
 from astemia.application.policy import Decision, PolicyEngine
-from astemia.application.schemas import ChartOut
+from astemia.application.schemas import ChartOut, LegalStatusOut
 from astemia.application.write_path import read_path
 from astemia.domain.common import Sensitivity
 from astemia.domain.diagnostics import ReviewState
+
+
+def _legal_for(
+    session: Session, tid: uuid.UUID, patient_id: uuid.UUID, masks: frozenset[str], at: Any
+) -> LegalStatusOut | None:
+    """The legal status in force, shown to the whole care team for safety (a
+    detained patient must not leave); its free-text reason is mental health
+    detail, withheld without that grant (security review, 28 November 2026)."""
+    legal = views.current_legal_status(session, tid, patient_id)
+    if legal is None:
+        return None
+    out = views.legal_status(legal, at)
+    if "sensitivity:mental_health" in masks:
+        out = out.model_copy(update={"reason": None})
+    return out
 
 
 class Queries:
@@ -94,7 +110,7 @@ class Queries:
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
                 encounters=[views.encounter(session, e) for e in encounters],
                 orders=[views.order(o) for o in orders],
-                reports=[views.report(session, r, masks=masks) for r in reports],
+                reports=views.reports(session, reports, masks=masks),
                 open_reviews=[views.review(r) for r in reviews if visible(r.sensitivity)],
                 entries=entries,
                 documents=documents,
@@ -104,11 +120,7 @@ class Queries:
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,
-                legal_status=(
-                    views.legal_status(legal, ctx.now)
-                    if (legal := views.current_legal_status(session, tid, patient_id))
-                    else None
-                ),
+                legal_status=_legal_for(session, tid, patient_id, masks, ctx.now),
                 access_basis=(
                     "emergency_grant"
                     if decision.reason == "emergency_grant"

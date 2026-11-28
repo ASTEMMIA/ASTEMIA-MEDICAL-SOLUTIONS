@@ -11,6 +11,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.models import (
+    Membership,
     MentalHealthLegalStatus,
     OutboxEvent,
     SafeguardingConcern,
@@ -98,6 +99,16 @@ def test_legal_status_has_history_expiry_and_shows_on_the_chart(
 
     chart = api.get("clinician", f"/v1/patients/{pid}/chart").json()
     assert chart["legal_status"]["status"] == "detained_treatment"
+    assert chart["legal_status"]["legal_basis"]  # shown for safety
+    assert chart["legal_status"]["reason"] is None  # mental health detail, withheld
+    admit(
+        api,
+        pid,
+        visit="V-PSY",
+        responsible_practitioner_id=str(api.tenant.practitioners["psychiatrist"]),
+    )
+    granted = api.get("psychiatrist", f"/v1/patients/{pid}/chart").json()
+    assert granted["legal_status"]["reason"]  # with the mental health grant
     history = api.get("lead", f"/v1/patients/{pid}/legal-status").json()
     assert [(h["status"], h["current"]) for h in history] == [
         ("detained_treatment", True),
@@ -214,9 +225,31 @@ def test_restrictive_interventions_are_logged_and_independently_reviewed(
             {"practitioner_id": ids(api, "nurse")[0]},
         )
     ) == (422, "not_an_advocate")
-    appointed = api.post(
-        "lead", f"/v1/patients/{pid}/advocates", {"practitioner_id": ids(api, "advocate")[0]}
+    # An advocate whose membership has lapsed cannot be appointed.
+    with factory() as s, s.begin():
+        s.execute(
+            update(Membership)
+            .where(
+                Membership.tenant_id == api.tenant.tenant_id,
+                Membership.subject == api.tenant.subject("advocate"),
+            )
+            .values(valid_to=datetime.now(UTC) - timedelta(days=1))
+        )
+    advocate = {"practitioner_id": ids(api, "advocate")[0]}
+    assert code(api.post("lead", f"/v1/patients/{pid}/advocates", advocate)) == (
+        422,
+        "not_an_advocate",
     )
+    with factory() as s, s.begin():
+        s.execute(
+            update(Membership)
+            .where(
+                Membership.tenant_id == api.tenant.tenant_id,
+                Membership.subject == api.tenant.subject("advocate"),
+            )
+            .values(valid_to=None)
+        )
+    appointed = api.post("lead", f"/v1/patients/{pid}/advocates", advocate)
     assert appointed.status_code == 201, appointed.text
     assert len(api.get("advocate", log).json()) == 3
     assert api.get("advocate", f"/v1/patients/{pid}/chart").status_code == 404  # no chart
@@ -329,3 +362,11 @@ def test_access_report_shows_who_touched_the_record(api: Api) -> None:
     # Reading the report is itself on the record.
     actions = {e["action"] for e in mine.json()["entries"]}
     assert "access_report.read" in actions
+
+
+def test_a_lead_cannot_read_a_patient_who_is_not_in_the_tenant(api: Api) -> None:
+    """Tenant isolation: the lead's reads are not bound to a care relationship,
+    so the patient's existence in the tenant is checked on its own."""
+    unknown = uuid.uuid4()
+    for path in ("restrictive-interventions", "legal-status", "access-report"):
+        assert api.get("lead", f"/v1/patients/{unknown}/{path}").status_code == 404

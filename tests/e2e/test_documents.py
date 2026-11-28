@@ -7,13 +7,14 @@ or sent to a reviewer."""
 
 import base64
 import hashlib
+import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from astemia.adapters.db.models import DocumentObject
+from astemia.adapters.db.models import Document, DocumentObject
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit, register
 from tests.fixtures.synthetic import ADDRESS
@@ -254,3 +255,37 @@ def test_a_misfiled_letter_is_reindexed_and_keeps_its_digest(api: Api) -> None:
     )
     assert merged.status_code == 200, merged.text
     assert code(file(api, quarantined, wrong)) == (409, "patient_merged")
+
+
+def test_a_filed_document_is_for_the_care_team_not_intake(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    """Security review, 28 November 2026: once filed, a document is part of the
+    patient's record. The records clerk keeps the indexing details but not the
+    content or the reviewer's note; a sensitive one is withheld as in the chart."""
+    pid = register(api)
+    admit(api, pid)
+    doc = receive(api).json()
+    assert api.get("clerk", f"/v1/documents/{doc['id']}/content").status_code == 200  # intake
+    filed = file(api, doc, pid).json()
+    review = api.post(
+        "clinician",
+        f"/v1/documents/{doc['id']}/review",
+        {"note": "Echo shows severe mitral regurgitation"},
+        **if_match(filed["version"]),
+    )
+    assert review.status_code == 200, review.text
+    for path in (f"/v1/documents/{doc['id']}", f"/v1/documents/{doc['id']}/content"):
+        assert api.get("clerk", path).status_code == 404
+        assert api.get("clinician", path).status_code == 200
+    listed = api.get("clerk", "/v1/documents?status=reviewed").json()
+    mine = next(d for d in listed if d["id"] == doc["id"])
+    assert mine["patient_id"] == pid and mine["review_note"] is None
+
+    with factory() as s, s.begin():
+        s.execute(
+            update(Document)
+            .where(Document.id == uuid.UUID(doc["id"]))
+            .values(sensitivity="sexual_health")
+        )
+    assert api.get("clinician", f"/v1/documents/{doc['id']}/content").status_code == 404

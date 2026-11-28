@@ -1,9 +1,9 @@
 """The staff web app's session: who is signed in, development sign-in, and the
 built app itself at /app/ (CEDA NFR-03).
 
-Development sign-in lets someone pick a seeded account in a test or pilot
-environment. It is off unless ASTEMIA_DEV_SIGN_IN is set and never available
-in production, where tokens come from the identity provider.
+Development sign-in lets someone pick a seeded account in development or test.
+It is off unless ASTEMIA_DEV_SIGN_IN is set, and never available in staging or
+production, where tokens come from the identity provider.
 """
 
 import uuid
@@ -82,7 +82,7 @@ def mount_staff(
     factory: sessionmaker[Session],
     request_context: Callable[..., RequestContext],
 ) -> None:
-    dev_enabled = settings.dev_sign_in and settings.environment != "production"
+    dev_enabled = settings.dev_sign_in and settings.is_development
     Ctx = Annotated[RequestContext, Depends(request_context)]
 
     @app.get("/v1/me", response_model=MeOut)
