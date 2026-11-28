@@ -62,6 +62,7 @@ from astemia.application.schemas import (
     CreateTask,
     DecideReferral,
     Discharge,
+    DischargeSummaryOut,
     DiscontinuePlan,
     DocumentOut,
     DraftDischarge,
@@ -500,6 +501,10 @@ def create_app(
         return respond(result, response)
 
     # --- discharge (HS05, WF06 step 3, ST08) -----------------------------------
+
+    @app.get("/v1/encounters/{encounter_id}/discharge-summary", response_model=DischargeSummaryOut)
+    def read_discharge_summary(encounter_id: uuid.UUID, ctx: Ctx) -> DischargeSummaryOut:
+        return discharges.get(ctx, encounter_id)
 
     @app.post("/v1/encounters/{encounter_id}/discharge-summary")
     def draft_discharge(

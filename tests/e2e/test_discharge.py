@@ -12,7 +12,7 @@ from typing import Any
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session, sessionmaker
 
-from astemia.adapters.db.models import Encounter, OutboxEvent, Task
+from astemia.adapters.db.models import DischargeSummary, Encounter, OutboxEvent, Task
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit, order, register, release
 
@@ -171,3 +171,29 @@ def test_discharge_rules(api: Api, factory: sessionmaker[Session]) -> None:
         )
     assert code(discharge(api, enc["id"], 1)) == (422, "invalid_transition")
     assert discharge(api, str(uuid.uuid4()), 1).status_code == 404
+
+
+def test_the_care_team_reads_the_summary_back_draft_or_signed(
+    api: Api, factory: sessionmaker[Session]
+) -> None:
+    pid = register(api)
+    enc = admit(api, pid)
+    path = f"/v1/encounters/{enc['id']}/discharge-summary"
+    assert code(api.get("clinician", path)) == (404, "not_found")  # nothing drafted yet
+    draft(api, enc["id"])
+    got = api.get("clinician", path)
+    assert got.status_code == 200, got.text
+    assert (got.json()["status"], got.json()["version"]) == ("draft", 1)  # to edit, If-Match 1
+    assert api.get("clinician2", path).status_code == 404  # not in their care
+    assert (
+        api.get("clinician", f"/v1/encounters/{uuid.uuid4()}/discharge-summary").status_code == 404
+    )
+    discharge(api, enc["id"], 1)
+    assert api.get("clinician", path).json()["status"] == "signed"
+    with factory() as s, s.begin():
+        s.execute(
+            update(DischargeSummary)
+            .where(DischargeSummary.encounter_id == uuid.UUID(enc["id"]))
+            .values(sensitivity="mental_health")
+        )
+    assert api.get("clinician", path).status_code == 404  # withheld, as in the chart

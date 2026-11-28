@@ -13,6 +13,9 @@ import type {
   ReviewOut,
 } from "../api-types";
 import { AddressPanel } from "../components/AddressPanel";
+import { DischargeSection } from "../components/DischargeSection";
+import { CarePlansSection, ProblemsSection } from "../components/PlansSection";
+import { SafeguardingSection } from "../components/SafeguardingSection";
 import { OpenDocument } from "../components/OpenDocument";
 import { NotesSection } from "../components/NotesSection";
 import { ReferralsSection } from "../components/ReferralsSection";
@@ -49,14 +52,16 @@ export function Chart() {
       {registered && <RegisteredNotice r={registered} />}
       <Banners chart={c} />
       <Visits chart={c} patientId={id} onChange={chart.reload} />
-      <Problems chart={c} />
+      <ProblemsSection chart={c} onChange={chart.reload} />
       <Orders chart={c} patientId={id} onChange={chart.reload} />
       <Results chart={c} onChange={chart.reload} />
       <ReferralsSection chart={c} />
       <NotesSection chart={c} onChange={chart.reload} />
       <Correspondence chart={c} onChange={chart.reload} />
       <Discharges chart={c} />
-      <CarePlans chart={c} />
+      <CarePlansSection chart={c} onChange={chart.reload} />
+      <DischargeSection chart={c} onChange={chart.reload} />
+      <SafeguardingSection chart={c} />
     </Page>
   );
 }
@@ -339,26 +344,6 @@ function Visits({ chart, patientId, onChange }: { chart: ChartOut; patientId: st
             ))}
           </tbody>
         </table>
-      )}
-    </Section>
-  );
-}
-
-function Problems({ chart }: { chart: ChartOut }) {
-  return (
-    <Section title="Problems">
-      {(chart.conditions ?? []).length === 0 ? (
-        <Empty>No problems recorded.</Empty>
-      ) : (
-        <ul className="list">
-          {(chart.conditions ?? []).map((c) => (
-            <li key={c.id}>
-              {c.display} <span className="muted mono">{c.code}</span>
-              {c.certainty !== "confirmed" && <Tag tone="warn">{words(c.certainty)}</Tag>}
-              {c.onset_date && <span className="muted"> · since {date(c.onset_date)}</span>}
-            </li>
-          ))}
-        </ul>
       )}
     </Section>
   );
@@ -647,23 +632,3 @@ function Discharges({ chart }: { chart: ChartOut }) {
   );
 }
 
-function CarePlans({ chart }: { chart: ChartOut }) {
-  const { person } = useDirectory();
-  return (
-    <Section title="Care plans">
-      {(chart.care_plans ?? []).length === 0 ? (
-        <Empty>No care plans.</Empty>
-      ) : (
-        <ul className="list">
-          {(chart.care_plans ?? []).map((p) => (
-            <li key={p.id}>
-              {p.title} <span className="muted">({words(p.pathway)}, revision {p.current_revision})</span> · owner {person(p.owner_id)} · next
-              session {dateTime(p.next_session)} · review by {date(p.review_date)}
-              {p.status !== "active" && <Tag>{words(p.status)}</Tag>}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Section>
-  );
-}

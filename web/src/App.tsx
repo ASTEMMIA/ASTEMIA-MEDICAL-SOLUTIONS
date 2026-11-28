@@ -3,15 +3,18 @@ import { Loading } from "./components/ui";
 import { roleName } from "./format";
 import { Account } from "./pages/Account";
 import { Book } from "./pages/Book";
+import { CarePlan } from "./pages/CarePlan";
 import { Chart } from "./pages/Chart";
 import { Clinics } from "./pages/Clinics";
 import { Correspondence } from "./pages/Correspondence";
+import { Daybook } from "./pages/Daybook";
 import { EmergencyReview } from "./pages/EmergencyReview";
 import { Home } from "./pages/Home";
 import { IdentityReview } from "./pages/IdentityReview";
 import { LabWorklist } from "./pages/LabWorklist";
 import { Patients } from "./pages/Patients";
 import { Referrals } from "./pages/Referrals";
+import { Safeguarding, SafeguardingPatient } from "./pages/Safeguarding";
 import { RegisterPatient } from "./pages/RegisterPatient";
 import { Sessions } from "./pages/Sessions";
 import { SignIn } from "./pages/SignIn";
@@ -51,6 +54,11 @@ export function App() {
               Home
             </NavLink>
           </li>
+          {can("task:assign", "task:supervise") && (
+            <li>
+              <NavLink to="/daybook">Daybook</NavLink>
+            </li>
+          )}
           {can("patient:search") && (
             <li>
               <NavLink to="/patients">Patients</NavLink>
@@ -86,6 +94,11 @@ export function App() {
               <NavLink to="/identity-review">Identity review</NavLink>
             </li>
           )}
+          {can("safeguarding:review") && (
+            <li>
+              <NavLink to="/safeguarding">Safeguarding</NavLink>
+            </li>
+          )}
           {can("emergency:review") && (
             <li>
               <NavLink to="/emergency-access">Emergency access</NavLink>
@@ -105,6 +118,10 @@ export function App() {
           <Route path="/patients/:id" element={<Chart />} />
           <Route path="/lab" element={<LabWorklist />} />
           <Route path="/clinics" element={<Clinics />} />
+          <Route path="/daybook" element={<Daybook />} />
+          <Route path="/care-plans/:id" element={<CarePlan />} />
+          <Route path="/safeguarding" element={<Safeguarding />} />
+          <Route path="/safeguarding/patients/:id" element={<SafeguardingPatient />} />
           <Route path="/book" element={<Book />} />
           <Route path="/sessions" element={<Sessions />} />
           <Route path="/referrals" element={<Referrals />} />
