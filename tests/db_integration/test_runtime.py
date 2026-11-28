@@ -193,7 +193,12 @@ def test_cli_seed_dev_creates_a_tenant_once(factory: sessionmaker[Session]) -> N
     tid = uuid.uuid7()
     ids = json.loads(run_cli(["seed-dev", "--tenant", str(tid)], factory))
     assert ids["tenant_id"] == str(tid)
-    assert {"facility_id", "clinician_practitioner_id", "scientist_practitioner_id"} <= ids.keys()
+    assert {
+        "facility_id",
+        "teaching_facility_id",
+        "clinician_practitioner_id",
+        "clerk_practitioner_id",
+    } <= ids.keys()
     with factory() as s:
         assert s.get(Tenant, tid) is not None
     with pytest.raises(SystemExit):

@@ -12,7 +12,7 @@ The note text never goes into events.
 import uuid
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.models import ClinicalEntry, Encounter, EntryRevision, Patient
@@ -390,6 +390,39 @@ class Notes:
             handler=handle,
             patient_id=self._patient_of(ctx, ClinicalEntry, entry_id),
             resource=("clinical_entry", entry_id),
+        )
+
+    def drafts(self, ctx: RequestContext, patient_id: uuid.UUID) -> list[EntryOut]:
+        """The reader's own unsigned notes and corrections for a patient, newest
+        first: only a draft's author sees it until it is signed."""
+
+        def read(session: Session, decision: Decision) -> list[EntryOut]:
+            rows = session.execute(
+                select(ClinicalEntry)
+                .where(
+                    ClinicalEntry.tenant_id == ctx.tenant_id,
+                    ClinicalEntry.patient_id == patient_id,
+                    # A new note, or a correction to a signed one, not yet signed.
+                    exists().where(
+                        EntryRevision.tenant_id == ClinicalEntry.tenant_id,
+                        EntryRevision.entry_id == ClinicalEntry.id,
+                        EntryRevision.draft_marker == 1,
+                        EntryRevision.author_id == ctx.principal.practitioner_id,
+                    ),
+                )
+                .order_by(ClinicalEntry.recorded_at.desc(), ClinicalEntry.id.desc())
+            ).scalars()
+            return [entry_out(session, e, ctx.principal.practitioner_id) for e in rows]
+
+        return read_path(
+            self.factory,
+            self.policy,
+            ctx,
+            capability="note:write",
+            action="clinical_entry.drafts",
+            resource_type="clinical_entry",
+            patient_id=patient_id,
+            reader=read,
         )
 
     def get(self, ctx: RequestContext, entry_id: uuid.UUID) -> EntryOut:

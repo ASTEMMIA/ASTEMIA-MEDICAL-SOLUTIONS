@@ -130,6 +130,25 @@ export type AppointAdvocate = {
   practitioner_id: string;
 };
 
+export type AppointmentOut = {
+  id: string;
+  version: number;
+  patient_id: string;
+  slot_id: string;
+  status: string;
+  facility_id: string;
+  practitioner_id: string;
+  service: string;
+  modality: string;
+  starts_at: string;
+  ends_at: string;
+  reason: string | null;
+  cancel_reason: string | null;
+  referral_id: string | null;
+  rescheduled_from_id: string | null;
+  encounter_id: string | null;
+};
+
 export type AssignmentOut = {
   assignee_id: string | null;
   queue: string | null;
@@ -229,6 +248,12 @@ export type ChartOut = {
   /** The problem list, refuted conditions excluded. */
   conditions?: ConditionOut[];
   care_plans?: CarePlanSummary[];
+};
+
+/** An appointment on a clinic list, with the patient it is for. */
+export type ClinicAppointmentOut = {
+  appointment: AppointmentOut;
+  patient: PatientOut;
 };
 
 /** A batch of closures, for example a list of death registrations (ICRS 3.2.20). */

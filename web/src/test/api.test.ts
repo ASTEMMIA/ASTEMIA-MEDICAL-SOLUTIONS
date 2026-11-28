@@ -73,6 +73,14 @@ describe("api", () => {
     expect(messageFor(new Error("x"))).toMatch(/could not be reached/);
   });
 
+  it("returns a file's bytes as a blob", async () => {
+    const fetch = vi.fn(() => Promise.resolve(new Response("%PDF-1.7", { status: 200 })));
+    vi.stubGlobal("fetch", fetch);
+    const blob = await api<Blob>("/v1/documents/d/content", { as: "blob" });
+    expect(await blob.text()).toBe("%PDF-1.7");
+    expect((fetch.mock.calls[0] as unknown as [string, RequestInit & { headers: Record<string, string> }])[1].headers.Accept).toBe("*/*");
+  });
+
   it("returns nothing for 204", async () => {
     vi.stubGlobal("fetch", respond(204, null));
     expect(await api("/v1/x", { method: "POST" })).toBeUndefined();

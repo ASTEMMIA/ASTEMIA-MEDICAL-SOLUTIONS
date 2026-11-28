@@ -49,6 +49,7 @@ from astemia.application.schemas import (
     CarePlanOut,
     ChangeAddress,
     ChartOut,
+    ClinicAppointmentOut,
     CloseBatch,
     CloseConcern,
     ClosePatient,
@@ -284,6 +285,28 @@ def create_app(
     ) -> dict[str, Any]:
         return respond(scheduling.book(ctx, key, body), response)
 
+    @app.get("/v1/appointments", response_model=list[ClinicAppointmentOut])
+    def clinic_list(
+        ctx: Ctx,
+        start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+        end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+        facility_id: uuid.UUID | None = None,
+        practitioner_id: uuid.UUID | None = None,
+        patient_id: uuid.UUID | None = None,
+        status: Annotated[str | None, Query(max_length=24)] = None,
+        limit: Annotated[int, Query(ge=1, le=200)] = 100,
+    ) -> list[ClinicAppointmentOut]:
+        return scheduling.clinic_list(
+            ctx,
+            start=start,
+            end=end,
+            facility_id=facility_id,
+            practitioner_id=practitioner_id,
+            patient_id=patient_id,
+            status=status,
+            limit=limit,
+        )
+
     @app.post("/v1/appointments/{appointment_id}/reschedule")
     def reschedule_appointment(
         appointment_id: uuid.UUID,
@@ -364,6 +387,10 @@ def create_app(
         key: IdemKey = None,
     ) -> dict[str, Any]:
         return respond(notes.create(ctx, key, encounter_id, body), response)
+
+    @app.get("/v1/patients/{patient_id}/drafts", response_model=list[EntryOut])
+    def my_drafts(patient_id: uuid.UUID, ctx: Ctx) -> list[EntryOut]:
+        return notes.drafts(ctx, patient_id)
 
     @app.get("/v1/entries/{entry_id}", response_model=EntryOut)
     def read_entry(entry_id: uuid.UUID, ctx: Ctx) -> EntryOut:

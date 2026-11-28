@@ -2,13 +2,18 @@ import { NavLink, Navigate, Route, Routes } from "react-router";
 import { Loading } from "./components/ui";
 import { roleName } from "./format";
 import { Account } from "./pages/Account";
+import { Book } from "./pages/Book";
 import { Chart } from "./pages/Chart";
+import { Clinics } from "./pages/Clinics";
+import { Correspondence } from "./pages/Correspondence";
 import { EmergencyReview } from "./pages/EmergencyReview";
 import { Home } from "./pages/Home";
 import { IdentityReview } from "./pages/IdentityReview";
 import { LabWorklist } from "./pages/LabWorklist";
 import { Patients } from "./pages/Patients";
+import { Referrals } from "./pages/Referrals";
 import { RegisterPatient } from "./pages/RegisterPatient";
+import { Sessions } from "./pages/Sessions";
 import { SignIn } from "./pages/SignIn";
 import { DirectoryProvider } from "./directory";
 import { useSession } from "./session";
@@ -51,6 +56,26 @@ export function App() {
               <NavLink to="/patients">Patients</NavLink>
             </li>
           )}
+          {can("appointment:attend") && (
+            <li>
+              <NavLink to="/clinics">Clinics</NavLink>
+            </li>
+          )}
+          {can("schedule:manage") && (
+            <li>
+              <NavLink to="/sessions">Sessions</NavLink>
+            </li>
+          )}
+          {can("referral:triage") && (
+            <li>
+              <NavLink to="/referrals">Referrals</NavLink>
+            </li>
+          )}
+          {can("document:index") && (
+            <li>
+              <NavLink to="/correspondence">Correspondence</NavLink>
+            </li>
+          )}
           {can("result:release") && (
             <li>
               <NavLink to="/lab">Laboratory</NavLink>
@@ -79,6 +104,11 @@ export function App() {
           <Route path="/patients/new" element={<RegisterPatient />} />
           <Route path="/patients/:id" element={<Chart />} />
           <Route path="/lab" element={<LabWorklist />} />
+          <Route path="/clinics" element={<Clinics />} />
+          <Route path="/book" element={<Book />} />
+          <Route path="/sessions" element={<Sessions />} />
+          <Route path="/referrals" element={<Referrals />} />
+          <Route path="/correspondence" element={<Correspondence />} />
           <Route path="/identity-review" element={<IdentityReview />} />
           <Route path="/emergency-access" element={<EmergencyReview />} />
           <Route path="*" element={<Navigate to="/" replace />} />

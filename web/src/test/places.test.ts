@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fileName } from "../components/OpenDocument";
 import { addressLine, postcodeProblem } from "../places";
 
 describe("addresses", () => {
@@ -20,5 +21,12 @@ describe("addresses", () => {
     );
     expect(addressLine({ line1: "10 Downing Street", town: "London", postcode: "SW1A 2AA", country: "GB" })).toBe("10 Downing Street, London, SW1A 2AA, United Kingdom");
     expect(addressLine({ line1: "1 Rue", town: "Paris", country: "FR" })).toBe("1 Rue, Paris, FR");
+  });
+
+  it("names a downloaded document safely, with its extension", () => {
+    expect(fileName("Echo report", "application/pdf")).toBe("Echo report.pdf");
+    expect(fileName("a/b:c", "image/jpeg")).toBe("a b c.jpg");
+    expect(fileName("  ", "text/plain; charset=utf-8")).toBe("document.txt");
+    expect(fileName("Scan", "application/octet-stream")).toBe("Scan");
   });
 });

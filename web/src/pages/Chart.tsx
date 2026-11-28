@@ -4,6 +4,7 @@ import { api, ApiError, messageFor } from "../api";
 import type {
   AdmitEncounter,
   ChartOut,
+  DocumentOut,
   EncounterClass,
   EncounterOut,
   OrderPriority,
@@ -12,6 +13,9 @@ import type {
   ReviewOut,
 } from "../api-types";
 import { AddressPanel } from "../components/AddressPanel";
+import { OpenDocument } from "../components/OpenDocument";
+import { NotesSection } from "../components/NotesSection";
+import { ReferralsSection } from "../components/ReferralsSection";
 import { Button, Empty, Field, Loading, Notice, Page, Radios, Section, Select, Tag, TextArea } from "../components/ui";
 import { useDirectory } from "../directory";
 import { date, dateTime, localToIso, nin, nowLocal, num, patientName, words } from "../format";
@@ -48,8 +52,9 @@ export function Chart() {
       <Problems chart={c} />
       <Orders chart={c} patientId={id} onChange={chart.reload} />
       <Results chart={c} onChange={chart.reload} />
-      <Notes chart={c} />
-      <Correspondence chart={c} />
+      <ReferralsSection chart={c} />
+      <NotesSection chart={c} onChange={chart.reload} />
+      <Correspondence chart={c} onChange={chart.reload} />
       <Discharges chart={c} />
       <CarePlans chart={c} />
     </Page>
@@ -563,46 +568,60 @@ function Result({ report, test, review, onChange }: { report: ReportOut; test: s
   );
 }
 
-function Notes({ chart }: { chart: ChartOut }) {
-  const { person } = useDirectory();
+function Correspondence({ chart, onChange }: { chart: ChartOut; onChange: () => void }) {
+  const docs = chart.documents ?? [];
   return (
-    <Section title="Clinical notes">
-      {(chart.entries ?? []).length === 0 ? (
-        <Empty>No signed notes.</Empty>
+    <Section title="Correspondence">
+      {docs.length === 0 ? (
+        <Empty>No filed letters or documents.</Empty>
       ) : (
-        (chart.entries ?? []).map((n) => (
-          <article key={n.id} className="note" aria-label={n.title ?? words(n.note_type)}>
-            <h3>
-              {n.title ?? words(n.note_type)} <span className="muted">· {words(n.note_type)}</span>
-            </h3>
-            <p className="note-body">{n.body}</p>
-            <p className="muted">
-              Signed by {person(n.signed_by_id)}, {dateTime(n.signed_at)}
-              {n.revision_number > 1 && ` · revision ${n.revision_number}`}
-            </p>
-          </article>
-        ))
+        docs.map((d) => <Letter key={d.id} doc={d} onChange={onChange} />)
       )}
     </Section>
   );
 }
 
-function Correspondence({ chart }: { chart: ChartOut }) {
+function Letter({ doc, onChange }: { doc: NonNullable<ChartOut["documents"]>[number]; onChange: () => void }) {
+  const { me, can } = useSession();
+  const full = useLoad<DocumentOut>(`/v1/documents/${doc.id}`);
+  const [note, setNote] = useState("");
+  const [error, setError] = useState<string | undefined>();
+  const review = useAction(
+    useCallback((key: string, d: DocumentOut, n: string) => api(`/v1/documents/${d.id}/review`, { body: { note: n }, version: d.version, key }), []),
+  );
+  const mine = full.data && full.data.reviewer_id === me?.practitioner_id && !doc.reviewed && can("document:review");
+  const label = doc.title ?? words(doc.document_type);
   return (
-    <Section title="Correspondence">
-      {(chart.documents ?? []).length === 0 ? (
-        <Empty>No filed letters or documents.</Empty>
-      ) : (
-        <ul className="list">
-          {(chart.documents ?? []).map((d) => (
-            <li key={d.id}>
-              {d.title ?? words(d.document_type)} <span className="muted">from {d.sender}, received {dateTime(d.received_at)}</span>
-              {!d.reviewed && <Tag tone="warn">Not yet reviewed</Tag>}
-            </li>
-          ))}
-        </ul>
+    <article className="note" aria-label={label}>
+      <h3>
+        {label} {!doc.reviewed && <Tag tone="warn">Not yet reviewed</Tag>}
+      </h3>
+      <p className="muted">
+        From {doc.sender}, received {dateTime(doc.received_at)}
+      </p>
+      <OpenDocument id={doc.id} label={label} />
+      {mine && full.data && (
+        <form
+          noValidate
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (note.trim().length < 3) return setError("Add a note: what was done about it.");
+            setError(undefined);
+            if (await review.run(full.data as DocumentOut, note.trim())) {
+              full.reload();
+              onChange();
+            }
+          }}
+        >
+          {review.error && <Notice kind="error">{review.error}</Notice>}
+          <Field label="Review note" hint="Filed to you to review." value={note} onChange={(e) => setNote(e.target.value)} error={error} maxLength={500} />
+          <Button type="submit" busy={review.busy}>
+            Mark as reviewed<span className="visually-hidden">: {label}</span>
+          </Button>
+        </form>
       )}
-    </Section>
+      {full.data?.reviewed_at && <p className="muted">Reviewed {dateTime(full.data.reviewed_at)}: {full.data.review_note}</p>}
+    </article>
   );
 }
 
