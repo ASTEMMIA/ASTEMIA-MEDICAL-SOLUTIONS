@@ -5,3 +5,5 @@
 .ruff_cache
 .pytest_cache
 tests
+web/node_modules
+web/dist

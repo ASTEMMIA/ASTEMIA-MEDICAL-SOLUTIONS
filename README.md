@@ -20,7 +20,8 @@ extraction disagree.
 | Persistence | SQLAlchemy 2.1 + MySQL Connector/Python 26.10, Alembic migrations |
 | Database | MySQL 26.10 |
 | Messaging | Transactional outbox + relay; consumers deduplicate by event ID |
-| Quality gates | Ruff, mypy (strict), pytest on a real MySQL, `alembic check` schema diff |
+| Staff web app | React 19, React Router, Vite, TypeScript (strict), served by the API at `/app/` |
+| Quality gates | Ruff, mypy (strict), pytest on a real MySQL, `alembic check` schema diff; for the web app tsc, Vitest, and Playwright with axe-core against the real API |
 
 ## Layout (CEDA 10.2)
 
@@ -32,7 +33,8 @@ src/astemia/
   adapters/identity/  token verification and tenant membership (API-01)
   adapters/broker/    broker port
   api/           FastAPI app and error mapping
-  workers/       outbox relay
+  workers/       outbox relay, Daybook reminders
+web/             staff web app (src/ screens and API client, e2e/ browser checks)
   migrations/    Alembic (expand, backfill, verify, contract)
 tools/           ERD extractor and inventory generator
 tests/           unit, db_integration, e2e (synthetic fixtures only)
@@ -211,6 +213,21 @@ uv run uvicorn astemia.api.main:app --reload
 uv run astemia token clinician@pilot.astemia.local
 ```
 
+To use the staff web app, build it and let the API serve it with development
+sign-in (never available when `ASTEMIA_ENVIRONMENT=production`):
+
+```bash
+(cd web && npm ci && npx vite build)
+```
+
+```bash
+ASTEMIA_WEB_DIR=web/dist ASTEMIA_DEV_SIGN_IN=true uv run uvicorn astemia.api.main:app
+```
+
+Then open http://127.0.0.1:8000/app/ and pick a seeded account. While working
+on the screens, `cd web && npm run dev` serves them with hot reload on port
+5173 and forwards `/v1` to the API.
+
 `ASTEMIA_DATABASE_URL` selects the database
 (`mysql+mysqlconnector://user:pass@host:3306/astemia`). Development tokens
 use HS256 with `ASTEMIA_JWT_KEY` and are refused when
@@ -228,6 +245,20 @@ uv run pytest
 
 ```bash
 uv run ruff check src tests tools && uv run mypy && uv run alembic check
+```
+
+The web app's types, unit tests and build:
+
+```bash
+cd web && npx tsc -p . && npx vitest run && npx vite build
+```
+
+The browser checks wipe and seed their own database, whose name must contain
+`e2e`, then drive every seeded role through the app in Chromium with axe-core
+accessibility scans:
+
+```bash
+ASTEMIA_E2E_DATABASE_URL=mysql+mysqlconnector://astemia:astemia@127.0.0.1:3306/astemia_e2e web/e2e/run.sh
 ```
 
 ## Regenerating the schema from an ERD

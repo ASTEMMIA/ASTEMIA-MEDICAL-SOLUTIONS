@@ -1,0 +1,276 @@
+/* ASTEMIA staff app. Colours meet WCAG 2.2 AA contrast in light and dark modes. */
+:root {
+  --bg: #ffffff;
+  --surface: #f4f6f8;
+  --text: #1b1f24;
+  --muted: #4a5561;
+  --border: #c3cbd3;
+  --primary: #0b5cad;
+  --primary-text: #ffffff;
+  --danger: #b3261e;
+  --success-bg: #e6f4ea;
+  --success-border: #1e7a3a;
+  --warning-bg: #fff4d6;
+  --warning-border: #8a5a00;
+  --error-bg: #fde8e7;
+  --info-bg: #e7f0fb;
+  --focus: #ffbf47;
+  --radius: 6px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121416;
+    --surface: #1d2125;
+    --text: #eef1f4;
+    --muted: #b5bec7;
+    --border: #4a535c;
+    --primary: #6cb4ff;
+    --primary-text: #0c1a2a;
+    --danger: #ff8a80;
+    --success-bg: #12301c;
+    --success-border: #6fd08f;
+    --warning-bg: #3a2c05;
+    --warning-border: #f2c14e;
+    --error-bg: #3d1513;
+    --info-bg: #13263d;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  /* Long unbroken values (sign-in names, identifiers) wrap rather than
+     pushing the page sideways on a phone. */
+  overflow-wrap: break-word;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+a {
+  color: var(--primary);
+}
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.75rem;
+}
+h1:focus {
+  outline: none;
+}
+h2 {
+  font-size: 1.25rem;
+  margin-top: 1.75rem;
+}
+.intro,
+.muted,
+.hint {
+  color: var(--muted);
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--focus);
+  color: #000;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus {
+  left: 0.5rem;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+}
+.product {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.tenant,
+.roles {
+  color: var(--muted);
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav {
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem;
+}
+.nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+.nav a {
+  display: inline-block;
+  padding: 0.6rem 0;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.nav a.active {
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+main:focus {
+  outline: none;
+}
+.signin {
+  max-width: 36rem;
+}
+
+.btn {
+  font: inherit;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  min-height: 2.75rem; /* 44px target size */
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+}
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+form {
+  margin: 1rem 0;
+}
+.field {
+  margin-bottom: 1rem;
+}
+.field label,
+legend {
+  display: block;
+  font-weight: 600;
+}
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  width: 100%;
+  max-width: 32rem;
+  padding: 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+}
+.field-error input {
+  border-color: var(--danger);
+}
+.error-text {
+  color: var(--danger);
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+.hint {
+  margin: 0.25rem 0;
+}
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+}
+.radio {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.radio input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.notice {
+  border-left: 5px solid var(--primary);
+  background: var(--info-bg);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-radius: var(--radius);
+}
+.notice-success {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+.notice-warning {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+.notice-error {
+  border-color: var(--danger);
+  background: var(--error-bg);
+}
+.loading {
+  padding: 2rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.25rem 1.5rem;
+}
+.facts dt {
+  font-weight: 600;
+}
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.list {
+  padding-left: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

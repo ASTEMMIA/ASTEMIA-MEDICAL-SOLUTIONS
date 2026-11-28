@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import TokenVerifier
+from astemia.api.staff import mount_staff
 from astemia.application.careplans import CarePlans
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
@@ -186,6 +187,7 @@ def create_app(
         return RequestContext(principal=principal, correlation_id=request.state.correlation_id)
 
     Ctx = Annotated[RequestContext, Depends(context)]
+    mount_staff(app, settings, factory, context)
     IdemKey = Annotated[str | None, Header(alias="Idempotency-Key", max_length=128)]
 
     def respond(result: CommandResult, response: Response) -> dict[str, Any]:
