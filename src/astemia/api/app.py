@@ -33,6 +33,7 @@ from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError, Unprocessable
 from astemia.application.identity_review import IdentityReview
 from astemia.application.interfaces import Interfaces
+from astemia.application.migration import Migration
 from astemia.application.notes import Notes
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
@@ -99,6 +100,8 @@ from astemia.application.schemas import (
     MatchQuery,
     MergePatient,
     MessageStatus,
+    MigrationBatchOut,
+    MigrationExceptionOut,
     OccupancyOut,
     PacsCheck,
     PacsCheckOut,
@@ -110,6 +113,7 @@ from astemia.application.schemas import (
     ReassignTask,
     ReceiveDocument,
     ReceiveStudy,
+    ReconciliationOut,
     RecordAttendance,
     RecordChecklistStep,
     RecordCondition,
@@ -138,6 +142,7 @@ from astemia.application.schemas import (
     SetSessionStatus,
     SetWardStatus,
     SlotOut,
+    StageBatch,
     StartCase,
     SubmitReferral,
     TaskOut,
@@ -202,6 +207,7 @@ def create_app(
     theatres = Theatres(write_path, factory, policy)
     radiology = Radiology(write_path, factory, policy, ViewerTokens(settings))
     interfaces = Interfaces(write_path, factory, policy)
+    migration = Migration(write_path, factory, policy)
     care_plans = CarePlans(write_path, factory, policy)
     directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
@@ -900,6 +906,30 @@ def create_app(
         ctx: Ctx, status: MessageStatus | None = None
     ) -> list[InterfaceMessageOut]:
         return interfaces.messages(ctx, status)
+
+    # --- migration of existing patient records (MIG-01 to MIG-03) ---------------
+
+    @app.post("/v1/migration/batches", status_code=201, response_model=MigrationBatchOut)
+    def stage_migration_batch(
+        body: StageBatch, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(migration.stage(ctx, key, body), response)
+
+    @app.post("/v1/migration/batches/{batch_id}/load", response_model=MigrationBatchOut)
+    def load_migration_batch(
+        batch_id: uuid.UUID, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(migration.load(ctx, key, batch_id), response)
+
+    @app.get("/v1/migration/batches/{batch_id}/reconciliation", response_model=ReconciliationOut)
+    def migration_reconciliation(batch_id: uuid.UUID, ctx: Ctx) -> ReconciliationOut:
+        return migration.reconciliation(ctx, batch_id)
+
+    @app.get(
+        "/v1/migration/batches/{batch_id}/exceptions", response_model=list[MigrationExceptionOut]
+    )
+    def migration_exceptions(batch_id: uuid.UUID, ctx: Ctx) -> list[MigrationExceptionOut]:
+        return migration.exceptions(ctx, batch_id)
 
     # --- FHIR R4 read API (CEDA section 6.2) -------------------------------------
     # The same scoped, masked and audited chart read as the staff API, shaped

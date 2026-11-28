@@ -221,6 +221,135 @@ def open_review(u: Unit, order: ServiceRequest, report: DiagnosticReport) -> Res
     return review
 
 
+def create_patient(
+    u: Unit,
+    cmd: RegisterPatient,
+    *,
+    author_role: str = "registrar",
+    source: tuple[str, str] | None = None,
+) -> Patient:
+    """Validate and create a patient with their name, identifiers and home
+    address, as at the registration desk. A record migrated from a legacy
+    system passes the same checks and keeps its source system and row key."""
+    _domain(
+        lambda: idn.validate_birth_date(cmd.birth_date, cmd.birth_date_precision, u.ctx.now.date())
+    )
+    for i in cmd.identifiers:
+        _domain(
+            lambda i=i: idn.check_issuer_allowed(i.issuer, idn.IdentifierType(i.identifier_type))
+        )
+    identifiers = [
+        (
+            i.issuer,
+            _domain(lambda i=i: idn.validate_identifier(i.issuer, i.value)),
+            i.verified,
+        )
+        for i in cmd.identifiers
+    ]
+    address = cmd.address
+    _domain(
+        lambda: idn.check_address(
+            temporary=cmd.temporary,
+            has_address=address is not None,
+            country=address.country if address else None,
+            state=address.state if address else None,
+            lga=address.local_government_area if address else None,
+        )
+    )
+    postcode = (
+        _domain(lambda: idn.normalise_postcode(address.country, address.postcode))
+        if address
+        else None
+    )
+    if len({(iss, v) for iss, v, _ in identifiers}) != len(identifiers):
+        raise Unprocessable("the same identifier is listed twice", code="duplicate_identifier")
+    status = idn.PatientStatus.TEMPORARY if cmd.temporary else idn.PatientStatus.ACTIVE
+    pid = new_id()
+    envelope = {
+        "tenant_id": u.ctx.tenant_id,
+        "recorded_at": u.ctx.now,
+        "author_id": u.ctx.principal.practitioner_id,
+        "author_role": author_role,
+        **({"source_system": source[0], "source_id": source[1]} if source else {}),
+    }
+    u.session.add(Party(id=pid, version=1, party_type="person", **envelope))
+    u.session.flush()
+    patient = Patient(
+        id=pid,
+        version=1,
+        birth_date=cmd.birth_date,
+        birth_date_precision=cmd.birth_date_precision.value,
+        administrative_sex=cmd.administrative_sex.value,
+        status=status.value,
+        registration_date=u.ctx.now.date(),
+        initial_registration_source="migration" if source else "astemia",
+        mother_name=cmd.mother_name,
+        father_name=cmd.father_name,
+        preferred_language=cmd.preferred_language,
+        state_of_origin=cmd.state_of_origin,
+        **envelope,
+    )
+    u.session.add(patient)
+    given, _, other = cmd.given_names.partition(" ")
+    u.session.add(
+        PersonName(
+            id=new_id(),
+            party_id=pid,
+            name_type=idn.NameType.USUAL.value,
+            name_number=1,
+            title=cmd.title,
+            family_name=cmd.family_name,
+            given_name=given,
+            other_given_name=other or None,
+            family_name_phonetic=idn.phonetic(cmd.family_name),
+            given_name_phonetic=idn.phonetic(given),
+            other_given_name_phonetic=idn.phonetic(other) or None,
+            effective_from=u.ctx.now,
+            **envelope,
+        )
+    )
+    u.session.flush()
+    for (issuer, value, verified), raw in zip(identifiers, cmd.identifiers, strict=True):
+        u.session.add(
+            PatientIdentifier(
+                id=new_id(),
+                patient_id=pid,
+                issuer=issuer,
+                value=value,
+                identifier_type=raw.identifier_type,
+                verification_status=(
+                    idn.VerificationStatus.VERIFIED
+                    if verified
+                    else idn.VerificationStatus.UNVERIFIED
+                ).value,
+                valid_from=u.ctx.now,
+                active_marker=1 if idn.binds_actively(issuer) else None,
+                **envelope,
+            )
+        )
+    created = ["patient", "person_name", "patient_identifier"]
+    if address is not None and postcode is not None:
+        file_home(u, pid, address, postcode, envelope)
+        created += ["address", "party_address"]
+    u.session.add(
+        DemographicTransaction(
+            tenant_id=u.ctx.tenant_id,
+            id=new_id(),
+            patient_id=pid,
+            transaction_source="migration" if source else "api",
+            transaction_at=u.ctx.now,
+            delta={"created": created},
+            change_reason="migration" if source else "registration",
+            source_validation_level="registrar",
+            country_of_transaction="NG",
+            transaction_user=u.ctx.principal.subject,
+            correlation_id=u.ctx.correlation_id,
+        )
+    )
+    u.session.flush()  # surfaces a duplicate active identifier as a 409
+    return patient
+
+
 @dataclass(slots=True)
 class Released:
     order: ServiceRequest
@@ -388,127 +517,7 @@ class Commands:
 
     def register_patient(self, ctx: Any, key: str | None, cmd: RegisterPatient) -> CommandResult:
         def handle(u: Unit) -> CommandResult:
-            _domain(
-                lambda: idn.validate_birth_date(
-                    cmd.birth_date, cmd.birth_date_precision, u.ctx.now.date()
-                )
-            )
-            for i in cmd.identifiers:
-                _domain(
-                    lambda i=i: idn.check_issuer_allowed(
-                        i.issuer, idn.IdentifierType(i.identifier_type)
-                    )
-                )
-            identifiers = [
-                (
-                    i.issuer,
-                    _domain(lambda i=i: idn.validate_identifier(i.issuer, i.value)),
-                    i.verified,
-                )
-                for i in cmd.identifiers
-            ]
-            address = cmd.address
-            _domain(
-                lambda: idn.check_address(
-                    temporary=cmd.temporary,
-                    has_address=address is not None,
-                    country=address.country if address else None,
-                    state=address.state if address else None,
-                    lga=address.local_government_area if address else None,
-                )
-            )
-            postcode = (
-                _domain(lambda: idn.normalise_postcode(address.country, address.postcode))
-                if address
-                else None
-            )
-            if len({(iss, v) for iss, v, _ in identifiers}) != len(identifiers):
-                raise Unprocessable(
-                    "the same identifier is listed twice", code="duplicate_identifier"
-                )
-            status = idn.PatientStatus.TEMPORARY if cmd.temporary else idn.PatientStatus.ACTIVE
-            pid = new_id()
-            envelope = {
-                "tenant_id": u.ctx.tenant_id,
-                "recorded_at": u.ctx.now,
-                "author_id": u.ctx.principal.practitioner_id,
-                "author_role": "registrar",
-            }
-            u.session.add(Party(id=pid, version=1, party_type="person", **envelope))
-            u.session.flush()
-            patient = Patient(
-                id=pid,
-                version=1,
-                birth_date=cmd.birth_date,
-                birth_date_precision=cmd.birth_date_precision.value,
-                administrative_sex=cmd.administrative_sex.value,
-                status=status.value,
-                registration_date=u.ctx.now.date(),
-                initial_registration_source="astemia",
-                mother_name=cmd.mother_name,
-                father_name=cmd.father_name,
-                preferred_language=cmd.preferred_language,
-                state_of_origin=cmd.state_of_origin,
-                **envelope,
-            )
-            u.session.add(patient)
-            given, _, other = cmd.given_names.partition(" ")
-            u.session.add(
-                PersonName(
-                    id=new_id(),
-                    party_id=pid,
-                    name_type=idn.NameType.USUAL.value,
-                    name_number=1,
-                    title=cmd.title,
-                    family_name=cmd.family_name,
-                    given_name=given,
-                    other_given_name=other or None,
-                    family_name_phonetic=idn.phonetic(cmd.family_name),
-                    given_name_phonetic=idn.phonetic(given),
-                    other_given_name_phonetic=idn.phonetic(other) or None,
-                    effective_from=u.ctx.now,
-                    **envelope,
-                )
-            )
-            u.session.flush()
-            for (issuer, value, verified), raw in zip(identifiers, cmd.identifiers, strict=True):
-                u.session.add(
-                    PatientIdentifier(
-                        id=new_id(),
-                        patient_id=pid,
-                        issuer=issuer,
-                        value=value,
-                        identifier_type=raw.identifier_type,
-                        verification_status=(
-                            idn.VerificationStatus.VERIFIED
-                            if verified
-                            else idn.VerificationStatus.UNVERIFIED
-                        ).value,
-                        valid_from=u.ctx.now,
-                        active_marker=1 if idn.binds_actively(issuer) else None,
-                        **envelope,
-                    )
-                )
-            created = ["patient", "person_name", "patient_identifier"]
-            if address is not None and postcode is not None:
-                file_home(u, pid, address, postcode, envelope)
-                created += ["address", "party_address"]
-            u.session.add(
-                DemographicTransaction(
-                    tenant_id=u.ctx.tenant_id,
-                    id=new_id(),
-                    patient_id=pid,
-                    transaction_source="api",
-                    transaction_at=u.ctx.now,
-                    delta={"created": created},
-                    change_reason="registration",
-                    source_validation_level="registrar",
-                    country_of_transaction="NG",
-                    transaction_user=u.ctx.principal.subject,
-                    correlation_id=u.ctx.correlation_id,
-                )
-            )
-            u.session.flush()  # surfaces a duplicate active identifier as a 409
+            patient = create_patient(u, cmd)
             decision = u.authorize("patient:register")
             event = u.emit(
                 EventType.PATIENT_REGISTERED,

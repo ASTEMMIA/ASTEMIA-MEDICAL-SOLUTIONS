@@ -1415,6 +1415,62 @@ class InterfaceMessage(Envelope, Base):
     processed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
 
+class MigrationBatch(Envelope, Base):
+    """One extract from a legacy system, staged and then loaded (CEDA MIG-01)."""
+
+    __tablename__ = "migration_batch"
+    __table_args__ = (TABLE_OPTS,)
+
+    source_system: Mapped[str] = mapped_column(String(32), nullable=False)
+    description: Mapped[str] = mapped_column(String(200), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    loaded_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+
+
+class MigrationRecord(Envelope, Base):
+    """Lineage from one version of a staged source row to what it became
+    (CEDA MIG-02): the patient it loaded as, or why it was quarantined.
+    loaded_marker is 1 on the one version of a source row that loaded, so a
+    source row becomes at most one patient however often it is resent."""
+
+    __tablename__ = "migration_record"
+    __table_args__ = (
+        fk(["tenant_id", "batch_id"], "migration_batch"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        # Explicit names: the generated ones pass MySQL's 64-character limit.
+        UniqueConstraint(
+            "tenant_id",
+            "source_system",
+            "source_entity",
+            "source_row_key",
+            "row_digest",
+            name="uq_migration_record_source_version",
+        ),
+        UniqueConstraint(
+            "tenant_id",
+            "source_system",
+            "source_entity",
+            "source_row_key",
+            "loaded_marker",
+            name="uq_migration_record_source_loaded",
+        ),
+        Index(None, "tenant_id", "batch_id", "status"),
+        TABLE_OPTS,
+    )
+
+    batch_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    source_system: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_entity: Mapped[str] = mapped_column(String(64), nullable=False)
+    source_row_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    row_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    reason: Mapped[str | None] = mapped_column(String(64))
+    detail: Mapped[str | None] = mapped_column(String(500))
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    identity_digest: Mapped[str | None] = mapped_column(String(64))
+    loaded_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+
+
 class Condition(Envelope, Coded, Base):
     """CEDA Condition: a coded problem with its certainty and onset, and the
     condition register it puts the patient on (HS12)."""

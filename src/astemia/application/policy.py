@@ -163,6 +163,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     # The interface engine (CEDA section 6) is a service account: it submits
     # HL7 v2 messages and watches their outcomes. It reads no chart.
     "interface_engine": frozenset({"interface:submit", "interface:monitor"}),
+    # Data migration officers (CEDA MIG-01 to MIG-03) stage legacy extracts,
+    # load them and reconcile the result. They read no chart.
+    "data_migration_officer": frozenset({"migration:run", "migration:read"}),
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
     "records_clerk": frozenset(

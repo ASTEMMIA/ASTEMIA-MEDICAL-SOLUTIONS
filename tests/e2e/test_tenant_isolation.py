@@ -48,6 +48,8 @@ ROLES = [
     "supervisor",
     "radiologist",
     "radiographer",
+    "interface",
+    "migrator",
 ]
 
 
@@ -188,6 +190,15 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         },
     )
     assert arrived.json()["status"] == "linked", arrived.text
+    batch = api.post(
+        "migrator",
+        "/v1/migration/batches",
+        {
+            "source_system": "PDI",
+            "description": "Extract",
+            "persons": [{"row_key": "P-1", "person_number": "P-1", "nin": "88888888881"}],
+        },
+    ).json()
     with factory() as s:
         link = s.scalar(select(MergeLink.id).where(MergeLink.prior_id == uuid.UUID(prior["id"])))
     return {
@@ -217,6 +228,7 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         "case_id": case.json()["id"],
         "request_id": imaging["id"],
         "study_id": arrived.json()["id"],
+        "batch_id": batch["id"],
     }
 
 
@@ -319,6 +331,7 @@ def _body(path: str, a: dict[str, str]) -> dict[str, Any]:
         "/imaging-requests/{request_id}/addenda": {"text": "A"},
         "/imaging-studies/{study_id}/link": {"imaging_request_id": a["request_id"], "reason": "x"},
         "/imaging-studies/{study_id}/viewer": {},
+        "/migration/batches/{batch_id}/load": {},
     }
     for suffix, body in bodies.items():
         if path.endswith(suffix):
