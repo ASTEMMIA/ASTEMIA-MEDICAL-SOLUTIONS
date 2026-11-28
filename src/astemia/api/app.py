@@ -26,27 +26,37 @@ from astemia.application.identity_review import IdentityReview
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
 from astemia.application.queries import Queries
+from astemia.application.safeguards import Safeguards
 from astemia.application.scheduling import Scheduling
 from astemia.application.schemas import (
+    AccessReportOut,
     Acknowledge,
     ActivateService,
     AdmitEncounter,
+    AppointAdvocate,
     BookAppointment,
     CancelAppointment,
     ChartOut,
     CloseBatch,
+    CloseConcern,
     ClosePatient,
+    ConcernOut,
     CreateSlots,
     DecideReferral,
     DuplicateGroup,
     EmergencyGrantOut,
+    EndIntervention,
+    InterventionOut,
+    LegalStatusOut,
     MatchOut,
     MatchQuery,
     MergePatient,
     PatientOut,
     PlaceOrder,
     ProvisionCatalogue,
+    RaiseConcern,
     RecordAttendance,
+    RecordIntervention,
     ReferralOut,
     ReferralRecordsOut,
     RegisterPatient,
@@ -56,14 +66,17 @@ from astemia.application.schemas import (
     ResolveReview,
     RetireService,
     ReviewEmergencyAccess,
+    ReviewIntervention,
     ReviewTaskOut,
     ServiceOut,
+    SetLegalStatus,
     SlotOut,
     SubmitReferral,
     UnmergePatient,
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
+from astemia.domain.safeguards import ConcernStatus
 from astemia.domain.scheduling import ReferralStatus, SlotType
 
 log = logging.getLogger("astemia.api")
@@ -84,6 +97,7 @@ def create_app(
     review = IdentityReview(write_path, factory, policy)
     emergency = EmergencyAccess(write_path, factory, policy)
     scheduling = Scheduling(write_path, factory, policy)
+    safeguards = Safeguards(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -295,6 +309,116 @@ def create_app(
     ) -> dict[str, Any]:
         result = scheduling.decide(ctx, key, referral_id, version_of(if_match), body)
         return respond(result, response)
+
+    # --- mental health safeguards (HS13, B11; ICRS 5.5.9) ----------------------
+
+    @app.post("/v1/restrictive-interventions", status_code=201)
+    def record_intervention(
+        body: RecordIntervention, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(safeguards.record_intervention(ctx, key, body), response)
+
+    @app.post("/v1/restrictive-interventions/{intervention_id}/end")
+    def end_intervention(
+        intervention_id: uuid.UUID,
+        body: EndIntervention,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = safeguards.end_intervention(ctx, key, intervention_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/restrictive-interventions/{intervention_id}/review")
+    def review_intervention(
+        intervention_id: uuid.UUID,
+        body: ReviewIntervention,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = safeguards.review_intervention(
+            ctx, key, intervention_id, version_of(if_match), body
+        )
+        return respond(result, response)
+
+    @app.get("/v1/restrictive-interventions", response_model=list[InterventionOut])
+    def intervention_review_queue(
+        ctx: Ctx, reviewed: bool = False, limit: Annotated[int, Query(ge=1, le=200)] = 50
+    ) -> list[InterventionOut]:
+        return safeguards.review_queue(ctx, reviewed=reviewed, limit=limit)
+
+    @app.get(
+        "/v1/patients/{patient_id}/restrictive-interventions",
+        response_model=list[InterventionOut],
+    )
+    def patient_interventions(patient_id: uuid.UUID, ctx: Ctx) -> list[InterventionOut]:
+        return safeguards.interventions(ctx, patient_id)
+
+    @app.post("/v1/patients/{patient_id}/legal-status", status_code=201)
+    def set_legal_status(
+        patient_id: uuid.UUID,
+        body: SetLegalStatus,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+    ) -> dict[str, Any]:
+        return respond(safeguards.set_legal_status(ctx, key, patient_id, body), response)
+
+    @app.get("/v1/patients/{patient_id}/legal-status", response_model=list[LegalStatusOut])
+    def legal_status_history(patient_id: uuid.UUID, ctx: Ctx) -> list[LegalStatusOut]:
+        return safeguards.legal_history(ctx, patient_id)
+
+    @app.get("/v1/legal-status/expiring", response_model=list[LegalStatusOut])
+    def legal_status_expiring(ctx: Ctx) -> list[LegalStatusOut]:
+        return safeguards.expiring(ctx)
+
+    @app.post("/v1/safeguarding-concerns", status_code=201)
+    def raise_concern(
+        body: RaiseConcern, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(safeguards.raise_concern(ctx, key, body), response)
+
+    @app.get("/v1/safeguarding-concerns", response_model=list[ConcernOut])
+    def concern_worklist(
+        ctx: Ctx,
+        status: ConcernStatus = ConcernStatus.OPEN,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ) -> list[ConcernOut]:
+        return safeguards.concerns(ctx, status=status, limit=limit)
+
+    @app.post("/v1/safeguarding-concerns/{concern_id}/outcome")
+    def close_concern(
+        concern_id: uuid.UUID,
+        body: CloseConcern,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = safeguards.close_concern(ctx, key, concern_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/patients/{patient_id}/advocates", status_code=201)
+    def appoint_advocate(
+        patient_id: uuid.UUID,
+        body: AppointAdvocate,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+    ) -> dict[str, Any]:
+        return respond(safeguards.appoint_advocate(ctx, key, patient_id, body), response)
+
+    @app.get("/v1/patients/{patient_id}/access-report", response_model=AccessReportOut)
+    def access_report(
+        patient_id: uuid.UUID,
+        ctx: Ctx,
+        start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+        end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+    ) -> AccessReportOut:
+        return safeguards.access_report(ctx, patient_id, start=start, end=end)
 
     # --- emergency access (SEC-04, WF02 step 4) -------------------------------
 
