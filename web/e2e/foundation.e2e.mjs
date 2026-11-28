@@ -1,7 +1,7 @@
 // The app shell against the real API: development sign-in for every seeded
 // role, who and where you are, what you may do, keyboard use, accessibility,
 // a phone-width layout, and signing out.
-import { BASE, axe, check, run, shot, signIn } from "./lib.mjs";
+import { BASE, axe, check, headingFocused, run, shot, signIn } from "./lib.mjs";
 
 const PEOPLE = [
   ["Registrar One", "Registrar", "Register patients"],
@@ -49,7 +49,7 @@ await run("foundation", async (page, context) => {
   await signIn(page, "Dr Clinician One");
   await axe(page, "home");
   await shot(page, "02-home");
-  check(await page.evaluate(() => document.activeElement?.tagName === "H1"), "the signed-in page focuses its heading");
+  check(await headingFocused(page), "the signed-in page focuses its heading");
   const order = [];
   for (let i = 0; i < 4; i++) {
     await page.keyboard.press("Shift+Tab");
@@ -68,10 +68,7 @@ await run("foundation", async (page, context) => {
   await page.getByRole("link", { name: "My account" }).focus();
   await page.keyboard.press("Enter");
   await page.getByRole("heading", { level: 1, name: "My account" }).waitFor();
-  check(
-    await page.evaluate(() => document.activeElement?.tagName === "H1"),
-    "a new page moves focus to its heading for screen readers",
-  );
+  check(await headingFocused(page), "a new page moves focus to its heading for screen readers");
   check((await page.title()).startsWith("My account"), "the window title names the page");
   await axe(page, "account");
 

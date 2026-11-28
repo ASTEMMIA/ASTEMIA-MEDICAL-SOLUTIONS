@@ -33,6 +33,13 @@ export async function axe(page, where) {
   check(bad.length === 0, `${where}: no serious or critical accessibility violations (${result.passes.length} rules pass)`);
 }
 
+/** True once focus is on the page's h1: it moves there just after the page renders. */
+export async function headingFocused(page) {
+  return page
+    .waitForFunction(() => document.activeElement?.tagName === "H1", null, { timeout: 3000 })
+    .then(() => true, () => false);
+}
+
 export async function signIn(page, displayName) {
   await page.goto(`${BASE}/app/`);
   await page.getByRole("button", { name: "Show accounts" }).click();
