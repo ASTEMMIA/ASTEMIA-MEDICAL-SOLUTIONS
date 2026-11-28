@@ -11,6 +11,7 @@ from typing import Any
 from sqlalchemy import select, update
 
 from astemia.adapters.db.models import (
+    Address,
     AeAttendance,
     CareProvision,
     DemographicTransaction,
@@ -21,6 +22,7 @@ from astemia.adapters.db.models import (
     ObservationRevision,
     OrganisationSite,
     Party,
+    PartyAddress,
     Patient,
     PatientIdentifier,
     PersonName,
@@ -151,6 +153,21 @@ class Commands:
                 )
                 for i in cmd.identifiers
             ]
+            address = cmd.address
+            _domain(
+                lambda: idn.check_address(
+                    temporary=cmd.temporary,
+                    has_address=address is not None,
+                    country=address.country if address else None,
+                    state=address.state if address else None,
+                    lga=address.local_government_area if address else None,
+                )
+            )
+            postcode = (
+                _domain(lambda: idn.normalise_postcode(address.country, address.postcode))
+                if address
+                else None
+            )
             if len({(iss, v) for iss, v, _ in identifiers}) != len(identifiers):
                 raise Unprocessable(
                     "the same identifier is listed twice", code="duplicate_identifier"
@@ -218,6 +235,34 @@ class Commands:
                         **envelope,
                     )
                 )
+            created = ["patient", "person_name", "patient_identifier"]
+            if address is not None:
+                aid = new_id()
+                u.session.add(
+                    Address(
+                        id=aid,
+                        address_line1=address.line1,
+                        address_line2=address.line2,
+                        address_line3=address.town,
+                        local_government_area=address.local_government_area,
+                        state=address.state,
+                        postcode=postcode,
+                        country=address.country,
+                        **envelope,
+                    )
+                )
+                u.session.flush()
+                u.session.add(
+                    PartyAddress(
+                        id=new_id(),
+                        party_id=pid,
+                        address_id=aid,
+                        address_type="home",
+                        effective_from=u.ctx.now,
+                        **envelope,
+                    )
+                )
+                created += ["address", "party_address"]
             u.session.add(
                 DemographicTransaction(
                     tenant_id=u.ctx.tenant_id,
@@ -225,7 +270,7 @@ class Commands:
                     patient_id=pid,
                     transaction_source="api",
                     transaction_at=u.ctx.now,
-                    delta={"created": ["patient", "person_name", "patient_identifier"]},
+                    delta={"created": created},
                     change_reason="registration",
                     source_validation_level="registrar",
                     country_of_transaction="NG",

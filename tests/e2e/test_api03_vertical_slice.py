@@ -16,6 +16,7 @@ from astemia.adapters.db.models import (
     ResultReview,
 )
 from tests.conftest import Api
+from tests.fixtures.synthetic import ADDRESS
 
 ADMITTED = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
 
@@ -32,6 +33,7 @@ def register(api: Api, nin: str = "12345678901") -> str:
             "administrative_sex": "female",
             "mother_name": "Bisi Adeyemi",
             "identifiers": [{"issuer": "NG-NIN", "value": nin, "verified": True}],
+            "address": ADDRESS,
         },
     )
     assert r.status_code == 201, r.text
@@ -190,6 +192,7 @@ def test_duplicate_identifier_and_visit_number_conflict(api: Api) -> None:
             "birth_date": "1970-01-01",
             "administrative_sex": "male",
             "identifiers": [{"issuer": "NG-NIN", "value": "22222222222"}],
+            "address": ADDRESS,
         },
     )
     assert r.status_code == 409 and r.json()["error"]["code"] == "identifier_already_bound"
@@ -326,6 +329,7 @@ def test_medicare_number_is_retired_in_favour_of_nin(api: Api) -> None:
         "given_names": "Musa",
         "birth_date": "1961-07-02",
         "administrative_sex": "male",
+        "address": ADDRESS,
     }
     current = api.post(
         "registrar",

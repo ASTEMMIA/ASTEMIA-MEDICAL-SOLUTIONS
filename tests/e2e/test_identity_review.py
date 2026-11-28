@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from astemia.adapters.db.models import AuditEvent, DuplicateCandidate, PatientIdentifier
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit, order, register
+from tests.fixtures.synthetic import ADDRESS
 
 PERSON = {
     "family_name": "Adeyemi",
@@ -25,7 +26,7 @@ def if_match(version: int) -> dict[str, str]:
 
 
 def create(api: Api, body: dict[str, Any]) -> dict[str, Any]:
-    r = api.post("registrar", "/v1/patients", body)
+    r = api.post("registrar", "/v1/patients", {"address": ADDRESS, **body})
     assert r.status_code == 201, r.text
     return r.json()
 

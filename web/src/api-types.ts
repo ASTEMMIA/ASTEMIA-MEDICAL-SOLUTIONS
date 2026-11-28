@@ -37,6 +37,31 @@ export type ActorSummary = {
   flagged: number;
 };
 
+/** A full postal address (ERD ADDRESS). Lines 1 and town are required; a Nigerian address also needs its state and local government area. */
+export type AddressIn = {
+  /** House number or name and street. */
+  line1: string;
+  /** Area or estate. */
+  line2?: string | null;
+  /** Town or city. */
+  town: string;
+  local_government_area?: string | null;
+  state?: string | null;
+  postcode: string;
+  /** ISO 3166-1 alpha-2. */
+  country?: string;
+};
+
+export type AddressOut = {
+  line1: string;
+  line2: string | null;
+  town: string;
+  local_government_area: string | null;
+  state: string | null;
+  postcode: string | null;
+  country: string;
+};
+
 export type AdministrativeSex = "female" | "male" | "other" | "unknown";
 
 export type AdmitEncounter = {
@@ -683,6 +708,8 @@ export type PatientOut = {
   identifiers?: IdentifierOut[];
   date_of_exit?: string | null;
   merged_into?: string | null;
+  /** Current home address; null when none is recorded or the reader's role may not see it (then 'address' is in masked_fields). */
+  address?: AddressOut | null;
 };
 
 export type PlaceOrder = {
@@ -850,6 +877,8 @@ export type RegisterPatient = {
   administrative_sex: AdministrativeSex;
   temporary?: boolean;
   identifiers?: IdentifierIn[];
+  /** Required: full address with postcode. Only a temporary (unidentified) registration may leave it out. */
+  address?: AddressIn | null;
 };
 
 export type ReindexDocument = {

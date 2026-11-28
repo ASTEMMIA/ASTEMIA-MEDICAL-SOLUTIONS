@@ -20,11 +20,11 @@ from astemia.application.commands import Commands
 from astemia.application.context import Principal, RequestContext
 from astemia.application.errors import NotFound
 from astemia.application.policy import PilotPolicy
-from astemia.application.schemas import RegisterPatient
+from astemia.application.schemas import AddressIn, RegisterPatient
 from astemia.application.write_path import CommandResult, Unit, WritePath
 from astemia.config import get_settings
 from astemia.workers.outbox_relay import relay_once
-from tests.fixtures.synthetic import SyntheticTenant
+from tests.fixtures.synthetic import ADDRESS, SyntheticTenant
 
 NOW = datetime(2026, 11, 23, 12, 0, tzinfo=UTC)
 
@@ -65,6 +65,7 @@ def test_concurrent_duplicate_request_replays(
         given_names="Ada",
         birth_date=date(1990, 1, 1),
         administrative_sex="female",
+        address=AddressIn.model_validate(ADDRESS),
     )
     ctx = registrar(tenant)
     first = Commands(WritePath(factory, policy)).register_patient(ctx, "race-key", cmd)

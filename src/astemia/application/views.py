@@ -7,6 +7,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from astemia.adapters.db.models import (
+    Address,
     AeAttendance,
     DiagnosticReport,
     DuplicateCandidate,
@@ -15,6 +16,7 @@ from astemia.adapters.db.models import (
     MergeLink,
     Observation,
     ObservationRevision,
+    PartyAddress,
     Patient,
     PatientIdentifier,
     PersonName,
@@ -22,6 +24,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application.schemas import (
+    AddressOut,
     AeAttendanceOut,
     CandidateOut,
     EncounterOut,
@@ -105,6 +108,27 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
         )
     ).scalars()
     names = current_names(session, row, at)
+    home = (
+        None
+        if "address" in masks
+        else session.execute(
+            select(Address)
+            .join(
+                PartyAddress,
+                (PartyAddress.tenant_id == Address.tenant_id)
+                & (PartyAddress.address_id == Address.id),
+            )
+            .where(
+                PartyAddress.tenant_id == row.tenant_id,
+                PartyAddress.party_id == row.id,
+                PartyAddress.address_type == "home",
+                PartyAddress.effective_from <= at,
+                or_(PartyAddress.effective_to.is_(None), PartyAddress.effective_to > at),
+            )
+            .order_by(PartyAddress.effective_from.desc())
+            .limit(1)
+        ).scalar_one_or_none()
+    )
     usual = next((n for n in names if n.name_type == "usual"), names[0] if names else None)
     return PatientOut(
         id=row.id,
@@ -130,6 +154,17 @@ def patient(session: Session, row: Patient, *, masks: frozenset[str], at: dateti
         status=row.status,
         date_of_exit=row.date_of_exit,
         merged_into=merged_into(session, row),
+        address=AddressOut(
+            line1=home.address_line1,
+            line2=home.address_line2,
+            town=home.address_line3 or "",
+            local_government_area=home.local_government_area,
+            state=home.state,
+            postcode=home.postcode,
+            country=home.country,
+        )
+        if home
+        else None,
         identifiers=[
             IdentifierOut(
                 issuer=i.issuer,

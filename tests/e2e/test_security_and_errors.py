@@ -17,6 +17,7 @@ from astemia.config import Settings
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import ADMITTED, admit, order, register, release
 from tests.e2e.test_service_catalogue import activate, find, provision
+from tests.fixtures.synthetic import ADDRESS
 
 
 def bearer(token: str) -> dict[str, str]:
@@ -117,7 +118,12 @@ def test_invalid_input_names_the_fields(api: Api) -> None:
 
 
 def test_registration_rules(api: Api) -> None:
-    base = {"family_name": "Eze", "given_names": "Uche", "administrative_sex": "male"}
+    base = {
+        "family_name": "Eze",
+        "given_names": "Uche",
+        "administrative_sex": "male",
+        "address": ADDRESS,
+    }
     future = api.post("registrar", "/v1/patients", {**base, "birth_date": "2099-01-01"})
     assert future.json()["error"]["code"] == "bad_birth_date"
     twice = {"issuer": "NG-NIN", "value": "66666666666"}

@@ -25,6 +25,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
         {
             "patient:register",
             "patient:search",
+            # Every patient is registered with a full address (CEDA revision 1.8).
+            "address:read",
             "encounter:admit",
             "catalogue:read",
             "schedule:book",
@@ -42,6 +44,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "appointment:attend",
             "referral:triage",
             "patient:search",
+            "address:read",
             "catalogue:read",
             "task:assign",
         }
@@ -53,6 +56,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "order:create",
             "result:acknowledge",
             "identifier:read",
+            "address:read",
             "patient:search",
             "catalogue:read",
             # SEC-04: may ask for time-boxed, read-only emergency access.
@@ -83,11 +87,12 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
     "identity_steward": frozenset(
-        {"patient:search", "patient:merge", "patient:close", "identifier:read"}
+        {"patient:search", "patient:merge", "patient:close", "identifier:read", "address:read"}
     ),
     "nurse": frozenset(
         {
             "chart:read",
+            "address:read",
             "catalogue:read",
             "safeguarding:record",
             "safeguarding:view",
@@ -106,14 +111,20 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
     "records_clerk": frozenset(
-        {"document:index", "patient:search", "catalogue:read", "task:assign"}
+        {"document:index", "patient:search", "address:read", "catalogue:read", "task:assign"}
     ),
     # Team supervisors (UG03) see every task, reassign and receive escalations.
     "team_supervisor": frozenset({"task:assign", "task:supervise"}),
     # Safeguarding leads review every restrictive intervention and concern, see
     # who accessed a patient's records, and appoint advocates. No chart access.
     "safeguarding_lead": frozenset(
-        {"safeguarding:review", "concern:raise", "patient:search", "identifier:read"}
+        {
+            "safeguarding:review",
+            "concern:raise",
+            "patient:search",
+            "identifier:read",
+            "address:read",
+        }
     ),
     # An independent advocate appointed to a patient sees that patient's
     # safeguarding log, legal status and access report, and raises concerns.
@@ -210,8 +221,11 @@ class PilotPolicy:
                 # Emergency access: read-only, and only what care needs now.
                 reason = "emergency_grant"
                 masks.add("identifier.value")
+                masks.add("address")
         if "identifier:read" not in caps:
             masks.add("identifier.value")
+        if "address:read" not in caps:
+            masks.add("address")
         for category in (
             "mental_health",
             "sexual_health",

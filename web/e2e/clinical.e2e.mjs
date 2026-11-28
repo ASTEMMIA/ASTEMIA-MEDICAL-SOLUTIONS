@@ -7,6 +7,13 @@ const signOut = async (page) => {
   await page.getByRole("button", { name: "Sign out" }).click();
   await page.getByRole("heading", { name: "Sign in to ASTEMIA Health" }).waitFor();
 };
+async function fillAddress(page) {
+  await page.getByLabel("House number and street").fill("7 Awolowo Road");
+  await page.getByLabel("Area or estate").fill("Ikoyi");
+  await page.getByLabel("Town or city").fill("Lagos");
+  await page.getByLabel("State", { exact: true }).selectOption("Lagos");
+  await page.getByLabel("Local government area").fill("Eti-Osa");
+}
 const nav = (page, name) => page.getByRole("navigation", { name: "Main" }).getByRole("link", { name }).click();
 
 async function findPatient(page, family) {
@@ -35,6 +42,11 @@ await run("clinical", async (page) => {
   await page.getByRole("button", { name: "Register" }).click();
   check(await page.getByText("A NIN is 11 digits.").first().isVisible(), "a short NIN is refused before sending");
   await page.getByLabel("NIN").fill("40512345678");
+  await fillAddress(page);
+  await page.getByLabel("Postcode").fill("10124");
+  await page.getByRole("button", { name: "Register" }).click();
+  check(await page.getByText("A Nigerian postcode is 6 digits").first().isVisible(), "a full address with a valid postcode is required");
+  await page.getByLabel("Postcode").fill("101233");
   await axe(page, "registration form");
   await page.getByRole("button", { name: "Register" }).click();
   await page.getByText("Patient registered.").waitFor();
@@ -55,6 +67,10 @@ await run("clinical", async (page) => {
   await page.getByLabel("Given names").fill("Chiamaka");
   await page.getByLabel("Date of birth").fill("1979-06-14");
   await page.getByLabel("Sex").selectOption("female");
+  await page.getByRole("button", { name: "Register" }).click();
+  check(await page.getByText("Enter the house number and street.").first().isVisible(), "registration without an address is refused");
+  await fillAddress(page);
+  await page.getByLabel("Postcode").fill("101233");
   await page.getByRole("button", { name: "Register" }).click();
   await page.getByText(/existing records? looks? like this person/).waitFor();
   check(await page.getByRole("table", { name: "Possible matches" }).isVisible(), "likely matches are shown, with reasons, before a record is made");
@@ -78,6 +94,10 @@ await run("clinical", async (page) => {
   check(await headingFocused(page), "the chart's heading takes focus");
   await page.getByRole("cell", { name: "Dr Clinician One" }).waitFor();
   check(true, "the visit names the responsible clinician, not an ID");
+  check(
+    await page.getByText("7 Awolowo Road, Ikoyi, Lagos, Eti-Osa, Lagos State 101233").isVisible(),
+    "the chart shows the full home address and postcode",
+  );
   await page.getByRole("button", { name: "Place an order" }).click();
   await page.getByLabel("Test").selectOption({ label: "Potassium [Moles/volume] in Serum" });
   await page.getByLabel("Urgent").check();
@@ -132,6 +152,10 @@ await run("clinical", async (page) => {
   await page.getByText("Emergency access.", { exact: false }).first().waitFor();
   check(!(await page.getByRole("button", { name: "Place an order" }).count()), "emergency access is read-only: no orders");
   check(!(await page.getByText("40512345678").count()), "identifiers stay masked under emergency access");
+  check(
+    !(await page.getByText("7 Awolowo Road").count()) && (await page.getByText("Not shown to your role").isVisible()),
+    "the address is withheld under emergency access",
+  );
   await shot(page, "05-emergency");
   await signOut(page);
 
