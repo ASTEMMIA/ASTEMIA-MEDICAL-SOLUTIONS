@@ -59,6 +59,26 @@ await run("clinical", async (page) => {
   await page.getByText("Admitted: visit V-1001 under Dr Clinician One.").waitFor();
   check(true, "the registrar admits the patient under a named clinician");
 
+  // The patient moves: the registrar changes the address, keeping the old one.
+  await page.getByRole("button", { name: "Change address" }).click();
+  const change = page.getByRole("form", { name: "Change address" });
+  await change.getByRole("button", { name: "Save address" }).click();
+  check(await change.getByText("Choose why the address is changing.").first().isVisible(), "a reason is required to change an address");
+  await change.getByLabel("The patient has moved").check();
+  await change.getByLabel("House number and street").fill("Plot 5 Ahmadu Bello Way");
+  await change.getByLabel("Area or estate").fill("Garki");
+  await change.getByLabel("Town or city").fill("Abuja");
+  await change.getByLabel("State", { exact: true }).selectOption("Federal Capital Territory");
+  await change.getByLabel("Local government area").fill("Abuja Municipal");
+  await change.getByLabel("Postcode").fill("900211");
+  await axe(page, "change address");
+  await change.getByRole("button", { name: "Save address" }).click();
+  await page.getByText("Address changed. The previous address is kept in the history.").waitFor();
+  await page.getByText("Previous addresses (1)").click();
+  await page.getByText(/7 Awolowo Road, Ikoyi, Lagos, Eti-Osa, Lagos State 101233 · .* recorded by Registrar One/).waitFor();
+  check(true, "the old address is kept in the history, with when and by whom");
+  await shot(page, "01b-address-changed");
+
   // A second registration that looks like the same person.
   await nav(page, "Patients");
   await page.getByRole("link", { name: "Register a patient" }).click();
@@ -95,9 +115,10 @@ await run("clinical", async (page) => {
   await page.getByRole("cell", { name: "Dr Clinician One" }).waitFor();
   check(true, "the visit names the responsible clinician, not an ID");
   check(
-    await page.getByText("7 Awolowo Road, Ikoyi, Lagos, Eti-Osa, Lagos State 101233").isVisible(),
-    "the chart shows the full home address and postcode",
+    await page.getByText("Plot 5 Ahmadu Bello Way, Garki, Abuja, Abuja Municipal, Federal Capital Territory 900211", { exact: true }).isVisible(),
+    "the chart shows the current home address and postcode",
   );
+  check(!(await page.getByRole("button", { name: "Change address" }).count()), "a clinician reads the address but does not change it");
   await page.getByRole("button", { name: "Place an order" }).click();
   await page.getByLabel("Test").selectOption({ label: "Potassium [Moles/volume] in Serum" });
   await page.getByLabel("Urgent").check();
@@ -142,7 +163,7 @@ await run("clinical", async (page) => {
   // 5. Dr Clinician Two has no care relationship: emergency access.
   await signIn(page, "Dr Clinician Two");
   await findPatient(page, "Okonkwo");
-  await page.getByText("This chart is not available to you.").waitFor();
+  await page.getByText("The clinical record is not available to you: you have no care relationship with this patient.").waitFor();
   check(true, "without a care relationship the chart is concealed");
   await page.getByRole("button", { name: "Open the chart in an emergency" }).click();
   check(await page.getByText("in at least 10 characters").isVisible(), "a purpose is required");
@@ -153,7 +174,7 @@ await run("clinical", async (page) => {
   check(!(await page.getByRole("button", { name: "Place an order" }).count()), "emergency access is read-only: no orders");
   check(!(await page.getByText("40512345678").count()), "identifiers stay masked under emergency access");
   check(
-    !(await page.getByText("7 Awolowo Road").count()) && (await page.getByText("Not shown to your role").isVisible()),
+    !(await page.getByText("Ahmadu Bello Way").count()) && (await page.getByText("Not shown to your role.").isVisible()),
     "the address is withheld under emergency access",
   );
   await shot(page, "05-emergency");

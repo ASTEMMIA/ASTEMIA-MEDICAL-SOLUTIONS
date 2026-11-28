@@ -37,6 +37,23 @@ export type ActorSummary = {
   flagged: number;
 };
 
+export type AddressChangeReason = "moved" | "correction" | "identified";
+
+export type AddressHistoryOut = {
+  line1: string;
+  line2: string | null;
+  town: string;
+  local_government_area: string | null;
+  state: string | null;
+  postcode: string | null;
+  country: string;
+  address_type: string;
+  effective_from: string;
+  effective_to: string | null;
+  current: boolean;
+  recorded_by_id: string | null;
+};
+
 /** A full postal address (ERD ADDRESS). Lines 1 and town are required; a Nigerian address also needs its state and local government area. */
 export type AddressIn = {
   /** House number or name and street. */
@@ -182,6 +199,13 @@ export type CarePlanSummary = {
 };
 
 export type Certainty = "provisional" | "confirmed" | "refuted";
+
+/** A new home address. The current one is ended and kept as history. */
+export type ChangeAddress = {
+  address: AddressIn;
+  /** moved, correction, or identified (a temporary patient now known). */
+  reason: AddressChangeReason;
+};
 
 export type ChartOut = {
   patient: PatientOut;

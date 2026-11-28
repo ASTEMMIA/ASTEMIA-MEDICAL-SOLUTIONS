@@ -8,6 +8,7 @@ class EventType(StrEnum):
     PATIENT_MERGED = "patient.merged"
     PATIENT_UNMERGED = "patient.unmerged"
     PATIENT_CLOSED = "patient.closed"
+    PATIENT_ADDRESS_CHANGED = "patient.address_changed"
     IDENTITY_REVIEW_OPENED = "identity_review.opened"
     IDENTITY_REVIEW_RESOLVED = "identity_review.resolved"
     # The privacy alert for every emergency access grant (SEC-04).

@@ -12,7 +12,7 @@ from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.discharge import Disposition, OutstandingKind
 from astemia.domain.encounter import EncounterClass
-from astemia.domain.identity import AdministrativeSex, ClosureReason
+from astemia.domain.identity import AddressChangeReason, AdministrativeSex, ClosureReason
 from astemia.domain.notes import NoteType
 from astemia.domain.safeguards import (
     ConcernCategory,
@@ -223,6 +223,23 @@ class AddressOut(BaseModel):
     state: str | None
     postcode: str | None
     country: str
+
+
+class AddressHistoryOut(AddressOut):
+    address_type: str
+    effective_from: datetime
+    effective_to: datetime | None
+    current: bool
+    recorded_by_id: uuid.UUID | None
+
+
+class ChangeAddress(Strict):
+    """A new home address. The current one is ended and kept as history."""
+
+    address: AddressIn
+    reason: AddressChangeReason = Field(
+        description="moved, correction, or identified (a temporary patient now known)."
+    )
 
 
 class PatientOut(Resource):
