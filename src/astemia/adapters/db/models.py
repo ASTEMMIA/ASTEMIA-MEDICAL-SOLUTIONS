@@ -1185,6 +1185,70 @@ class DischargeSummary(Envelope, Base):
     signed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
 
 
+class Ward(Envelope, Base):
+    """A ward of a facility (CEDA HS03). Closing a ward stops new beds being
+    given on it; patients already there stay until moved or discharged."""
+
+    __tablename__ = "ward"
+    __table_args__ = (
+        fk(["tenant_id", "facility_id"], "organisation_site"),
+        UniqueConstraint("tenant_id", "code"),
+        TABLE_OPTS,
+    )
+
+    facility_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    specialty: Mapped[str | None] = mapped_column(String(64))
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+
+class Bed(Envelope, Base):
+    """A bed on a ward, open or closed, and whether it can isolate a patient."""
+
+    __tablename__ = "bed"
+    __table_args__ = (
+        fk(["tenant_id", "ward_id"], "ward"),
+        UniqueConstraint("tenant_id", "ward_id", "code"),
+        TABLE_OPTS,
+    )
+
+    ward_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    isolation_capable: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    status_reason: Mapped[str | None] = mapped_column(String(500))
+
+
+class BedOccupancy(Envelope, Base):
+    """CEDA BedOccupancy: one interval of one encounter in one bed. active_marker
+    is 1 while the interval is open and NULL once it ends, so the database
+    allows one open interval per bed and one per encounter (CEDA 3.2)."""
+
+    __tablename__ = "bed_occupancy"
+    __table_args__ = (
+        fk(["tenant_id", "bed_id"], "bed"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "previous_id"], "bed_occupancy"),
+        UniqueConstraint("tenant_id", "bed_id", "active_marker"),
+        UniqueConstraint("tenant_id", "encounter_id", "active_marker"),
+        Index(None, "tenant_id", "encounter_id", "start_at"),
+        TABLE_OPTS,
+    )
+
+    bed_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    encounter_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    start_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    end_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    end_reason: Mapped[str | None] = mapped_column(String(16))
+    isolation: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    reason: Mapped[str | None] = mapped_column(String(500))
+    previous_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    active_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+
+
 class Condition(Envelope, Coded, Base):
     """CEDA Condition: a coded problem with its certainty and onset, and the
     condition register it puts the patient on (HS12)."""

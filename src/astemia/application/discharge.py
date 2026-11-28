@@ -25,6 +25,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
     Task,
 )
+from astemia.application.beds import close_occupancy
 from astemia.application.context import RequestContext
 from astemia.application.daybook import open_task
 from astemia.application.errors import Conflict, Unprocessable
@@ -33,6 +34,7 @@ from astemia.application.schemas import Discharge, DischargeSummaryOut, DraftDis
 from astemia.application.write_path import CommandResult, Unit, WritePath
 from astemia.domain import discharge as dg
 from astemia.domain import encounter as enc
+from astemia.domain.beds import EndReason
 from astemia.domain.common import DomainError, new_id
 from astemia.domain.diagnostics import ReviewState, ServiceRequestStatus
 from astemia.domain.events import EventType
@@ -245,6 +247,7 @@ class Discharges:
             ).value
             encounter.period_end = cmd.discharged_at
             encounter.disposition = summary.disposition
+            close_occupancy(u, encounter.id, cmd.discharged_at, EndReason.DISCHARGE)
             encounter.version += 1
             summary.status = dg.SummaryStatus.SIGNED.value
             summary.discharged_at = cmd.discharged_at

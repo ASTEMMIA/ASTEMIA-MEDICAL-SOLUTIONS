@@ -34,6 +34,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "appointment:attend",
             "concern:raise",
             "task:assign",
+            # Bed management (HS03): give an admitted patient a bed, transfer them.
+            "bed:read",
+            "bed:assign",
         }
     ),
     # Schedulers (UG01) run clinic templates and bookings and triage the
@@ -84,6 +87,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "condition:record",
             "careplan:manage",
             "careplan:deliver",
+            "bed:read",
+            "bed:assign",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -111,11 +116,15 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "task:assign",
             # Nurses deliver plan sessions such as dialysis (HS12).
             "careplan:deliver",
+            # The ward team moves patients between beds (HS03).
+            "bed:read",
+            "bed:assign",
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
-    "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
+    # They also set up wards and beds, and open and close them (HS03).
+    "tenant_admin": frozenset({"catalogue:read", "catalogue:manage", "bed:read", "bed:manage"}),
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
     "records_clerk": frozenset(

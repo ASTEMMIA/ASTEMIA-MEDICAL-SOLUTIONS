@@ -113,6 +113,17 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         **{"If-Match": '"1"'},
     )
     assert merged.status_code == 200, merged.text
+    ward = api.post(
+        "admin",
+        "/v1/wards",
+        {"facility_id": str(api.tenant.facility_id), "code": "W1", "name": "Ward 1"},
+    ).json()
+    ward = api.post("admin", f"/v1/wards/{ward['id']}/beds", {"code": "W1-1"}).json()
+    bed = ward["beds"][0]["id"]
+    placed = api.post(
+        "nurse", f"/v1/encounters/{enc['id']}/bed", {"bed_id": bed}, **{"If-Match": '"1"'}
+    )
+    assert placed.status_code == 201, placed.text
     with factory() as s:
         link = s.scalar(select(MergeLink.id).where(MergeLink.prior_id == uuid.UUID(prior["id"])))
     return {
@@ -135,6 +146,8 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         "link_id": str(link),
         "practitioner_id": str(api.tenant.practitioners["clinician"]),
         "facility_id": str(api.tenant.facility_id),
+        "ward_id": ward["id"],
+        "bed_id": bed,
     }
 
 
@@ -215,6 +228,11 @@ def _body(path: str, a: dict[str, str]) -> dict[str, Any]:
         "/tasks/{task_id}/cancel": {"reason": "Not needed"},
         "/tasks/{task_id}/complete": {},
         "/reassign": {"queue": "nurse", "reason": "Rota"},
+        "/wards/{ward_id}/status": {"active": False},
+        "/wards/{ward_id}/beds": {"code": "X-1"},
+        "/beds/{bed_id}/status": {"status": "closed"},
+        "/bed": {"bed_id": a["bed_id"]},
+        "/transfer": {"bed_id": a["bed_id"]},
     }
     for suffix, body in bodies.items():
         if path.endswith(suffix):
