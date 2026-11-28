@@ -30,6 +30,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "schedule:book",
             "appointment:attend",
             "concern:raise",
+            "task:assign",
         }
     ),
     # Schedulers (UG01) run clinic templates and bookings and triage the
@@ -42,6 +43,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "referral:triage",
             "patient:search",
             "catalogue:read",
+            "task:assign",
         }
     ),
     "clinician": frozenset(
@@ -69,6 +71,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "note:sign_nursing",
             # Correspondence (UG04): review documents filed to them.
             "document:review",
+            # Daybook (UG03).
+            "task:assign",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -85,6 +89,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             # Nurses draft any note but sign only nursing notes (ST04).
             "note:write",
             "note:sign_nursing",
+            "task:assign",
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
@@ -92,7 +97,11 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
-    "records_clerk": frozenset({"document:index", "patient:search", "catalogue:read"}),
+    "records_clerk": frozenset(
+        {"document:index", "patient:search", "catalogue:read", "task:assign"}
+    ),
+    # Team supervisors (UG03) see every task, reassign and receive escalations.
+    "team_supervisor": frozenset({"task:assign", "task:supervise"}),
     # Safeguarding leads review every restrictive intervention and concern, see
     # who accessed a patient's records, and appoint advocates. No chart access.
     "safeguarding_lead": frozenset(

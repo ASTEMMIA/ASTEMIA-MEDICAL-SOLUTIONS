@@ -11,6 +11,7 @@ Correcting the indexing adds a version that keeps the original digest.
 import base64
 import binascii
 import uuid
+from datetime import timedelta
 from typing import Any
 
 from sqlalchemy import select
@@ -26,6 +27,7 @@ from astemia.adapters.db.models import (
 )
 from astemia.application import views
 from astemia.application.context import RequestContext
+from astemia.application.daybook import close_source_tasks, open_task
 from astemia.application.errors import AccessDenied, Conflict, NotFound, Unprocessable
 from astemia.application.identity_review import find_matches
 from astemia.application.policy import Decision, PolicyEngine
@@ -43,6 +45,9 @@ from astemia.domain import documents as dc
 from astemia.domain import identity as idn
 from astemia.domain.common import DomainError, EffectivePrecision, new_id
 from astemia.domain.events import EventType
+from astemia.domain.tasks import TaskStatus, TaskType
+
+REVIEW_WINDOW = timedelta(days=3)
 
 
 def _domain(fn: Any) -> Any:
@@ -311,6 +316,16 @@ class Documents:
             doc.version += 1
             _version(u, doc, "filed")
             u.session.flush()
+            # UG04: the intended reviewer receives one task.
+            open_task(
+                u,
+                subject=f"Review {doc.document_type.replace('_', ' ')} from {doc.sender}"[:200],
+                task_type=TaskType.DOCUMENT_REVIEW,
+                due_at=u.ctx.now + REVIEW_WINDOW,
+                assignee=cmd.reviewer_id,
+                patient_id=patient.id,
+                source=("document", doc.id),
+            )
             decision = u.authorize("document:index")
             event = u.emit(
                 EventType.DOCUMENT_FILED,
@@ -363,11 +378,22 @@ class Documents:
                 raise Conflict("only a filed document is re-indexed", code="not_filed")
             patient = _link(u, cmd.patient_id, cmd.encounter_id)
             if patient.id != doc.patient_id:
-                # Filed to the wrong person: the new patient's reviewer reads it again.
+                # Filed to the wrong person: the review starts again, on the right chart.
                 doc.status, doc.reviewed_at, doc.review_note = (
                     dc.DocumentStatus.FILED.value,
                     None,
                     None,
+                )
+                close_source_tasks(u, ("document", doc.id), TaskStatus.CANCELLED, "re-filed")
+                assert doc.reviewer_id is not None  # set when the document was filed
+                open_task(
+                    u,
+                    subject=f"Review re-filed {cmd.document_type.replace('_', ' ')}"[:200],
+                    task_type=TaskType.DOCUMENT_REVIEW,
+                    due_at=u.ctx.now + REVIEW_WINDOW,
+                    assignee=doc.reviewer_id,
+                    patient_id=patient.id,
+                    source=("document", doc.id),
                 )
             doc.patient_id, doc.encounter_id = patient.id, cmd.encounter_id
             doc.title, doc.document_type = cmd.title, cmd.document_type
@@ -424,6 +450,7 @@ class Documents:
             ).value
             doc.reviewed_at, doc.review_note = u.ctx.now, cmd.note
             doc.version += 1
+            close_source_tasks(u, ("document", doc.id), TaskStatus.COMPLETED, "reviewed")
             decision = u.authorize("document:review", patient_id=doc.patient_id)
             event = u.emit(
                 EventType.DOCUMENT_REVIEWED,

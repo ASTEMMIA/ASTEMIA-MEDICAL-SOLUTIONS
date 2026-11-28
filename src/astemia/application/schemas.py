@@ -25,6 +25,8 @@ from astemia.domain.scheduling import (
     ReferralPriority,
     SlotType,
 )
+from astemia.domain.tasks import Priority as TaskPriority
+from astemia.domain.tasks import TaskType
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
@@ -891,6 +893,64 @@ class DocumentSummary(BaseModel):
     status: str
     encounter_id: uuid.UUID | None
     reviewed: bool
+
+
+# --- Daybook tasks (UG03) ---------------------------------------------------------------
+
+
+class CreateTask(Strict):
+    patient_id: uuid.UUID | None = None
+    subject: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]
+    task_type: TaskType = TaskType.GENERAL
+    priority: TaskPriority = TaskPriority.ROUTINE
+    due_at: AwareDatetime
+    assignee_id: uuid.UUID | None = None
+    queue: str | None = Field(default=None, max_length=64, description="A role, e.g. nurse.")
+
+
+class ReassignTask(Strict):
+    assignee_id: uuid.UUID | None = None
+    queue: str | None = Field(default=None, max_length=64)
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class CompleteTask(Strict):
+    note: str | None = Field(default=None, max_length=1000)
+
+
+class CancelTask(Strict):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class AssignmentOut(BaseModel):
+    assignee_id: uuid.UUID | None
+    queue: str | None
+    reason: str
+    assigned_by_id: uuid.UUID | None
+    recorded_at: datetime
+
+
+class TaskOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID | None
+    subject: str
+    task_type: str
+    priority: str
+    status: str
+    due_at: datetime
+    overdue: bool
+    assignee_id: uuid.UUID | None
+    queue: str | None
+    origin_type: str | None
+    origin_id: uuid.UUID | None
+    escalation_step: int
+    created_by_id: uuid.UUID | None
+    acknowledged_at: datetime | None
+    completed_at: datetime | None
+    completed_by_id: uuid.UUID | None
+    outcome_note: str | None
+    history: list[AssignmentOut]
 
 
 ChartOut.model_rebuild()

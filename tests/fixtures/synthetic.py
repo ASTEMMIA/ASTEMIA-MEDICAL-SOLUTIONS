@@ -47,6 +47,7 @@ ROLES = {
     "lead2": ["safeguarding_lead"],
     "advocate": ["patient_advocate"],
     "clerk": ["records_clerk"],
+    "supervisor": ["team_supervisor"],
     # A clinician who is also a privacy officer may not review their own grant.
     "dual": ["clinician", "privacy_officer"],
 }
