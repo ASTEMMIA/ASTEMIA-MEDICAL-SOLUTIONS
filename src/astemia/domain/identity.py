@@ -136,6 +136,30 @@ def check_address(
         )
 
 
+class AddressChangeReason(StrEnum):
+    MOVED = "moved"  # the patient lives somewhere new
+    CORRECTION = "correction"  # the address on file was wrong
+    IDENTIFIED = "identified"  # an unidentified patient's address, now known
+
+
+def check_address_change(status: str, reason: AddressChangeReason, same_as_current: bool) -> None:
+    """A changed address ends the current one and keeps it as history. A merged
+    record is changed through the record it was merged into; an address that is
+    already on file is not filed again."""
+    if status == PatientStatus.MERGED:
+        raise InvariantViolation(
+            "this record was merged: change the address on the record it was merged into",
+            code="patient_merged",
+        )
+    if reason is AddressChangeReason.IDENTIFIED and status != PatientStatus.TEMPORARY:
+        raise InvariantViolation(
+            "'identified' is for a patient registered without an identity",
+            code="not_temporary",
+        )
+    if same_as_current:
+        raise InvariantViolation("this address is already on file", code="address_unchanged")
+
+
 def validate_birth_date(birth_date: date, precision: EffectivePrecision, today: date) -> None:
     if birth_date > today:
         raise InvariantViolation("date of birth is in the future", code="bad_birth_date")

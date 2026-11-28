@@ -39,6 +39,7 @@ from astemia.application.schemas import (
     AccessReportOut,
     Acknowledge,
     ActivateService,
+    AddressHistoryOut,
     AdmitEncounter,
     AmendEntry,
     AppointAdvocate,
@@ -46,6 +47,7 @@ from astemia.application.schemas import (
     CancelAppointment,
     CancelTask,
     CarePlanOut,
+    ChangeAddress,
     ChartOut,
     CloseBatch,
     CloseConcern,
@@ -874,6 +876,27 @@ def create_app(
         link_id: uuid.UUID, body: UnmergePatient, ctx: Ctx, response: Response, key: IdemKey = None
     ) -> dict[str, Any]:
         return respond(index.unmerge(ctx, key, link_id, body), response)
+
+    @app.get("/v1/patients/{patient_id}", response_model=PatientOut)
+    def read_patient(patient_id: uuid.UUID, ctx: Ctx) -> PatientOut:
+        return index.get(ctx, patient_id)
+
+    @app.post("/v1/patients/{patient_id}/address")
+    def change_address(
+        patient_id: uuid.UUID,
+        body: ChangeAddress,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: IfMatch = None,
+    ) -> dict[str, Any]:
+        return respond(
+            index.change_address(ctx, key, patient_id, expected_version(if_match), body), response
+        )
+
+    @app.get("/v1/patients/{patient_id}/addresses", response_model=list[AddressHistoryOut])
+    def address_history(patient_id: uuid.UUID, ctx: Ctx) -> list[AddressHistoryOut]:
+        return index.address_history(ctx, patient_id)
 
     @app.post("/v1/patients/{patient_id}/close")
     def close_patient(

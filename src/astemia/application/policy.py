@@ -27,6 +27,7 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "patient:search",
             # Every patient is registered with a full address (CEDA revision 1.8).
             "address:read",
+            "address:update",
             "encounter:admit",
             "catalogue:read",
             "schedule:book",
@@ -87,7 +88,14 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
     "identity_steward": frozenset(
-        {"patient:search", "patient:merge", "patient:close", "identifier:read", "address:read"}
+        {
+            "patient:search",
+            "patient:merge",
+            "patient:close",
+            "identifier:read",
+            "address:read",
+            "address:update",
+        }
     ),
     "nurse": frozenset(
         {

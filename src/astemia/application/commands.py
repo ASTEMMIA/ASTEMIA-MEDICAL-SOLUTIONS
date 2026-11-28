@@ -11,7 +11,6 @@ from typing import Any
 from sqlalchemy import select, update
 
 from astemia.adapters.db.models import (
-    Address,
     AeAttendance,
     CareProvision,
     DemographicTransaction,
@@ -22,7 +21,6 @@ from astemia.adapters.db.models import (
     ObservationRevision,
     OrganisationSite,
     Party,
-    PartyAddress,
     Patient,
     PatientIdentifier,
     PersonName,
@@ -31,6 +29,7 @@ from astemia.adapters.db.models import (
     ServiceRequest,
 )
 from astemia.application import views
+from astemia.application.addresses import file_home
 from astemia.application.catalogue import resolve_service_for_admission
 from astemia.application.errors import Conflict, Unprocessable
 from astemia.application.identity_review import review_new_registration
@@ -236,32 +235,8 @@ class Commands:
                     )
                 )
             created = ["patient", "person_name", "patient_identifier"]
-            if address is not None:
-                aid = new_id()
-                u.session.add(
-                    Address(
-                        id=aid,
-                        address_line1=address.line1,
-                        address_line2=address.line2,
-                        address_line3=address.town,
-                        local_government_area=address.local_government_area,
-                        state=address.state,
-                        postcode=postcode,
-                        country=address.country,
-                        **envelope,
-                    )
-                )
-                u.session.flush()
-                u.session.add(
-                    PartyAddress(
-                        id=new_id(),
-                        party_id=pid,
-                        address_id=aid,
-                        address_type="home",
-                        effective_from=u.ctx.now,
-                        **envelope,
-                    )
-                )
+            if address is not None and postcode is not None:
+                file_home(u, pid, address, postcode, envelope)
                 created += ["address", "party_address"]
             u.session.add(
                 DemographicTransaction(

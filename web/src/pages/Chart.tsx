@@ -11,12 +11,12 @@ import type {
   ReportOut,
   ReviewOut,
 } from "../api-types";
+import { AddressPanel } from "../components/AddressPanel";
 import { Button, Empty, Field, Loading, Notice, Page, Radios, Section, Select, Tag, TextArea } from "../components/ui";
 import { useDirectory } from "../directory";
 import { date, dateTime, localToIso, nin, nowLocal, num, patientName, words } from "../format";
 import { useAction, useLoad } from "../hooks";
 import { LAB_TESTS, LOINC } from "../lab";
-import { addressLine } from "../places";
 import { useSession } from "../session";
 
 type Registered = PatientOut & { possible_duplicates?: string[]; identity_review_tasks?: string[] };
@@ -40,7 +40,8 @@ export function Chart() {
   const c = chart.data;
   return (
     <Page title={patientName(c.patient)}>
-      <PatientSummary patient={c.patient} masked={c.masked_fields.includes("address")} />
+      <PatientSummary patient={c.patient} />
+      <AddressPanel patient={c.patient} onChanged={chart.reload} masked={(c.masked_fields ?? []).includes("address")} />
       {registered && <RegisteredNotice r={registered} />}
       <Banners chart={c} />
       <Visits chart={c} patientId={id} onChange={chart.reload} />
@@ -55,7 +56,7 @@ export function Chart() {
   );
 }
 
-function PatientSummary({ patient, masked = false }: { patient: PatientOut; masked?: boolean }) {
+function PatientSummary({ patient }: { patient: PatientOut }) {
   return (
     <dl className="facts patient-summary">
       <dt>Born</dt>
@@ -67,8 +68,6 @@ function PatientSummary({ patient, masked = false }: { patient: PatientOut; mask
       <dd>{words(patient.administrative_sex)}</dd>
       <dt>NIN</dt>
       <dd className="mono">{nin(patient.identifiers)}</dd>
-      <dt>Address</dt>
-      <dd>{patient.address ? addressLine(patient.address) : masked ? "Not shown to your role" : "Not recorded"}</dd>
       <dt>Record</dt>
       <dd>{patient.status === "active" ? <Tag tone="good">Active</Tag> : <Tag tone="warn">{words(patient.status)}</Tag>}</dd>
     </dl>
@@ -123,21 +122,21 @@ function Banners({ chart }: { chart: ChartOut }) {
 
 function NoChart({ patientId, registered, onOpened }: { patientId: string; registered?: Registered; onOpened: () => void }) {
   const { can } = useSession();
+  // Roles without chart access (such as registrars) still see the patient's demographics.
+  const found = useLoad<PatientOut>(can("patient:search") ? `/v1/patients/${patientId}` : null);
+  const shown: PatientOut | undefined = found.data ?? registered;
   const [admitted, setAdmitted] = useState<EncounterOut | null>(null);
   const { person } = useDirectory();
   return (
-    <Page title={registered ? patientName(registered) : "Patient chart"}>
-      {registered && (
-        <>
-          <PatientSummary patient={registered} />
-          <RegisteredNotice r={registered} />
-        </>
-      )}
+    <Page title={shown ? patientName(shown) : "Patient chart"}>
+      {shown && <PatientSummary patient={shown} />}
+      {registered && <RegisteredNotice r={registered} />}
       {!registered && (
         <Notice>
-          This chart is not available to you. It may not exist, or you have no care relationship with this patient.
+          {shown ? "The clinical record is not available to you: you have no care relationship with this patient." : "This chart is not available to you. It may not exist, or you have no care relationship with this patient."}
         </Notice>
       )}
+      {shown && <AddressPanel patient={shown} onChanged={found.reload} />}
       {admitted && (
         <Notice kind="success">
           Admitted: visit {admitted.visit_number} under {person(admitted.responsible_practitioner_id)}.

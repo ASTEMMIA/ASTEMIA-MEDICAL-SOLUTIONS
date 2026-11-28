@@ -23,12 +23,14 @@ from astemia.adapters.db.models import (
     PatientIdentifier,
     PersonName,
 )
-from astemia.application import views
+from astemia.application import addresses, views
 from astemia.application.context import RequestContext
 from astemia.application.errors import AccessDenied, Conflict, NotFound, Unprocessable
 from astemia.application.identity_review import resolve_on_merge
 from astemia.application.policy import Decision, PolicyEngine
 from astemia.application.schemas import (
+    AddressHistoryOut,
+    ChangeAddress,
     CloseBatch,
     ClosePatient,
     DuplicateGroup,
@@ -498,6 +500,126 @@ class PatientIndex:
             payload=cmd.model_dump(mode="json"),
             handler=handle,
         )
+
+    # -- ICRS 3.2.11, CEDA revision 1.8: the home address, changed with history ------
+
+    def change_address(
+        self,
+        ctx: RequestContext,
+        key: str | None,
+        patient_id: uuid.UUID,
+        expected: int | None,
+        cmd: ChangeAddress,
+    ) -> CommandResult:
+        def handle(u: Unit) -> CommandResult:
+            patient = u.get(Patient, patient_id, lock=True)
+            u.check_version(patient.version, expected)
+            new = cmd.address
+            _domain(
+                lambda: idn.check_address(
+                    temporary=False,
+                    has_address=True,
+                    country=new.country,
+                    state=new.state,
+                    lga=new.local_government_area,
+                )
+            )
+            postcode = _domain(lambda: idn.normalise_postcode(new.country, new.postcode))
+            current = addresses.current_home(u.session, u.ctx.tenant_id, patient.id, u.ctx.now)
+            _domain(
+                lambda: idn.check_address_change(
+                    patient.status,
+                    cmd.reason,
+                    current is not None and addresses.same_address(current[1], new, postcode),
+                )
+            )
+            if current is not None:
+                current[0].effective_to = u.ctx.now  # kept as history, never overwritten
+                current[0].version += 1
+            aid = addresses.file_home(u, patient.id, new, postcode, _envelope(u))
+            patient.version += 1
+            _transaction(
+                u,
+                patient.id,
+                f"address:{cmd.reason.value}",
+                {
+                    "address": [str(current[1].id) if current else None, str(aid)],
+                    "reason": cmd.reason.value,
+                },
+            )
+            decision = u.authorize("address:update", patient_id=patient.id)
+            # The address itself stays out of events (personal data).
+            event = u.emit(
+                EventType.PATIENT_ADDRESS_CHANGED,
+                "patient",
+                patient.id,
+                patient.version,
+                u.ctx.now,
+                {"patient_id": str(patient.id), "reason": cmd.reason.value},
+            )
+            u.audit(
+                decision,
+                "patient.address_change",
+                "patient",
+                patient.id,
+                patient_id=patient.id,
+                event_id=event,
+            )
+            return CommandResult(200, _out(u, patient))
+
+        return self.wp.run(
+            ctx,
+            operation="patient.address_change",
+            capability="address:update",
+            idempotency_key=key,
+            payload={"patient_id": str(patient_id), "v": expected, **cmd.model_dump(mode="json")},
+            handler=handle,
+            patient_id=patient_id,
+        )
+
+    def address_history(
+        self, ctx: RequestContext, patient_id: uuid.UUID
+    ) -> list[AddressHistoryOut]:
+        with self.factory() as session:
+            decision = self._decide(session, ctx, "address:read")
+            if session.get(Patient, (ctx.tenant_id, patient_id)) is None:
+                raise NotFound("patient not found")
+            out = addresses.history(session, ctx.tenant_id, patient_id)
+            session.add(
+                audit_row(
+                    ctx,
+                    decision,
+                    "patient.address_history",
+                    "patient",
+                    patient_id,
+                    patient_id,
+                    "success",
+                )
+            )
+            session.commit()
+        return out
+
+    def get(self, ctx: RequestContext, patient_id: uuid.UUID) -> PatientOut:
+        """Demographics only, for the patient index (no clinical record)."""
+        with self.factory() as session:
+            decision = self._decide(session, ctx, "patient:search")
+            row = session.get(Patient, (ctx.tenant_id, patient_id))
+            if row is None:
+                raise NotFound("patient not found")
+            out = views.patient(session, row, masks=decision.masks, at=ctx.now)
+            session.add(
+                audit_row(
+                    ctx,
+                    decision,
+                    "patient_index.read",
+                    "patient",
+                    patient_id,
+                    patient_id,
+                    "success",
+                )
+            )
+            session.commit()
+        return out
 
     # -- ICRS 3.2.3, 3.2.34: search; 3.2.11: duplicate housekeeping ----------------
 
