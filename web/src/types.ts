@@ -1,13 +1,8 @@
-export interface Me {
-  subject: string;
-  tenant_id: string;
-  tenant_name: string;
-  roles: string[];
-  capabilities: string[];
-  practitioner_id: string | null;
-  display_name: string;
-}
+import type { MeOut } from "./api-types";
 
+export type Me = MeOut;
+
+/** Development sign-in accounts (not in the public API schema). */
 export interface DevAccount {
   subject: string;
   display_name: string;

@@ -23,6 +23,7 @@ from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
 from astemia.application.daybook import Daybook
+from astemia.application.directory import Directory
 from astemia.application.discharge import Discharges
 from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
@@ -65,14 +66,17 @@ from astemia.application.schemas import (
     EmergencyGrantOut,
     EndIntervention,
     EntryOut,
+    FacilityOut,
     FileDocument,
     InterventionOut,
+    LabOrderOut,
     LegalStatusOut,
     MatchOut,
     MatchQuery,
     MergePatient,
     PatientOut,
     PlaceOrder,
+    PractitionerOut,
     ProvisionCatalogue,
     RaiseConcern,
     ReassignTask,
@@ -133,6 +137,7 @@ def create_app(
     daybook = Daybook(write_path, factory, policy)
     discharges = Discharges(write_path, factory, policy)
     care_plans = CarePlans(write_path, factory, policy)
+    directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -755,6 +760,20 @@ def create_app(
         tag = (if_match or "").removeprefix("W/").strip('"')
         expected = int(tag) if tag.isdigit() else None
         return respond(emergency.review(ctx, key, grant_id, expected, body), response)
+
+    @app.get("/v1/practitioners", response_model=list[PractitionerOut])
+    def practitioners(ctx: Ctx) -> list[PractitionerOut]:
+        return directory.practitioners(ctx)
+
+    @app.get("/v1/facilities", response_model=list[FacilityOut])
+    def facilities(ctx: Ctx) -> list[FacilityOut]:
+        return directory.facilities(ctx)
+
+    @app.get("/v1/orders/worklist", response_model=list[LabOrderOut])
+    def lab_worklist(
+        ctx: Ctx, limit: Annotated[int, Query(ge=1, le=200)] = 50
+    ) -> list[LabOrderOut]:
+        return directory.lab_worklist(ctx, limit=limit)
 
     @app.post("/v1/orders", status_code=201)
     def place_order(

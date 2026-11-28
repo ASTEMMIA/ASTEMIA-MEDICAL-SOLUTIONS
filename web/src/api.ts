@@ -77,6 +77,15 @@ const MESSAGES: Record<string, string> = {
 };
 
 export function messageFor(e: unknown): string {
+  if (e instanceof ApiError && e.code === "invalid_input" && e.message.startsWith("invalid fields: ")) {
+    // "invalid fields: body.birth_date, body.identifiers.0.value" → "birth date, identifiers value"
+    const fields = e.message
+      .slice("invalid fields: ".length)
+      .split(", ")
+      .map((f) => f.replace(/^(body|query|path|header)\.?/, "").replace(/\.\d+/g, "").replaceAll(".", " ").replaceAll("_", " ").trim())
+      .filter(Boolean);
+    return fields.length ? `Check ${[...new Set(fields)].join(", ")}.` : (MESSAGES.invalid_input as string);
+  }
   if (e instanceof ApiError) return MESSAGES[e.code] ?? e.message;
   return "The service could not be reached. Check the connection and try again.";
 }

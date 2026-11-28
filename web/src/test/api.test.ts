@@ -52,6 +52,13 @@ describe("api", () => {
     expect([plain.code, plain.message]).toEqual(["error", "Server Error"]);
   });
 
+  it("names the fields that need attention", () => {
+    const e = new ApiError(422, "invalid_input", "invalid fields: body.birth_date, body.identifiers.0.value, body");
+    expect(messageFor(e)).toBe("Check birth date, identifiers value.");
+    expect(messageFor(new ApiError(422, "invalid_input", "invalid fields: body"))).toBe("Some fields need attention.");
+    expect(messageFor(new ApiError(422, "invalid_input", "bad"))).toBe("Some fields need attention.");
+  });
+
   it("ends the session on 401 and reports an unreachable service", async () => {
     const ended = vi.fn();
     whenSignedOut(ended);

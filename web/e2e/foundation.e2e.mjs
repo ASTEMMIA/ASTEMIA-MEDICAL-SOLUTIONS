@@ -7,7 +7,9 @@ const PEOPLE = [
   ["Registrar One", "Registrar", "Register patients"],
   ["Dr Clinician One", "Clinician", "Sign clinical notes"],
   ["Dr Clinician Two", "Clinician", "Sign clinical notes"],
+  ["Nurse One", "Nurse", "Sign nursing notes"],
   ["Lab Scientist One", "Lab scientist", "Release results"],
+  ["Identity Steward One", "Identity steward", "Merge and unmerge patient records"],
   ["Privacy Officer One", "Privacy officer", "Review emergency access"],
   ["Scheduler One", "Scheduler", "Book, reschedule and cancel appointments"],
 ];
@@ -51,12 +53,13 @@ await run("foundation", async (page, context) => {
   await shot(page, "02-home");
   check(await headingFocused(page), "the signed-in page focuses its heading");
   const order = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 12 && order.at(-1) !== "Skip to main content"; i++) {
     await page.keyboard.press("Shift+Tab");
     order.push(await page.evaluate(() => document.activeElement?.textContent?.trim()));
   }
+  const nav = await page.getByRole("navigation", { name: "Main" }).getByRole("link").allTextContents();
   check(
-    JSON.stringify(order) === JSON.stringify(["My account", "Home", "Sign out", "Skip to main content"]),
+    JSON.stringify(order) === JSON.stringify([...nav].reverse().concat(["Sign out", "Skip to main content"])),
     `a logical tab order back to the skip link (${order.join(" ← ")})`,
   );
   check(

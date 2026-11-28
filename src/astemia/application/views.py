@@ -212,6 +212,7 @@ def candidate(
     full = patient(session, row, masks=masks, at=at)
     return CandidateOut(
         id=row.id,
+        version=row.version,
         status=row.status,
         score=match.score,
         band=match.band.value if match.band else None,

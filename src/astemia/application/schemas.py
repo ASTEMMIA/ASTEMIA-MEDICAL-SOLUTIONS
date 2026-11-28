@@ -315,6 +315,33 @@ class ChartOut(BaseModel):
     care_plans: list[CarePlanSummary] = Field(default_factory=list)
 
 
+class PractitionerOut(BaseModel):
+    """A member of staff as others see them: for names on records and pickers."""
+
+    id: uuid.UUID
+    display_name: str
+    professional_register: str | None
+    specialist_area: str | None
+
+
+class FacilityOut(BaseModel):
+    """A site where care happens (CEDA facility)."""
+
+    id: uuid.UUID
+    site_identifier: str
+    site_name: str
+    organisation_id: uuid.UUID
+    organisation_name: str
+
+
+class LabOrderOut(BaseModel):
+    """An order still waiting for its result, with the patient it is for."""
+
+    order: OrderOut
+    patient: PatientOut
+    ordered_at: datetime
+
+
 class DuplicateGroup(BaseModel):
     """Open index records that share family name, date of birth and sex."""
 
@@ -392,6 +419,7 @@ class CandidateOut(BaseModel):
     """A possible duplicate, with only enough shown to tell people apart."""
 
     id: uuid.UUID
+    version: int = Field(description="For If-Match when this record is merged.")
     status: str
     score: int
     band: str | None

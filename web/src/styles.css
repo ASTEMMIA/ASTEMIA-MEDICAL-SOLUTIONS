@@ -274,3 +274,148 @@ fieldset {
     animation: none !important;
   }
 }
+
+/* --- Clinical screens ------------------------------------------------------ */
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+.row > .field {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.or {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+}
+.search,
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.section {
+  margin-top: 2rem;
+}
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+.section-head h2 {
+  margin: 0.25rem 0;
+  font-size: 1.3rem;
+}
+.empty {
+  color: var(--muted);
+}
+.mono {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Tables scroll inside themselves on a phone rather than widening the page. */
+.table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0.5rem 0 1rem;
+}
+.table caption {
+  text-align: left;
+  color: var(--muted);
+  padding-bottom: 0.25rem;
+}
+.table th,
+.table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.table thead th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.table tbody th {
+  font-weight: 600;
+}
+.table.compact th,
+.table.compact td {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 0.45rem;
+  margin-left: 0.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  white-space: nowrap;
+}
+.tag-good {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+.tag-warn {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+.tag-bad {
+  border-color: var(--danger);
+  background: var(--error-bg);
+}
+
+.result,
+.note,
+.pair {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+}
+.result h3,
+.note h3,
+.pair h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+.note-body {
+  white-space: pre-wrap;
+}
+.patient-summary {
+  margin-bottom: 1rem;
+}

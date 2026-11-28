@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { date, dateTime, roleName } from "../format";
+import { date, dateTime, nin, num, patientName, roleName } from "../format";
 
 describe("format", () => {
   it("shows times with their time zone and dates as written", () => {
@@ -10,5 +10,11 @@ describe("format", () => {
   });
   it("names roles as people say them", () => {
     expect(roleName("identity_steward")).toBe("Identity steward");
+  });
+  it("writes numbers, names and identifiers as people expect", () => {
+    expect([num("6.100000"), num("45"), num("-0.50"), num("<0.1"), num(null), num("")]).toEqual(["6.1", "45", "-0.5", "<0.1", "", ""]);
+    expect(patientName({ family_name: "Okonkwo", given_names: "Chiamaka Ada" })).toBe("OKONKWO, Chiamaka Ada");
+    expect(nin([{ issuer: "X", value: "1" }, { issuer: "NG-NIN", value: "405•••••678" }])).toBe("405•••••678");
+    expect(nin(undefined)).toBe("—");
   });
 });
