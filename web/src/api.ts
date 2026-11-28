@@ -101,6 +101,8 @@ export interface RequestOptions {
   /** Reuse a key when retrying the same submission. */
   key?: string;
   signal?: AbortSignal;
+  /** "blob" for a file's bytes, such as a filed document. */
+  as?: "json" | "blob";
 }
 
 function withQuery(path: string, query?: Query): string {
@@ -113,7 +115,7 @@ function withQuery(path: string, query?: Query): string {
 
 export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const method = opts.method ?? (opts.body === undefined ? "GET" : "POST");
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = { Accept: opts.as === "blob" ? "*/*" : "application/json" };
   const t = token();
   if (t) headers.Authorization = `Bearer ${t}`;
   if (method === "POST") {
@@ -149,5 +151,6 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     throw new ApiError(r.status, err.code ?? "error", err.message ?? r.statusText, err.details, err.correlation_id);
   }
   if (r.status === 204) return undefined as T;
+  if (opts.as === "blob") return (await r.blob()) as T;
   return (await r.json()) as T;
 }

@@ -10,6 +10,7 @@ const PEOPLE = [
   ["Nurse One", "Nurse", "Sign nursing notes"],
   ["Lab Scientist One", "Lab scientist", "Release results"],
   ["Identity Steward One", "Identity steward", "Merge and unmerge patient records"],
+  ["Records Clerk One", "Records clerk", "Receive and file correspondence"],
   ["Privacy Officer One", "Privacy officer", "Review emergency access"],
   ["Scheduler One", "Scheduler", "Book, reschedule and cancel appointments"],
 ];

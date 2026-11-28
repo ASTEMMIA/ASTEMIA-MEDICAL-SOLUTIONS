@@ -68,3 +68,8 @@ export function num(value: string | null | undefined): string {
   if (value === null || value === undefined || value === "") return "";
   return /^-?\d+(\.\d+)?$/.test(value) ? String(Number(value)) : value;
 }
+
+/** "1 record", "3 records". */
+export function count(n: number, one: string, many = `${one}s`): string {
+  return `${n} ${n === 1 ? one : many}`;
+}

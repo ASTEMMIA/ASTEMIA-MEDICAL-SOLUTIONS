@@ -40,6 +40,7 @@ from astemia.application.schemas import (
     AppointmentOut,
     BookAppointment,
     CancelAppointment,
+    ClinicAppointmentOut,
     CreateSlots,
     DecideReferral,
     HoldOut,
@@ -375,6 +376,68 @@ class Scheduling:
             capability="schedule:book",
             action="slot.search",
             resource_type="slot",
+            patient_id=None,
+            reader=read,
+        )
+
+    def clinic_list(
+        self,
+        ctx: RequestContext,
+        *,
+        start: datetime | None,
+        end: datetime | None,
+        facility_id: uuid.UUID | None,
+        practitioner_id: uuid.UUID | None,
+        patient_id: uuid.UUID | None,
+        status: str | None,
+        limit: int,
+    ) -> list[ClinicAppointmentOut]:
+        """Appointments in a period (today by default), in time order, for the
+        people who run clinics: to reschedule, cancel or record attendance."""
+
+        def read(session: Session, decision: Decision) -> list[ClinicAppointmentOut]:
+            tid = ctx.tenant_id
+            lower = start or ctx.now.replace(hour=0, minute=0, second=0, microsecond=0)
+            upper = end or lower + timedelta(days=1)
+            stmt = (
+                select(Appointment, Slot, Patient)
+                .join(
+                    Slot,
+                    (Slot.tenant_id == Appointment.tenant_id) & (Slot.id == Appointment.slot_id),
+                )
+                .join(
+                    Patient,
+                    (Patient.tenant_id == Appointment.tenant_id)
+                    & (Patient.id == Appointment.patient_id),
+                )
+                .where(
+                    Appointment.tenant_id == tid, Slot.starts_at >= lower, Slot.starts_at < upper
+                )
+            )
+            for column, value in (
+                (Slot.facility_id, facility_id),
+                (Slot.practitioner_id, practitioner_id),
+                (Appointment.patient_id, patient_id),
+                (Appointment.status, status),
+            ):
+                if value is not None:
+                    stmt = stmt.where(column == value)
+            rows = session.execute(stmt.order_by(Slot.starts_at, Appointment.id).limit(limit)).all()
+            return [
+                ClinicAppointmentOut(
+                    appointment=appointment_out(a, s),
+                    patient=views.patient(session, p, masks=decision.masks, at=ctx.now),
+                )
+                for a, s, p in rows
+            ]
+
+        return read_path(
+            self.factory,
+            self.policy,
+            ctx,
+            capability="appointment:attend",
+            action="appointment.list",
+            resource_type="appointment",
             patient_id=None,
             reader=read,
         )

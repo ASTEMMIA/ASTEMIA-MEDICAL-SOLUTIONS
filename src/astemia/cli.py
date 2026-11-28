@@ -32,8 +32,9 @@ def seed_dev(
     factory: sessionmaker[Session] | None = None, tenant_id: uuid.UUID = DEV_TENANT
 ) -> dict[str, str]:
     """A synthetic pilot tenant: one hospital, a registrar, two clinicians, a
-    nurse, a laboratory scientist, an identity steward, a privacy officer and a
-    scheduler. Synthetic data only (CEDA 11.2)."""
+    nurse, a laboratory scientist, an identity steward, a records clerk, a privacy
+    officer and a scheduler, and a teaching hospital to refer to. Synthetic data
+    only (CEDA 11.2)."""
     factory = factory or default_session_factory()
     now = datetime.now(UTC)
     ids: dict[str, str] = {"tenant_id": str(tenant_id)}
@@ -56,29 +57,44 @@ def seed_dev(
             s.flush()
             return pid
 
-        org = party("organisation")
-        s.add(
-            Organisation(
-                tenant_id=tenant_id,
-                id=org,
-                recorded_at=now,
-                organisation_code="PILOT01",
-                organisation_name="ASTEMIA Pilot Hospital",
-                organisation_type="hospital",
+        def organisation(
+            code: str, name: str, kind: str, site_code: str
+        ) -> tuple[uuid.UUID, uuid.UUID]:
+            org = party("organisation")
+            s.add(
+                Organisation(
+                    tenant_id=tenant_id,
+                    id=org,
+                    recorded_at=now,
+                    organisation_code=code,
+                    organisation_name=name,
+                    organisation_type=kind,
+                )
             )
-        )
-        site = uuid.uuid7()
-        s.flush()
-        s.add(
-            OrganisationSite(
-                tenant_id=tenant_id,
-                id=site,
-                recorded_at=now,
-                organisation_id=org,
-                site_identifier="PILOT01-MAIN",
-                site_name="Main site",
+            site = uuid.uuid7()
+            s.flush()
+            s.add(
+                OrganisationSite(
+                    tenant_id=tenant_id,
+                    id=site,
+                    recorded_at=now,
+                    organisation_id=org,
+                    site_identifier=site_code,
+                    site_name="Main site",
+                )
             )
+            return org, site
+
+        org, site = organisation(
+            "PILOT01", "ASTEMIA Pilot Hospital", "general_hospital", "PILOT01-MAIN"
         )
+        _, teaching = organisation(
+            "TEACH01",
+            "ASTEMIA Teaching Hospital (synthetic)",
+            "teaching_hospital",
+            "TEACH01-MAIN",
+        )
+        ids["teaching_facility_id"] = str(teaching)
         ids["organisation_id"], ids["facility_id"] = str(org), str(site)
         people = {
             "registrar": ("Registrar One", ["registrar"]),
@@ -87,6 +103,7 @@ def seed_dev(
             "nurse": ("Nurse One", ["nurse"]),
             "scientist": ("Lab Scientist One", ["lab_scientist"]),
             "steward": ("Identity Steward One", ["identity_steward"]),
+            "clerk": ("Records Clerk One", ["records_clerk"]),
             "privacy": ("Privacy Officer One", ["privacy_officer"]),
             "scheduler": ("Scheduler One", ["scheduler"]),
         }

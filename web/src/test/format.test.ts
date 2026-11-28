@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { date, dateTime, nin, num, patientName, roleName } from "../format";
+import { count, date, dateTime, nin, num, patientName, roleName } from "../format";
 
 describe("format", () => {
   it("shows times with their time zone and dates as written", () => {
@@ -16,5 +16,8 @@ describe("format", () => {
     expect(patientName({ family_name: "Okonkwo", given_names: "Chiamaka Ada" })).toBe("OKONKWO, Chiamaka Ada");
     expect(nin([{ issuer: "X", value: "1" }, { issuer: "NG-NIN", value: "405•••••678" }])).toBe("405•••••678");
     expect(nin(undefined)).toBe("—");
+  });
+  it("counts in words", () => {
+    expect([count(1, "record"), count(3, "record"), count(0, "entry", "entries")]).toEqual(["1 record", "3 records", "0 entries"]);
   });
 });

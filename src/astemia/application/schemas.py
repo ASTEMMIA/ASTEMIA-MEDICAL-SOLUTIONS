@@ -625,6 +625,13 @@ class AppointmentOut(BaseModel):
     encounter_id: uuid.UUID | None
 
 
+class ClinicAppointmentOut(BaseModel):
+    """An appointment on a clinic list, with the patient it is for."""
+
+    appointment: AppointmentOut
+    patient: PatientOut
+
+
 class SubmitReferral(Strict):
     patient_id: uuid.UUID
     referring_facility_id: uuid.UUID
