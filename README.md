@@ -65,6 +65,11 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `GET /v1/referrals/{id}/records` | The historical records that came with a referral, for the receiving triage team and the referrer, masked and audited |
   | `GET /v1/referrals` | Triage worklist by `status` and `receiving_service`, urgent first (scheduler) |
   | `POST /v1/referrals/{id}/decision` | Accept, or reject with a reason. Needs `If-Match` |
+  | `POST /v1/encounters/{id}/entries` | Draft a clinical note on an encounter |
+  | `GET /v1/entries/{id}` | A note with its signed revisions (and your own draft) |
+  | `POST /v1/entries/{id}/draft` | Edit your draft. Needs `If-Match` |
+  | `POST /v1/entries/{id}/sign` | Sign your draft; it can never change after this. Needs `If-Match` |
+  | `POST /v1/entries/{id}/amendments` | Start a correction: a new revision that references the signed one. Needs `If-Match` |
   | `POST /v1/restrictive-interventions` | Log a restraint, seclusion or rapid tranquillisation (care team) |
   | `POST /v1/restrictive-interventions/{id}/end` | Record the end time, debrief and any injury, once. Needs `If-Match` |
   | `GET /v1/restrictive-interventions` | Review queue, oldest deadline first; `reviewed=true` for the history (safeguarding lead) |

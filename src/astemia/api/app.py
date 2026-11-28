@@ -23,6 +23,7 @@ from astemia.application.context import RequestContext
 from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
 from astemia.application.identity_review import IdentityReview
+from astemia.application.notes import Notes
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
 from astemia.application.queries import Queries
@@ -33,6 +34,7 @@ from astemia.application.schemas import (
     Acknowledge,
     ActivateService,
     AdmitEncounter,
+    AmendEntry,
     AppointAdvocate,
     BookAppointment,
     CancelAppointment,
@@ -41,11 +43,13 @@ from astemia.application.schemas import (
     CloseConcern,
     ClosePatient,
     ConcernOut,
+    CreateEntry,
     CreateSlots,
     DecideReferral,
     DuplicateGroup,
     EmergencyGrantOut,
     EndIntervention,
+    EntryOut,
     InterventionOut,
     LegalStatusOut,
     MatchOut,
@@ -73,6 +77,7 @@ from astemia.application.schemas import (
     SlotOut,
     SubmitReferral,
     UnmergePatient,
+    UpdateDraft,
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
@@ -98,6 +103,7 @@ def create_app(
     emergency = EmergencyAccess(write_path, factory, policy)
     scheduling = Scheduling(write_path, factory, policy)
     safeguards = Safeguards(write_path, factory, policy)
+    notes = Notes(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -308,6 +314,56 @@ def create_app(
         if_match: Annotated[str | None, Header(alias="If-Match")] = None,
     ) -> dict[str, Any]:
         result = scheduling.decide(ctx, key, referral_id, version_of(if_match), body)
+        return respond(result, response)
+
+    # --- clinical notes (SA-07; UG02, WF01 step 3) ----------------------------
+
+    @app.post("/v1/encounters/{encounter_id}/entries", status_code=201)
+    def create_entry(
+        encounter_id: uuid.UUID,
+        body: CreateEntry,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+    ) -> dict[str, Any]:
+        return respond(notes.create(ctx, key, encounter_id, body), response)
+
+    @app.get("/v1/entries/{entry_id}", response_model=EntryOut)
+    def read_entry(entry_id: uuid.UUID, ctx: Ctx) -> EntryOut:
+        return notes.get(ctx, entry_id)
+
+    @app.post("/v1/entries/{entry_id}/draft")
+    def edit_draft(
+        entry_id: uuid.UUID,
+        body: UpdateDraft,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = notes.update_draft(ctx, key, entry_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/entries/{entry_id}/sign")
+    def sign_entry(
+        entry_id: uuid.UUID,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(notes.sign(ctx, key, entry_id, version_of(if_match)), response)
+
+    @app.post("/v1/entries/{entry_id}/amendments")
+    def amend_entry(
+        entry_id: uuid.UUID,
+        body: AmendEntry,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = notes.amend(ctx, key, entry_id, version_of(if_match), body)
         return respond(result, response)
 
     # --- mental health safeguards (HS13, B11; ICRS 5.5.9) ----------------------

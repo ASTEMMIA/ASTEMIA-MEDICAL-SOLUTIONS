@@ -19,6 +19,7 @@ from sqlalchemy import (
     MetaData,
     Numeric,
     String,
+    Text,
     UniqueConstraint,
     text,
 )
@@ -968,6 +969,51 @@ class SafeguardingConcern(Envelope, Base):
     closed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     closed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
     outcome_note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ClinicalEntry(Envelope, Base):
+    """CEDA SA-07 ClinicalEntry: a clinical note on an encounter, made of
+    revisions. Linked to patient, encounter, author and amendment history."""
+
+    __tablename__ = "clinical_entry"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        Index(None, "tenant_id", "patient_id", "recorded_at"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    encounter_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    note_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str | None] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+
+
+class EntryRevision(Envelope, Base):
+    """CEDA SA-07 EntryRevision. A signed revision is immutable; a correction
+    is a new revision that supersedes it. draft_marker is 1 on the one draft an
+    entry may have at a time."""
+
+    __tablename__ = "entry_revision"
+    __table_args__ = (
+        fk(["tenant_id", "entry_id"], "clinical_entry"),
+        fk(["tenant_id", "signed_by_id"], "practitioner"),
+        fk(["tenant_id", "supersedes_id"], "entry_revision"),
+        UniqueConstraint("tenant_id", "entry_id", "revision_number"),
+        UniqueConstraint("tenant_id", "entry_id", "draft_marker"),
+        TABLE_OPTS,
+    )
+
+    entry_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    amendment_reason: Mapped[str | None] = mapped_column(String(500))
+    signed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    signed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    draft_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
 
 
 class DemographicTransaction(Base):

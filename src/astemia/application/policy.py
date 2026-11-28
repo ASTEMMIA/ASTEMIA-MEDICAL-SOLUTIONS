@@ -63,6 +63,10 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "safeguarding:view",
             "mh_legal:manage",
             "concern:raise",
+            # Clinical notes (UG02): draft, sign any note type, amend.
+            "note:write",
+            "note:sign",
+            "note:sign_nursing",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -76,6 +80,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "safeguarding:record",
             "safeguarding:view",
             "concern:raise",
+            # Nurses draft any note but sign only nursing notes (ST04).
+            "note:write",
+            "note:sign_nursing",
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
@@ -105,6 +112,9 @@ RELATIONSHIP_BOUND = frozenset(
         "safeguarding:view",
         "mh_legal:manage",
         "access_report:read",
+        "note:write",
+        "note:sign",
+        "note:sign_nursing",
     }
 )
 
