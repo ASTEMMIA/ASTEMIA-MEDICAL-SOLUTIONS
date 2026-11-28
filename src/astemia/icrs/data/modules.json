@@ -539,6 +539,17 @@
   "3.2.19": "tests/e2e/test_patient_index.py::test_close_for_death_and_for_moving_away",
   "3.2.20": "tests/e2e/test_patient_index.py::test_batch_closure_reports_each_item",
   "3.2.33": "tests/e2e/test_patient_index.py::test_unmerge_restores_both_records",
-  "3.2.34": "tests/e2e/test_patient_index.py::test_search_by_nin_and_by_name"
+  "3.2.34": "tests/e2e/test_patient_index.py::test_search_by_nin_and_by_name",
+  "3.5.5": "tests/e2e/test_api03_vertical_slice.py::test_vertical_slice",
+  "3.5.21": "tests/e2e/test_api03_vertical_slice.py::test_amended_result_reopens_exactly_one_review",
+  "4.5.11": "tests/e2e/test_security_and_errors.py::test_lapsed_or_inactive_membership_is_rejected",
+  "4.5.14": "tests/e2e/test_api03_vertical_slice.py::test_nurse_reads_through_workgroup_with_identifiers_masked",
+  "4.5.15": "tests/e2e/test_api03_vertical_slice.py::test_access_is_concealed_and_denials_are_audited",
+  "4.5.19": "tests/e2e/test_staff_session.py::test_me_names_the_person_their_tenant_and_what_they_may_do",
+  "4.5.38": "tests/e2e/test_api03_vertical_slice.py::test_stale_or_missing_version_on_acknowledge",
+  "4.5.40": "tests/e2e/test_safeguards.py::test_access_report_shows_who_touched_the_record",
+  "5.4.69": "tests/e2e/test_security_and_errors.py::test_ae_detail_is_returned_with_the_encounter",
+  "5.5.7": "tests/e2e/test_security_and_errors.py::test_sensitive_records_are_withheld_without_a_grant",
+  "5.5.9": "tests/e2e/test_safeguards.py::test_legal_status_has_history_expiry_and_shows_on_the_chart"
  }
 }

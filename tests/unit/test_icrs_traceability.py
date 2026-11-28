@@ -60,8 +60,11 @@ def test_summary_counts_add_up() -> None:
     rows = icrs.module_summary()
     assert sum(r["requirements"] for r in rows) == 971
     assert sum(r["delivered"] for r in rows) == len(PLAN["delivered"])
-    patient_index = next(r for r in rows if r["code"] == "102")
-    assert patient_index["delivered"] == len(PLAN["delivered"])
+    # Each delivered requirement is counted once, under the module or area that owns it.
+    owners = {a.requirement_id: a.owner for a in icrs.assign(icrs.requirements(), PLAN)}
+    for row in rows:
+        assert row["delivered"] == sum(1 for rid in PLAN["delivered"] if owners[rid] == row["code"])
+    assert next(r for r in rows if r["code"] == "102")["delivered"] == 9
 
 
 def test_generated_page_is_current() -> None:
