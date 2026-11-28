@@ -5,6 +5,7 @@ import { useSession } from "../session";
 /** Capabilities in words, so people know what their role lets them do. */
 export const CAPABILITY_NAMES: Record<string, string> = {
   "patient:register": "Register patients",
+  "address:read": "See patients' addresses",
   "patient:search": "Search the patient index",
   "patient:merge": "Merge and unmerge patient records",
   "patient:close": "Close patient records",

@@ -16,6 +16,7 @@ import { useDirectory } from "../directory";
 import { date, dateTime, localToIso, nin, nowLocal, num, patientName, words } from "../format";
 import { useAction, useLoad } from "../hooks";
 import { LAB_TESTS, LOINC } from "../lab";
+import { addressLine } from "../places";
 import { useSession } from "../session";
 
 type Registered = PatientOut & { possible_duplicates?: string[]; identity_review_tasks?: string[] };
@@ -39,7 +40,7 @@ export function Chart() {
   const c = chart.data;
   return (
     <Page title={patientName(c.patient)}>
-      <PatientSummary patient={c.patient} />
+      <PatientSummary patient={c.patient} masked={c.masked_fields.includes("address")} />
       {registered && <RegisteredNotice r={registered} />}
       <Banners chart={c} />
       <Visits chart={c} patientId={id} onChange={chart.reload} />
@@ -54,7 +55,7 @@ export function Chart() {
   );
 }
 
-function PatientSummary({ patient }: { patient: PatientOut }) {
+function PatientSummary({ patient, masked = false }: { patient: PatientOut; masked?: boolean }) {
   return (
     <dl className="facts patient-summary">
       <dt>Born</dt>
@@ -66,6 +67,8 @@ function PatientSummary({ patient }: { patient: PatientOut }) {
       <dd>{words(patient.administrative_sex)}</dd>
       <dt>NIN</dt>
       <dd className="mono">{nin(patient.identifiers)}</dd>
+      <dt>Address</dt>
+      <dd>{patient.address ? addressLine(patient.address) : masked ? "Not shown to your role" : "Not recorded"}</dd>
       <dt>Record</dt>
       <dd>{patient.status === "active" ? <Tag tone="good">Active</Tag> : <Tag tone="warn">{words(patient.status)}</Tag>}</dd>
     </dl>

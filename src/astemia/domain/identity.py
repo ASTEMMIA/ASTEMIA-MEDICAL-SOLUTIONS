@@ -93,6 +93,49 @@ def validate_identifier(issuer: str, value: str) -> str:
     return normalised
 
 
+# Postcode formats by country (ISO 3166-1 alpha-2). Nigeria uses six-digit
+# NIPOST codes; UK codes keep their outward and inward parts.
+POSTCODE_FORMATS = {
+    "NG": re.compile(r"^\d{6}$"),
+    "GB": re.compile(r"^[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}$"),
+}
+OTHER_POSTCODE = re.compile(r"^[A-Z0-9][A-Z0-9 -]{1,10}[A-Z0-9]$")
+
+
+def normalise_postcode(country: str, postcode: str) -> str:
+    """The postcode as it is filed: upper case, single spaces, a UK code split
+    into its two parts. Refused when it does not fit the country's format."""
+    value = " ".join(postcode.upper().split())
+    if country == "GB" and " " not in value and len(value) >= 5:
+        value = f"{value[:-3]} {value[-3:]}"
+    pattern = POSTCODE_FORMATS.get(country, OTHER_POSTCODE)
+    if not pattern.match(value):
+        raise InvariantViolation(
+            f"postcode is not valid for country {country}", code="bad_postcode"
+        )
+    return value
+
+
+def check_address(
+    *, temporary: bool, has_address: bool, country: str | None, state: str | None, lga: str | None
+) -> None:
+    """Every patient is registered with a full address and postcode. Only an
+    unidentified (temporary) registration, such as an unconscious patient, may
+    wait for it. A Nigerian address names its state and local government area."""
+    if not has_address:
+        if temporary:
+            return
+        raise InvariantViolation(
+            "a full address with postcode is required to register a patient",
+            code="address_required",
+        )
+    if country == "NG" and not (state and lga):
+        raise InvariantViolation(
+            "a Nigerian address needs its state and local government area",
+            code="address_incomplete",
+        )
+
+
 def validate_birth_date(birth_date: date, precision: EffectivePrecision, today: date) -> None:
     if birth_date > today:
         raise InvariantViolation("date of birth is in the future", code="bad_birth_date")

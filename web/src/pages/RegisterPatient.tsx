@@ -4,6 +4,7 @@ import { api } from "../api";
 import type { AdministrativeSex, CandidateOut, MatchOut, PatientOut, RegisterPatient as Body } from "../api-types";
 import { Button, Field, Notice, Page, Select } from "../components/ui";
 import { words } from "../format";
+import { COUNTRIES, NG_STATES, postcodeProblem } from "../places";
 import { useAction } from "../hooks";
 
 type Registered = PatientOut & { possible_duplicates: string[]; identity_review_tasks: string[] };
@@ -22,7 +23,7 @@ const SEXES: [AdministrativeSex, string][] = [
  */
 export function RegisterPatient() {
   const navigate = useNavigate();
-  const [f, setF] = useState({ family_name: "", given_names: "", birth_date: "", administrative_sex: "" as AdministrativeSex | "", mother_name: "", nin: "" });
+  const [f, setF] = useState({ family_name: "", given_names: "", birth_date: "", administrative_sex: "" as AdministrativeSex | "", mother_name: "", nin: "", line1: "", line2: "", town: "", lga: "", state: "", postcode: "", country: "NG" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [matches, setMatches] = useState<CandidateOut[] | null>(null);
   const [checked, setChecked] = useState("");
@@ -34,10 +35,20 @@ export function RegisterPatient() {
     administrative_sex: f.administrative_sex as AdministrativeSex,
     mother_name: f.mother_name.trim() || null,
     identifiers: f.nin.trim() ? [{ issuer: "NG-NIN", value: f.nin.trim() }] : [],
+    address: {
+      line1: f.line1.trim(),
+      line2: f.line2.trim() || null,
+      town: f.town.trim(),
+      local_government_area: f.lga.trim() || null,
+      state: f.state.trim() || null,
+      postcode: f.postcode.trim(),
+      country: f.country,
+    },
   });
 
   const check = useAction(
     useCallback(async (_key: string, b: Body) => {
+      // The index is searched on identity only; the address is filed at registration.
       const { identifiers, family_name, given_names, birth_date, administrative_sex, mother_name } = b;
       return api<MatchOut>("/v1/patient-index/match", { body: { family_name, given_names, birth_date, administrative_sex, mother_name, identifiers } });
     }, []),
@@ -51,6 +62,12 @@ export function RegisterPatient() {
     if (!f.birth_date) e.birth_date = "Enter the date of birth.";
     if (!f.administrative_sex) e.administrative_sex = "Choose the sex recorded.";
     if (f.nin.trim() && !/^\d{11}$/.test(f.nin.trim())) e.nin = "A NIN is 11 digits.";
+    if (!f.line1.trim()) e.line1 = "Enter the house number and street.";
+    if (!f.town.trim()) e.town = "Enter the town or city.";
+    if (f.country === "NG" && !f.state) e.state = "Choose the state.";
+    if (f.country === "NG" && !f.lga.trim()) e.lga = "Enter the local government area.";
+    const pc = postcodeProblem(f.country, f.postcode);
+    if (pc) e.postcode = pc;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -105,6 +122,32 @@ export function RegisterPatient() {
         </div>
         <Field label="Mother's name" hint="Optional. Helps tell people apart." autoComplete="off" value={f.mother_name} onChange={set("mother_name")} />
         <Field label="NIN" hint="Optional. 11 digits." inputMode="numeric" autoComplete="off" value={f.nin} onChange={set("nin")} error={errors.nin} />
+        <fieldset className="address">
+          <legend>Home address</legend>
+          <p className="hint">Required for every patient: the full address and postcode.</p>
+          <Select label="Country" options={COUNTRIES} value={f.country} onChange={set("country")} />
+          <Field label="House number and street" autoComplete="off" value={f.line1} onChange={set("line1")} error={errors.line1} />
+          <Field label="Area or estate" hint="Optional" autoComplete="off" value={f.line2} onChange={set("line2")} />
+          <div className="row">
+            <Field label="Town or city" autoComplete="off" value={f.town} onChange={set("town")} error={errors.town} />
+            {f.country === "NG" ? (
+              <Select label="State" placeholder="Choose" options={NG_STATES.map((n) => [n, n])} value={f.state} onChange={set("state")} error={errors.state} />
+            ) : (
+              <Field label="State, county or region" hint="Optional" autoComplete="off" value={f.state} onChange={set("state")} />
+            )}
+          </div>
+          <div className="row">
+            <Field
+              label="Local government area"
+              hint={f.country === "NG" ? undefined : "Optional"}
+              autoComplete="off"
+              value={f.lga}
+              onChange={set("lga")}
+              error={errors.lga}
+            />
+            <Field label="Postcode" hint={f.country === "NG" ? "6 digits" : undefined} autoComplete="off" value={f.postcode} onChange={set("postcode")} error={errors.postcode} />
+          </div>
+        </fieldset>
 
         {matches && (
           <div className="matches">

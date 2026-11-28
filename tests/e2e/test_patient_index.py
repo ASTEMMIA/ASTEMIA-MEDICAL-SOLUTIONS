@@ -16,6 +16,7 @@ from astemia.adapters.db.models import (
 )
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit
+from tests.fixtures.synthetic import ADDRESS
 
 TODAY = datetime.now(UTC).date()
 
@@ -38,6 +39,7 @@ def person(
             "birth_date": born,
             "administrative_sex": sex,
             "identifiers": identifiers,
+            "address": ADDRESS,
         },
     )
     assert r.status_code == 201, r.text

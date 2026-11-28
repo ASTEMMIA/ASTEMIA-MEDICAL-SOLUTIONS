@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from astemia.adapters.db.models import DocumentObject
 from tests.conftest import Api
 from tests.e2e.test_api03_vertical_slice import admit, register
+from tests.fixtures.synthetic import ADDRESS
 
 LETTER = b"%PDF-1.7\n1 0 obj << /Type /Catalog >> endobj\n% Clinic letter\n%%EOF"
 HINT = {
@@ -192,6 +193,7 @@ def test_a_misfiled_letter_is_reindexed_and_keeps_its_digest(api: Api) -> None:
             "given_names": "Chidi",
             "administrative_sex": "male",
             "birth_date": "1970-01-01",
+            "address": ADDRESS,
         },
     ).json()["id"]
     enc = admit(api, right)

@@ -50,6 +50,26 @@ class IdentifierIn(Strict):
     verified: bool = False
 
 
+AddressLine = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+
+
+class AddressIn(Strict):
+    """A full postal address (ERD ADDRESS). Lines 1 and town are required; a
+    Nigerian address also needs its state and local government area."""
+
+    line1: AddressLine = Field(description="House number or name and street.")
+    line2: AddressLine | None = Field(default=None, description="Area or estate.")
+    town: AddressLine = Field(description="Town or city.")
+    local_government_area: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)] | None
+    ) = None
+    state: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)] | None
+    ) = None
+    postcode: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=16)]
+    country: str = Field(default="NG", pattern="^[A-Z]{2}$", description="ISO 3166-1 alpha-2.")
+
+
 class RegisterPatient(Strict):
     title: str | None = Field(default=None, max_length=32)
     family_name: Name
@@ -65,6 +85,11 @@ class RegisterPatient(Strict):
     administrative_sex: AdministrativeSex
     temporary: bool = False
     identifiers: list[IdentifierIn] = Field(default_factory=list, max_length=10)
+    address: AddressIn | None = Field(
+        default=None,
+        description="Required: full address with postcode. Only a temporary "
+        "(unidentified) registration may leave it out.",
+    )
 
 
 class AeAttendanceIn(Strict):
@@ -190,6 +215,16 @@ class NameOut(BaseModel):
     suffix: str | None = None
 
 
+class AddressOut(BaseModel):
+    line1: str
+    line2: str | None
+    town: str
+    local_government_area: str | None
+    state: str | None
+    postcode: str | None
+    country: str
+
+
 class PatientOut(Resource):
     family_name: str
     given_names: str
@@ -201,6 +236,11 @@ class PatientOut(Resource):
     identifiers: list[IdentifierOut] = []
     date_of_exit: date | None = None
     merged_into: uuid.UUID | None = None
+    address: AddressOut | None = Field(
+        default=None,
+        description="Current home address; null when none is recorded or the "
+        "reader's role may not see it (then 'address' is in masked_fields).",
+    )
 
 
 class AeAttendanceOut(BaseModel):

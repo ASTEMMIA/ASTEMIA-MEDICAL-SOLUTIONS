@@ -167,3 +167,16 @@ def make_tenant(factory: sessionmaker[Session]) -> SyntheticTenant:
             )
         )
     return SyntheticTenant(tid, org, site, site2, practitioners, wg)
+
+
+# A synthetic Nigerian address: every registration carries a full address and
+# postcode (CEDA revision 1.8).
+ADDRESS = {
+    "line1": "12 Adeola Odeku Street",
+    "line2": "Victoria Island",
+    "town": "Lagos",
+    "local_government_area": "Eti-Osa",
+    "state": "Lagos",
+    "postcode": "101241",
+    "country": "NG",
+}
