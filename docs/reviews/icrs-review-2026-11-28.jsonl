@@ -1,0 +1,486 @@
+{"id": "3.2.1", "status": "partial", "test": null, "note": "Overview; index built, no local database synchronisation"}
+{"id": "3.2.2", "status": "partial", "test": null, "note": "NIN is prime identifier; no tracing-service validation"}
+{"id": "3.2.3", "status": "partial", "test": null, "note": "Search by NIN/name only; no departmental identifier retrieval"}
+{"id": "3.2.4", "status": "partial", "test": null, "note": "Context only; demographic recording exists"}
+{"id": "3.2.5", "status": "not_built", "test": null, "note": "No postcode-to-address lookup"}
+{"id": "3.2.6", "status": "partial", "test": null, "note": "Temporary/unidentified registration only; no fast-track, special or unregistered-GP records"}
+{"id": "3.2.7", "status": "partial", "test": null, "note": "Registrar creation only; not from inquiries or electronic referral messages"}
+{"id": "3.2.9", "status": "not_built", "test": null, "note": "No letters or user-definable communications"}
+{"id": "3.2.10", "status": "not_built", "test": null, "note": "No letter production reflecting special needs"}
+{"id": "3.2.11", "status": "partial", "test": null, "note": "Merge and duplicates built; general amendment/deletion with history missing"}
+{"id": "3.2.13", "status": "partial", "test": null, "note": "Validated on registration and address change; other amendments unsupported"}
+{"id": "3.2.14", "status": "not_built", "test": null, "note": "Relationship table unused; no service-user relationships API"}
+{"id": "3.2.15", "status": "partial", "test": null, "note": "Identity review of near matches; no general verification of entries"}
+{"id": "3.2.16", "status": "partial", "test": null, "note": "Address change by registrar/steward only; not care professionals or other amendments"}
+{"id": "3.2.17", "status": "not_built", "test": null, "note": "No automatic amendments from external notifications"}
+{"id": "3.2.21", "status": "not_built", "test": null, "note": "Death closure does not close activity or produce notification report"}
+{"id": "3.2.22", "status": "not_built", "test": null, "note": "No tracing service interface"}
+{"id": "3.2.23", "status": "not_built", "test": null, "note": "No external index interfaces"}
+{"id": "3.2.24", "status": "not_built", "test": null, "note": "No electronic transfer to other practitioners"}
+{"id": "3.2.25", "status": "not_built", "test": null, "note": "No practice registration transfer or registration history"}
+{"id": "3.2.26", "status": "not_built", "test": null, "note": "No inbound change acceptance workflow"}
+{"id": "3.2.27", "status": "partial", "test": null, "note": "Single in-system patient table; no mechanism across supplier systems"}
+{"id": "3.2.28", "status": "partial", "test": null, "note": "In-system updates only; no capture from other systems"}
+{"id": "3.2.29", "status": "partial", "test": null, "note": "REST/OpenAPI index search; no standard (HL7/FHIR) open interface"}
+{"id": "3.2.30", "status": "partial", "test": null, "note": "Multi-tenant, multi-facility; no shared services across trusts"}
+{"id": "3.2.31", "status": "partial", "test": null, "note": "Role-based masking; no configurable data items or flexible search"}
+{"id": "3.2.32", "status": "partial", "test": null, "note": "Conditions recorded; no allergy recording, flagging or alerts"}
+{"id": "3.2.35", "status": "not_built", "test": null, "note": "No address gazetteer"}
+{"id": "3.2.36", "status": "partial", "test": null, "note": "Patient addresses maintained; no organisation or gazetteer addresses"}
+{"id": "3.2.37", "status": "not_built", "test": null, "note": "No gazetteer standard used"}
+{"id": "3.2.38", "status": "partial", "test": null, "note": "Patient address with postcode and change; no gazetteer or batch maintenance"}
+{"id": "3.2.39", "status": "not_built", "test": null, "note": "No address references or grid references"}
+{"id": "3.2.40", "status": "not_built", "test": null, "note": "No gazetteer maintenance or search"}
+{"id": "3.2.41", "status": "not_built", "test": null, "note": "No gazetteer additions or closures"}
+{"id": "3.2.42", "status": "partial", "test": null, "note": "Patient address history dated; no gazetteer address dates"}
+{"id": "3.2.43", "status": "not_built", "test": null, "note": "No batch address updates"}
+{"id": "3.2.44", "status": "partial", "test": null, "note": "Fixed lists only (coded tests, pathways, registers); no maintained term lists."}
+{"id": "3.2.45", "status": "partial", "test": null, "note": "Codes stored with code system; no terminology consistency or common thesaurus."}
+{"id": "3.2.46", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "3.2.47", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.2.48", "status": "partial", "test": null, "note": "Only service catalogue provision/activate/retire; no generic term maintenance."}
+{"id": "3.2.49", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.2.50", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.2.51", "status": "partial", "test": null, "note": "Directory crosswalk to services only; no external exchange mapping tables."}
+{"id": "3.3.1", "status": "partial", "test": null, "note": "cross-facility referrals exist; no shared multi-organisation care delivery"}
+{"id": "3.3.2", "status": "not_built", "test": null, "note": "descriptive context paragraph"}
+{"id": "3.3.3", "status": "partial", "test": null, "note": "fixed pathway enum; no editable local care plan/pathway templates"}
+{"id": "3.3.4", "status": "partial", "test": null, "note": "patient care plans exist; no complex multi-element programmes of care"}
+{"id": "3.3.5", "status": "partial", "test": null, "note": "simple session plans only; no multidisciplinary ICPs"}
+{"id": "3.3.6", "status": "not_built", "test": null, "note": "no Units of Care with rules and expected outcomes"}
+{"id": "3.3.7", "status": "not_built", "test": null, "note": "no defined data-collection points within plans/pathways"}
+{"id": "3.3.8", "status": "partial", "test": null, "note": "plans uniquely identified/amended; no ICP design, import, simulation, frameworks"}
+{"id": "3.3.9", "status": "partial", "test": null, "note": "care plans and single orders only; no ICPs, UoC, order sets, printing"}
+{"id": "3.3.10", "status": "not_built", "test": null, "note": "no simulation of care programmes"}
+{"id": "3.3.11", "status": "partial", "test": null, "note": "single-owner plans; no CPA multidisciplinary care planning"}
+{"id": "3.3.12", "status": "partial", "test": null, "note": "Context; care plans with review dates built"}
+{"id": "3.3.13", "status": "partial", "test": null, "note": "Fixed pathways; no customisable templates or workflow diaries"}
+{"id": "3.3.14", "status": "partial", "test": null, "note": "Orders, conditions, care plans; no risk recording"}
+{"id": "3.3.15", "status": "not_built", "test": null, "note": "No central configurable data requirements"}
+{"id": "3.3.17", "status": "partial", "test": null, "note": "revisions tailor plans; no personalised or merged pathways, extra UoC"}
+{"id": "3.3.18", "status": "partial", "test": null, "note": "plans with frequency and delivery; no objectives, commissioning, contingency plans"}
+{"id": "3.3.19", "status": "partial", "test": null, "note": "sessions completed/held/cancelled; no explicit planned-vs-actual variance recording"}
+{"id": "3.3.20", "status": "partial", "test": null, "note": "session outcome notes; no pathway outcomes or progress summary view"}
+{"id": "3.3.21", "status": "partial", "test": null, "note": "discharge summary exists; no multi-discipline letters or primary care filters"}
+{"id": "3.3.22", "status": "partial", "test": null, "note": "deceased admission refused; no closing open activity or department notifications"}
+{"id": "3.3.23", "status": "not_built", "test": null, "note": "no care frameworks generating orders automatically"}
+{"id": "3.3.24", "status": "not_built", "test": null, "note": "no expected outcomes/goals (HS10 not built)"}
+{"id": "3.3.25", "status": "not_built", "test": null, "note": "no variance monitoring or evaluation"}
+{"id": "3.3.26", "status": "partial", "test": null, "note": "notes, orders, results stored; no framework-driven data collection or datasets"}
+{"id": "3.3.27", "status": "not_built", "test": null, "note": "no query facility over care framework data"}
+{"id": "3.3.28", "status": "not_built", "test": null, "note": "prescribing and administration not built"}
+{"id": "3.3.29", "status": "not_built", "test": null, "note": "no clinical rules engine"}
+{"id": "3.3.30", "status": "partial", "test": null, "note": "ordering and result review exist; no filters for orders/results"}
+{"id": "3.3.31", "status": "partial", "test": null, "note": "manual result entry only; no direct electronic interface (HL7/FHIR)"}
+{"id": "3.3.32", "status": "not_built", "test": null, "note": "no word-processing integration"}
+{"id": "3.3.33", "status": "partial", "test": null, "note": "in-app Daybook tasks only; no paper, email or voice messages"}
+{"id": "3.3.34", "status": "not_built", "test": null, "note": "no ordering or results review from ICP/plan"}
+{"id": "3.3.35", "status": "partial", "test": null, "note": "notes and restrictive interventions; no structured assessments/observations/events"}
+{"id": "3.3.36", "status": "not_built", "test": null, "note": "no resource usage alerts"}
+{"id": "3.3.37", "status": "partial", "test": null, "note": "plans readable by care-relationship staff; no explicit sharing across organisations"}
+{"id": "3.3.38", "status": "not_built", "test": null, "note": "no versioned assessments or problem-highlighting summary"}
+{"id": "3.3.39", "status": "partial", "test": null, "note": "plan review date only; no review alerts, triggers or reassessment"}
+{"id": "3.4.45", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "3.4.46", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "3.4.47", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "3.4.48", "status": "partial", "test": null, "note": "Slots cover clinician, service, site only; no rooms, equipment or other resources"}
+{"id": "3.4.49", "status": "partial", "test": null, "note": "Referral and care-plan lifecycles tracked; no general pathway workflow against standards"}
+{"id": "3.4.50", "status": "partial", "test": null, "note": "No resource catalogue or profiles; only clinician/site slots, no rule base"}
+{"id": "3.4.51", "status": "partial", "test": null, "note": "Discharge/document tasks auto-created; no waiting-list triggers or auto letters"}
+{"id": "3.4.52", "status": "partial", "test": null, "note": "Care-plan session clashes held with owner task; no override-with-reason recording"}
+{"id": "3.4.53", "status": "not_built", "test": null, "note": "No patient/GP/hospital communications generated; outbox events only"}
+{"id": "3.5.1", "status": "partial", "test": null, "note": "lab orders with manual results; no vital signs or care-programme interventions as orders"}
+{"id": "3.5.2", "status": "not_built", "test": null, "note": "no integration with external Pathology/Radiology systems"}
+{"id": "3.5.3", "status": "partial", "test": null, "note": "clinical lab orders and results only; no non-clinical services"}
+{"id": "3.5.4", "status": "partial", "test": null, "note": "patient lab/clinical orders only; no non-clinical or supply orders"}
+{"id": "3.5.5", "status": "delivered", "test": "tests/e2e/test_api03_vertical_slice.py::test_vertical_slice", "note": "clinician places a simple coded order via POST /v1/orders"}
+{"id": "3.5.6", "status": "partial", "test": null, "note": "single test orders only; no drug orders or multi-order submission"}
+{"id": "3.5.7", "status": "not_built", "test": null, "note": "no free-text order entry or parser"}
+{"id": "3.5.8", "status": "not_built", "test": null, "note": "no order sets"}
+{"id": "3.5.9", "status": "not_built", "test": null, "note": "no requestor decision support, suggestions or prompts"}
+{"id": "3.5.10", "status": "partial", "test": null, "note": "H/L/N flags only; no severity grading or conflict-with-previous warnings"}
+{"id": "3.5.11", "status": "not_built", "test": null, "note": "no order prompts or additional-order suggestions"}
+{"id": "3.5.12", "status": "not_built", "test": null, "note": "no rule sets or Arden Syntax support"}
+{"id": "3.5.13", "status": "not_built", "test": null, "note": "no automatic pathway-driven ordering"}
+{"id": "3.5.14", "status": "partial", "test": null, "note": "order must match patient encounter; no specimen labelling cross-check"}
+{"id": "3.5.15", "status": "not_built", "test": null, "note": "no senior validation/confirmation of orders"}
+{"id": "3.5.16", "status": "partial", "test": null, "note": "lab worklist and manual results; no repeat orders, alerts, cumulative reports"}
+{"id": "3.5.17", "status": "not_built", "test": null, "note": "no external agency access"}
+{"id": "3.5.18", "status": "not_built", "test": null, "note": "orders not linked to resource scheduling"}
+{"id": "3.5.19", "status": "partial", "test": null, "note": "results via secured API within tenant; no health-economy network distribution"}
+{"id": "3.5.20", "status": "partial", "test": null, "note": "lab results consolidated per patient incl. merges; not across all ICRS services"}
+{"id": "3.5.21", "status": "delivered", "test": "tests/e2e/test_api03_vertical_slice.py::test_amended_result_reopens_exactly_one_review", "note": "released results and every revision retained against the patient"}
+{"id": "3.5.22", "status": "partial", "test": null, "note": "per-patient results only; no grouping by ward, consultant, date, seen"}
+{"id": "3.5.23", "status": "not_built", "test": null, "note": "no cumulative or graphical result reporting"}
+{"id": "3.5.24", "status": "not_built", "test": null, "note": "no instrument/analyser interfaces"}
+{"id": "3.9.1", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "3.9.2", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.3", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.4", "status": "partial", "test": null, "note": "Care plans revised with review date; no outcome or benchmark measurement."}
+{"id": "3.9.5", "status": "partial", "test": null, "note": "Review date and safeguard review deadlines; no alert before care plan review."}
+{"id": "3.9.6", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.7", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.8", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.9", "status": "partial", "test": null, "note": "Named responsible clinician, plan and task owners; no governance accountability model."}
+{"id": "3.9.10", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.11", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.9.12", "status": "partial", "test": null, "note": "Safeguarding reviews only; no general risk assessment process."}
+{"id": "3.9.13", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.10.1", "status": "partial", "test": null, "note": "Service catalogue only; no Financial Flows, tariffs or HRG support"}
+{"id": "3.10.2", "status": "partial", "test": null, "note": "Clinician slots only; no facility, equipment or finance schedules"}
+{"id": "3.10.3", "status": "not_built", "test": null, "note": "No Electronic Staff Record interface"}
+{"id": "3.10.4", "status": "partial", "test": null, "note": "Read-only practitioner directory; no organisation structure allocations maintained"}
+{"id": "3.10.5", "status": "not_built", "test": null, "note": "No API to insert, amend or close staff details"}
+{"id": "3.10.6", "status": "partial", "test": null, "note": "Practitioner list exists; no staff maintenance or flexible search by org level"}
+{"id": "3.10.7", "status": "partial", "test": null, "note": "Availability only as bookable clinic slots; no general staff availability"}
+{"id": "3.10.8", "status": "partial", "test": null, "note": "Clinic list per day only; no staff electronic diary"}
+{"id": "3.10.9", "status": "not_built", "test": null, "note": "No staff absence recording or export"}
+{"id": "3.10.10", "status": "not_built", "test": null, "note": "No skills-gap monitoring"}
+{"id": "3.10.11", "status": "not_built", "test": null, "note": "No team/caseload monitoring or deployment"}
+{"id": "3.10.12", "status": "partial", "test": null, "note": "Workgroup-based access exists; no multi-team membership changes/continuity handling"}
+{"id": "3.10.13", "status": "not_built", "test": null, "note": "No mileage or expenses capture"}
+{"id": "3.10.14", "status": "partial", "test": null, "note": "Care-plan sessions per patient; no caseload view or staffing levels"}
+{"id": "3.10.15", "status": "not_built", "test": null, "note": "No care-location planning"}
+{"id": "3.10.16", "status": "not_built", "test": null, "note": "No supplies or stock management"}
+{"id": "3.10.17", "status": "partial", "test": null, "note": "Slot availability search only; no service/need capacity assessment"}
+{"id": "3.10.18", "status": "not_built", "test": null, "note": "No unmet-need recording"}
+{"id": "3.10.19", "status": "not_built", "test": null, "note": "No care or business planning support"}
+{"id": "3.10.20", "status": "not_built", "test": null, "note": "No facility/room maintenance; facilities only listed read-only"}
+{"id": "3.10.21", "status": "partial", "test": null, "note": "Slots tied to a site; no availability for individual rooms"}
+{"id": "3.10.22", "status": "not_built", "test": null, "note": "No equipment details maintenance"}
+{"id": "3.10.23", "status": "not_built", "test": null, "note": "No equipment availability"}
+{"id": "3.10.24", "status": "not_built", "test": null, "note": "No equipment use, servicing or renewal tracking"}
+{"id": "3.10.30", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.10.31", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.10.32", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "3.10.33", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.1.1", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.1.2", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.1.3", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.1.4", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.1.5", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.2.1", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.2.2", "status": "partial", "test": null, "note": "Staff web forms exist; no context-specific rapid entry tooling."}
+{"id": "4.2.3", "status": "partial", "test": null, "note": "Notes on encounters; no post-hoc telephone or MDT documentation types."}
+{"id": "4.2.4", "status": "partial", "test": null, "note": "Encounters and appointments recorded; no professional-to-professional discussion capture."}
+{"id": "4.2.5", "status": "partial", "test": null, "note": "Problem list persists conditions; no diagnosis evolution or state linkage."}
+{"id": "4.2.6", "status": "partial", "test": null, "note": "Coded and free-text entry; no image annotation."}
+{"id": "4.2.7", "status": "partial", "test": null, "note": "Coded and free-text entry; no images or image annotation."}
+{"id": "4.2.8", "status": "partial", "test": null, "note": "Web pick-list for tests only; no templates or short lists."}
+{"id": "4.2.9", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.10", "status": "partial", "test": null, "note": "Scanned documents stored; no voice recognition, bar-coding or devices."}
+{"id": "4.2.11", "status": "partial", "test": null, "note": "Phone-width web layout only; no handheld, voice or imaging entry."}
+{"id": "4.2.12", "status": "partial", "test": null, "note": "Web navigation and skip links; no user-definable pathways."}
+{"id": "4.2.13", "status": "partial", "test": null, "note": "Dark mode follows system setting; no per-user customisation."}
+{"id": "4.2.14", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.15", "status": "partial", "test": null, "note": "Worklists exist but home screen shows no patient or alert data."}
+{"id": "4.2.16", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.17", "status": "partial", "test": null, "note": "Some defaults; no systematic keystroke minimisation."}
+{"id": "4.2.18", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.19", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.20", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.21", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.22", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.23", "status": "partial", "test": null, "note": "Code and display stored; no coded-versus-user term review."}
+{"id": "4.2.24", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.25", "status": "partial", "test": null, "note": "Free code_system field; no terminology service supporting coding systems."}
+{"id": "4.2.26", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.27", "status": "partial", "test": null, "note": "Web shows display names; no coded entry hiding codes."}
+{"id": "4.2.28", "status": "partial", "test": null, "note": "Fixed mandatory registration fields; not tied to central minimum datasets."}
+{"id": "4.2.29", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.30", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.31", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.32", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.33", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.34", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.2.35", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.1", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.2", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.3", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.4", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.5", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.6", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.7", "status": "partial", "test": null, "note": "Chart summary exists; format not user-definable."}
+{"id": "4.3.8", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.9", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.10", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.11", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.12", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.13", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.14", "status": "partial", "test": null, "note": "Chart lists results and conditions; no longitudinal trend view."}
+{"id": "4.3.15", "status": "partial", "test": null, "note": "Chart lists visits, notes, results; no sequential linked progress view."}
+{"id": "4.3.16", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.17", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.18", "status": "partial", "test": null, "note": "Encounters record facility; no aggregate reports by clinician or diagnosis."}
+{"id": "4.3.19", "status": "partial", "test": null, "note": "Structured results tested; free-text results not exercised end to end."}
+{"id": "4.3.20", "status": "partial", "test": null, "note": "Numeric results tested; free-text results not exercised end to end."}
+{"id": "4.3.21", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.22", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.23", "status": "partial", "test": null, "note": "MySQL queryable by standard tools; no reporting facility."}
+{"id": "4.3.24", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.3.25", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.26", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.27", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.28", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.29", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.30", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.31", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.32", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.33", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.34", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.35", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.36", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.37", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.38", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.39", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.40", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.41", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.42", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.3.43", "status": "partial", "test": null, "note": "Role and relationship access in one tenant; no cross-community access."}
+{"id": "4.3.44", "status": "partial", "test": null, "note": "Referral package shared between facilities; no external community exchange."}
+{"id": "4.3.45", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.46", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.47", "status": "partial", "test": null, "note": "Schedulers book slots; no external pre-identified professional booking."}
+{"id": "4.3.48", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.49", "status": "partial", "test": null, "note": "Approved care pathway list; no referral protocols or guidelines store."}
+{"id": "4.3.50", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.3.51", "status": "partial", "test": null, "note": "Access report and audit exist; no condition-based episode linkage."}
+{"id": "4.3.52", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.1", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.4.2", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.4.3", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.4", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.4.5", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.6", "status": "partial", "test": null, "note": "Sensitive-record flag only; no purpose flags like research."}
+{"id": "4.4.7", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.8", "status": "partial", "test": null, "note": "Duplicate, legal-status and overdue alerts; paperless office incomplete."}
+{"id": "4.4.9", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "4.4.10", "status": "partial", "test": null, "note": "Coded conditions recorded; no allergies, blood group or general notes."}
+{"id": "4.4.11", "status": "partial", "test": null, "note": "Reviewed: not accepted as delivered. Clinician creates patient-linked task routed to another clinician's worklist."}
+{"id": "4.4.12", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.13", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.14", "status": "partial", "test": null, "note": "Results link to their order; procedures not built."}
+{"id": "4.4.15", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.16", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.17", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.18", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.19", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.20", "status": "not_built", "test": null, "note": "no letter generation"}
+{"id": "4.4.23", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.24", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.25", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.26", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.27", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.28", "status": "partial", "test": null, "note": "FK and constraint integrity on MySQL; ODBC access not tested."}
+{"id": "4.4.29", "status": "partial", "test": null, "note": "Core demographics recorded; Data Manual dataset and patient choice not."}
+{"id": "4.4.30", "status": "partial", "test": null, "note": "Some rules (postcode, A&E class); no configurable cross-event validation."}
+{"id": "4.4.31", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.32", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.33", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.34", "status": "partial", "test": null, "note": "Relies on InnoDB transactions; no tested recovery journalling."}
+{"id": "4.4.35", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.36", "status": "not_built", "test": null, "note": "No code implements this."}
+{"id": "4.4.37", "status": "partial", "test": null, "note": "Service catalogue can grow; no configurable new clinical processes."}
+{"id": "4.4.38", "status": "partial", "test": null, "note": "Tokens require active membership; no configurable organisational time windows."}
+{"id": "4.5.1", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "4.5.2", "status": "partial", "test": null, "note": "Audit, access controls, masking; no defined information governance framework"}
+{"id": "4.5.3", "status": "partial", "test": null, "note": "Access controls and audit; no consent-based handling"}
+{"id": "4.5.4", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "4.5.5", "status": "partial", "test": null, "note": "Chart view exists; no subject access enquiry or print facility"}
+{"id": "4.5.6", "status": "partial", "test": null, "note": "Identifier masking only; no anonymisation/pseudonymisation for analytics"}
+{"id": "4.5.7", "status": "not_built", "test": null, "note": "No user maintenance facility; memberships seeded, IdP not built"}
+{"id": "4.5.8", "status": "not_built", "test": null, "note": "No user record creation facility"}
+{"id": "4.5.9", "status": "partial", "test": null, "note": "One bearer token across API; production single sign-on not built"}
+{"id": "4.5.10", "status": "partial", "test": null, "note": "Role capabilities and masks; sites cannot customise views"}
+{"id": "4.5.11", "status": "delivered", "test": "tests/e2e/test_security_and_errors.py::test_lapsed_or_inactive_membership_is_rejected", "note": "Verified identity; membership validity window and active flag enforced"}
+{"id": "4.5.12", "status": "partial", "test": null, "note": "Membership window applies; no facility to set separate read/write windows"}
+{"id": "4.5.13", "status": "partial", "test": null, "note": "Single chart view; not all patient information covered"}
+{"id": "4.5.14", "status": "delivered", "test": "tests/e2e/test_api03_vertical_slice.py::test_nurse_reads_through_workgroup_with_identifiers_masked", "note": "Identifiers masked for roles/workgroups without identifier rights"}
+{"id": "4.5.15", "status": "delivered", "test": "tests/e2e/test_api03_vertical_slice.py::test_access_is_concealed_and_denials_are_audited", "note": "Role capabilities restrict functions; missing capability denied and audited"}
+{"id": "4.5.16", "status": "partial", "test": null, "note": "Fixed role-based masks; no view customisation"}
+{"id": "4.5.17", "status": "partial", "test": null, "note": "Sensitive-class withholding exists; not driven by patient's privacy request"}
+{"id": "4.5.18", "status": "not_built", "test": null, "note": "No HR/payroll or ESR starter/leaver capture"}
+{"id": "4.5.19", "status": "delivered", "test": "tests/e2e/test_staff_session.py::test_me_names_the_person_their_tenant_and_what_they_may_do", "note": "Membership subject linked to practitioner identifier"}
+{"id": "4.5.20", "status": "partial", "test": null, "note": "Role groups only; no per-user tailoring"}
+{"id": "4.5.21", "status": "not_built", "test": null, "note": "No security policies/procedures access"}
+{"id": "4.5.22", "status": "partial", "test": null, "note": "Reviewed: not accepted as delivered. Need-to-know via care relationship; concealed 404 otherwise"}
+{"id": "4.5.23", "status": "not_built", "test": null, "note": "No local user set-up facility"}
+{"id": "4.5.24", "status": "partial", "test": null, "note": "Retrieval exists; speed not measured by any test"}
+{"id": "4.5.25", "status": "partial", "test": null, "note": "Individual retrieval only; no aggregate retrieval"}
+{"id": "4.5.26", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "4.5.27", "status": "not_built", "test": null, "note": "No message retention or conditions-of-use acceptance"}
+{"id": "4.5.28", "status": "partial", "test": null, "note": "Access controls and audit; no demonstrated legal compliance"}
+{"id": "4.5.29", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "4.5.30", "status": "partial", "test": null, "note": "Some controls built; no conformance to standards demonstrated"}
+{"id": "4.5.31", "status": "partial", "test": null, "note": "Token expiry and denial audit; no MFA or user-definable time-outs"}
+{"id": "4.5.32", "status": "partial", "test": null, "note": "Audit trails and access safeguards; no firewall in scope"}
+{"id": "4.5.33", "status": "not_built", "test": null, "note": "No password management; IdP not built"}
+{"id": "4.5.34", "status": "partial", "test": null, "note": "Audit identifies actors; overall responsibility only per encounter"}
+{"id": "4.5.35", "status": "partial", "test": null, "note": "Writes and reads audited; only per-patient access report, no usage reporting"}
+{"id": "4.5.36", "status": "not_built", "test": null, "note": "No audit archive/restore"}
+{"id": "4.5.37", "status": "partial", "test": null, "note": "Per-patient access report for leads/advocates only"}
+{"id": "4.5.38", "status": "delivered", "test": "tests/e2e/test_api03_vertical_slice.py::test_stale_or_missing_version_on_acknowledge", "note": "Single tenant database; optimistic version locking refuses stale updates"}
+{"id": "4.5.39", "status": "not_built", "test": null, "note": "Statement of importance; no specific capability"}
+{"id": "4.5.40", "status": "delivered", "test": "tests/e2e/test_safeguards.py::test_access_report_shows_who_touched_the_record", "note": "Audit records actor and time, retrievable retrospectively by date"}
+{"id": "4.5.41", "status": "partial", "test": null, "note": "Revisions/history for some data; no point-in-time record reconstruction"}
+{"id": "4.5.42", "status": "not_built", "test": null, "note": "No archiving"}
+{"id": "4.5.43", "status": "not_built", "test": null, "note": "No record archiving"}
+{"id": "4.5.44", "status": "partial", "test": null, "note": "Field, date, range checks; no check-digit validation"}
+{"id": "4.5.45", "status": "not_built", "test": null, "note": "No backup facility"}
+{"id": "4.5.46", "status": "not_built", "test": null, "note": "No data retention policy implementation"}
+{"id": "4.5.47", "status": "not_built", "test": null, "note": "No archiving"}
+{"id": "4.5.48", "status": "partial", "test": null, "note": "Effective and recorded times kept; no full chronology guarantee"}
+{"id": "4.5.49", "status": "not_built", "test": null, "note": "No point-in-time record view"}
+{"id": "5.3.26", "status": "partial", "test": null, "note": "plans revisable with reason; not linked to needs assessment or review"}
+{"id": "5.3.27", "status": "partial", "test": null, "note": "clinician-authored plans; no team/service manager approval step"}
+{"id": "5.3.28", "status": "not_built", "test": null, "note": "no financial assessment"}
+{"id": "5.4.1", "status": "partial", "test": null, "note": "Context; admissions built"}
+{"id": "5.4.2", "status": "partial", "test": null, "note": "Admission and discharge; no ward-level transfers or bed management"}
+{"id": "5.4.3", "status": "partial", "test": null, "note": "Admission uses index demographics; no inpatient minimum data set"}
+{"id": "5.4.4", "status": "not_built", "test": null, "note": "No automatic consultant transfer"}
+{"id": "5.4.5", "status": "partial", "test": null, "note": "Coded conditions/orders; no classifications, translation or retrospective coding"}
+{"id": "5.4.6", "status": "partial", "test": null, "note": "Admissions/discharges; no pre-admission, transfers, coding or beds"}
+{"id": "5.4.7", "status": "partial", "test": null, "note": "Discharge creates follow-up tasks; no resource booking links"}
+{"id": "5.4.9", "status": "partial", "test": null, "note": "Discharge summary signed; no release to recipients"}
+{"id": "5.4.10", "status": "not_built", "test": null, "note": "No activity reports"}
+{"id": "5.4.11", "status": "not_built", "test": null, "note": "No bed management or expected discharge forecasting"}
+{"id": "5.4.12", "status": "not_built", "test": null, "note": "No bed planning clinical-needs data"}
+{"id": "5.4.13", "status": "not_built", "test": null, "note": "No bed planning facility"}
+{"id": "5.4.14", "status": "not_built", "test": null, "note": "No real-time bed management"}
+{"id": "5.4.15", "status": "not_built", "test": null, "note": "No trigger-based automatic referrals"}
+{"id": "5.4.16", "status": "not_built", "test": null, "note": "No inpatient movement recording"}
+{"id": "5.4.17", "status": "not_built", "test": null, "note": "No ward/bed graphical view"}
+{"id": "5.4.18", "status": "not_built", "test": null, "note": "No virtual bays"}
+{"id": "5.4.19", "status": "not_built", "test": null, "note": "No bed icons or bed view"}
+{"id": "5.4.20", "status": "not_built", "test": null, "note": "No historic bed states"}
+{"id": "5.4.21", "status": "not_built", "test": null, "note": "No waiting list management or waiting time reporting"}
+{"id": "5.4.22", "status": "not_built", "test": null, "note": "No waiting time analysis"}
+{"id": "5.4.23", "status": "not_built", "test": null, "note": "No user-defined patient group tracking"}
+{"id": "5.4.24", "status": "not_built", "test": null, "note": "No waiting list definitions or statutory returns"}
+{"id": "5.4.25", "status": "not_built", "test": null, "note": "No guaranteed admission time management"}
+{"id": "5.4.26", "status": "not_built", "test": null, "note": "No total-wait linkage"}
+{"id": "5.4.27", "status": "not_built", "test": null, "note": "No bed/theatre availability link"}
+{"id": "5.4.28", "status": "not_built", "test": null, "note": "No operation-specific patient information"}
+{"id": "5.4.29", "status": "not_built", "test": null, "note": "No waiting-list impact alerts"}
+{"id": "5.4.30", "status": "not_built", "test": null, "note": "No outpatient waiting time calculation"}
+{"id": "5.4.31", "status": "not_built", "test": null, "note": "No average wait quoting"}
+{"id": "5.4.32", "status": "not_built", "test": null, "note": "No connected/unconnected wait identification"}
+{"id": "5.4.33", "status": "not_built", "test": null, "note": "No wait forecasting or modelling"}
+{"id": "5.4.34", "status": "not_built", "test": null, "note": "No theatre list prioritisation"}
+{"id": "5.4.35", "status": "not_built", "test": null, "note": "No common waiting lists by condition"}
+{"id": "5.4.36", "status": "not_built", "test": null, "note": "No waiting list suspension"}
+{"id": "5.4.37", "status": "not_built", "test": null, "note": "Cancellation does not cascade to related orders/appointments"}
+{"id": "5.4.38", "status": "partial", "test": null, "note": "Accepted-referral triage worklist only; no pending lists per clinic/consultant"}
+{"id": "5.4.39", "status": "partial", "test": null, "note": "Attendance, video/phone/home modalities; no queue management or day-hospital types"}
+{"id": "5.4.40", "status": "partial", "test": null, "note": "Booking from accepted referral; no booked admission access"}
+{"id": "5.4.41", "status": "partial", "test": null, "note": "Outpatient slots are the only resource scheduling; no wider resource scheduling"}
+{"id": "5.4.42", "status": "partial", "test": null, "note": "Equal-length slot runs only; no flexible session templates"}
+{"id": "5.4.43", "status": "partial", "test": null, "note": "Any practitioner, home modality; no day care or non-clinic attender support"}
+{"id": "5.4.44", "status": "not_built", "test": null, "note": "No multi-disciplinary clinics"}
+{"id": "5.4.45", "status": "not_built", "test": null, "note": "No multi-task or combined appointments"}
+{"id": "5.4.46", "status": "partial", "test": null, "note": "Individual reschedule only; no block rescheduling of clinics"}
+{"id": "5.4.47", "status": "partial", "test": null, "note": "Search by service, clinician, date, type; no priority definitions or series"}
+{"id": "5.4.48", "status": "partial", "test": null, "note": "Attendance and no-show recorded; actual clinician seen not recorded"}
+{"id": "5.4.49", "status": "partial", "test": null, "note": "Coded conditions only; no procedure coding in outpatients"}
+{"id": "5.4.50", "status": "not_built", "test": null, "note": "No in-attendance patient tracking"}
+{"id": "5.4.51", "status": "not_built", "test": null, "note": "Usability claim not measured or tested"}
+{"id": "5.4.52", "status": "not_built", "test": null, "note": "No clinic letters generated"}
+{"id": "5.4.53", "status": "not_built", "test": null, "note": "No medical doctor letters generated"}
+{"id": "5.4.54", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "5.4.55", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "5.4.56", "status": "not_built", "test": null, "note": "Descriptive or lead-in text; no capability stated."}
+{"id": "5.4.57", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.58", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.59", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.60", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.61", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.62", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.63", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.64", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.65", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.66", "status": "not_built", "test": null, "note": "No casenote tracking module exists."}
+{"id": "5.4.67", "status": "partial", "test": null, "note": "Context; A&E attendance detail recorded"}
+{"id": "5.4.68", "status": "partial", "test": null, "note": "A&E attendance recorded; no flow, letters or audit of activity"}
+{"id": "5.4.69", "status": "delivered", "test": "tests/e2e/test_security_and_errors.py::test_ae_detail_is_returned_with_the_encounter", "note": "A&E attendance registered on emergency encounter"}
+{"id": "5.4.70", "status": "partial", "test": null, "note": "Chart lists encounters and reports; no PAMS or history test"}
+{"id": "5.4.71", "status": "not_built", "test": null, "note": "No triage standard or priority review"}
+{"id": "5.4.72", "status": "not_built", "test": null, "note": "No triage priority override"}
+{"id": "5.4.73", "status": "not_built", "test": null, "note": "No A&E care pathways or protocols"}
+{"id": "5.4.74", "status": "not_built", "test": null, "note": "No RTA or compensation recovery"}
+{"id": "5.4.75", "status": "not_built", "test": null, "note": "No ambulance pre-arrival data"}
+{"id": "5.4.76", "status": "partial", "test": null, "note": "Audit events exist; no A&E progress step trail"}
+{"id": "5.4.77", "status": "not_built", "test": null, "note": "No at-risk category"}
+{"id": "5.4.78", "status": "not_built", "test": null, "note": "No waiting or triage priority display"}
+{"id": "5.4.79", "status": "partial", "test": null, "note": "Incident location type only; no accident type or environment"}
+{"id": "5.4.80", "status": "not_built", "test": null, "note": "No master episode document printing"}
+{"id": "5.4.81", "status": "not_built", "test": null, "note": "No advice leaflets or management plans"}
+{"id": "5.4.82", "status": "not_built", "test": null, "note": "No major incident support"}
+{"id": "5.5.1", "status": "partial", "test": null, "note": "Context; MH safeguards built"}
+{"id": "5.5.2", "status": "not_built", "test": null, "note": "No national MH datasets"}
+{"id": "5.5.3", "status": "partial", "test": null, "note": "Context; generic index built, MH-specific items partly"}
+{"id": "5.5.4", "status": "partial", "test": null, "note": "Advocates appointable; no family/carer relationships"}
+{"id": "5.5.5", "status": "partial", "test": null, "note": "Preferred language recorded; no interpreter database link"}
+{"id": "5.5.6", "status": "partial", "test": null, "note": "Chart summary by patient id; no test of full current-care summary"}
+{"id": "5.5.7", "status": "delivered", "test": "tests/e2e/test_security_and_errors.py::test_sensitive_records_are_withheld_without_a_grant", "note": "Sensitive records shown only to authorised roles"}
+{"id": "5.5.8", "status": "not_built", "test": null, "note": "No research fields"}
+{"id": "5.5.9", "status": "delivered", "test": "tests/e2e/test_safeguards.py::test_legal_status_has_history_expiry_and_shows_on_the_chart", "note": "Legal status current, dated, with history"}
+{"id": "5.5.10", "status": "not_built", "test": null, "note": "No tribunal document assembly"}
+{"id": "5.5.11", "status": "partial", "test": null, "note": "Legal status expiry warnings; no legal/tribunal process"}
+{"id": "5.5.12", "status": "not_built", "test": null, "note": "No notifications to service users, carers, representatives"}
+{"id": "5.5.13", "status": "not_built", "test": null, "note": "No court hearing scheduling"}
+{"id": "5.5.14", "status": "partial", "test": null, "note": "Legal status updatable; no hearing outcomes"}
+{"id": "5.5.15", "status": "partial", "test": null, "note": "Legal status on chart; no risk guidance or preferences"}
+{"id": "5.5.16", "status": "partial", "test": null, "note": "Emergency holding status recordable; no application workflow"}
+{"id": "5.5.17", "status": "partial", "test": null, "note": "Detained-assessment status recordable; no assessment workflow"}
+{"id": "5.5.18", "status": "partial", "test": null, "note": "New status records extend; no authorisation-seeking workflow"}
+{"id": "5.5.19", "status": "not_built", "test": null, "note": "No appeal handling"}
+{"id": "5.5.20", "status": "partial", "test": null, "note": "Community treatment status; no order receipt or conditional discharge"}
+{"id": "5.6.1", "status": "not_built", "test": null, "note": "descriptive vision paragraph"}
+{"id": "5.6.2", "status": "not_built", "test": null, "note": "descriptive; no point of care testing support"}
+{"id": "5.6.3", "status": "not_built", "test": null, "note": "descriptive context paragraph"}
+{"id": "5.6.4", "status": "not_built", "test": null, "note": "descriptive context paragraph"}
+{"id": "5.6.5", "status": "not_built", "test": null, "note": "descriptive context paragraph"}
+{"id": "5.6.6", "status": "not_built", "test": null, "note": "no pathology network information system"}
+{"id": "5.6.7", "status": "partial", "test": null, "note": "results tied to NIN-identified patients with access control; no pathology networks"}
+{"id": "5.6.8", "status": "not_built", "test": null, "note": "descriptive context paragraph"}
+{"id": "5.6.9", "status": "not_built", "test": null, "note": "descriptive; no automated testing interfaces"}
+{"id": "5.6.10", "status": "not_built", "test": null, "note": "no managed network support or quality monitoring"}
+{"id": "8.1.1", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "8.1.2", "status": "not_built", "test": null, "note": "No availability measurement, disaster recovery or automated backups"}
+{"id": "8.1.3", "status": "not_built", "test": null, "note": "No planned downtime handling"}
+{"id": "8.1.4", "status": "not_built", "test": null, "note": "Response times not measured by any test"}
+{"id": "8.1.5", "status": "not_built", "test": null, "note": "No response time agreement or infrastructure spec"}
+{"id": "8.1.6", "status": "not_built", "test": null, "note": "No network-delivered service support"}
+{"id": "8.2.1", "status": "not_built", "test": null, "note": "No 24x7 availability safeguards demonstrated"}
+{"id": "8.2.2", "status": "partial", "test": null, "note": "Readiness probe and relay backoff; no broader fault protection"}
+{"id": "8.2.3", "status": "not_built", "test": null, "note": "No business continuity arrangements"}
+{"id": "8.2.4", "status": "not_built", "test": null, "note": "No disaster recovery"}
+{"id": "8.2.5", "status": "not_built", "test": null, "note": "No recovery plan"}
+{"id": "8.2.6", "status": "not_built", "test": null, "note": "No DR plans or testing"}
+{"id": "8.2.7", "status": "not_built", "test": null, "note": "No DR mechanisms"}
+{"id": "8.3.1", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "8.3.2", "status": "not_built", "test": null, "note": "Incomplete list; no location capability"}
+{"id": "8.3.3", "status": "partial", "test": null, "note": "Web app works at phone width; no device range supported"}
+{"id": "8.3.4", "status": "not_built", "test": null, "note": "No alternative input methods"}
+{"id": "8.3.5", "status": "partial", "test": null, "note": "Responsive web app; no mobile/integrated device support"}
+{"id": "8.3.6", "status": "not_built", "test": null, "note": "Device fitness not in scope"}
+{"id": "8.3.7", "status": "partial", "test": null, "note": "Phone-width web layout only"}
+{"id": "8.3.8", "status": "not_built", "test": null, "note": "Response times not measured"}
+{"id": "8.3.9", "status": "not_built", "test": null, "note": "No patient portal"}
+{"id": "8.3.10", "status": "not_built", "test": null, "note": "No public health promotion content"}
+{"id": "8.3.11", "status": "not_built", "test": null, "note": "No public access service"}
+{"id": "8.4.1", "status": "not_built", "test": null, "note": "Incomplete list; no capability stated"}
+{"id": "8.4.2", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "8.4.3", "status": "not_built", "test": null, "note": "No cross-organisation user access"}
+{"id": "8.4.4", "status": "not_built", "test": null, "note": "No remote/mobile access provision"}
+{"id": "8.5.1", "status": "not_built", "test": null, "note": "descriptive context, states no capability"}
+{"id": "8.5.2", "status": "not_built", "test": null, "note": "Incomplete examples list"}
+{"id": "8.5.3", "status": "not_built", "test": null, "note": "No virus protection"}
+{"id": "8.5.4", "status": "not_built", "test": null, "note": "No virus screening; structural checks only"}
+{"id": "8.5.5", "status": "not_built", "test": null, "note": "No encryption standards for data exchange"}
+{"id": "8.6.1", "status": "partial", "test": null, "note": "CLI, health probes, catalogue control; no comprehensive service management"}
+{"id": "8.6.2", "status": "partial", "test": null, "note": "CLI and catalogue control only"}
+{"id": "8.7.1", "status": "not_built", "test": null, "note": "No maintenance support demonstrated"}
+{"id": "8.7.2", "status": "partial", "test": null, "note": "Health/readiness and correlation IDs; no fault rectification"}
+{"id": "8.7.3", "status": "not_built", "test": null, "note": "No user-configurable clinical processes"}
+{"id": "8.7.4", "status": "not_built", "test": null, "note": "Incomplete list; no admin facilities"}

@@ -10,16 +10,16 @@ build meets it and a named test proves it.
 | Code | Module or area | Requirements | Delivered | Components |
 |---|---|---|---|---|
 | 101 | User Tools | 152 | 0 | Clinical Coding; Inbox Alerts |
-| 102 | Patient Index | 50 | 7 | Patient Index; Patient List Management; Patient Registration |
+| 102 | Patient Index | 50 | 9 | Patient Index; Patient List Management; Patient Registration |
 | 103 | Prevention, screening and surveillance | 20 | 0 | Immunisations and Child Health; Clinical Specialism (for example diabetes); Primary Care |
 | 104 | Assessment | 4 | 0 | - |
 | 105 | Integrated Care Pathways and Care Planning | 21 | 0 | Care Pathway Knowledge Base |
 | 106 | Clinical Documentation, including Clinical Noting and Clinical Correspondence | 17 | 0 | Discharge Summary; Clinical Documentation; Letters; Anaesthetic Management |
-| 107 | Care management | 42 | 0 | Admission, Discharge and Transfer; Care Lists; A&E Patient Locator; Clinical Department Management (for example cardiology); Mental Health Management; Critical Care Management; Ambulance Pre-arrival Information |
+| 107 | Care management | 42 | 1 | Admission, Discharge and Transfer; Care Lists; A&E Patient Locator; Clinical Department Management (for example cardiology); Mental Health Management; Critical Care Management; Ambulance Pre-arrival Information |
 | 108 | Scheduling | 76 | 0 | Outpatient and Visit Management; Bed Management; Scheduling; Theatre Management; Surgical Instrument Tracking |
 | 109 | Electronic Booking | 50 | 0 | Electronic Booking |
-| 110 | Requesting and order communications | 18 | 0 | Ordering |
-| 111 | Results reporting | 6 | 0 | Results Reporting |
+| 110 | Requesting and order communications | 18 | 1 | Ordering |
+| 111 | Results reporting | 6 | 1 | Results Reporting |
 | 112 | Decision support | 15 | 0 | Decision Support |
 | 113 | Prescribing and pharmacy | 71 | 0 | Prescribing (inpatient, outpatient, to take out); Medication Administration; Electronic Transmission of Prescriptions; Pharmacy Stock Control |
 | 114 | Diagnostic and Investigative Services | 10 | 0 | Pathology Laboratory |
@@ -30,7 +30,7 @@ build meets it and a named test proves it.
 | 119 | Social Care | 33 | 0 | - |
 | 120 | Dental Services | 0 | 0 | - |
 | X1 | Context and vision | 54 | 0 | - |
-| X2 | Platform and information governance | 49 | 0 | - |
+| X2 | Platform and information governance | 49 | 6 | - |
 | X3 | Delivery: project, implementation, testing, training, support, data conversion | 44 | 0 | - |
 | X4 | Service levels: performance, resilience, access, security, administration | 39 | 0 | - |
 | X5 | Standards | 103 | 0 | - |
@@ -47,3 +47,14 @@ build meets it and a named test proves it.
 | 3.2.20 | 3.2 Patient / Service User Index / Index Management | `tests/e2e/test_patient_index.py::test_batch_closure_reports_each_item` |
 | 3.2.33 | 3.2 Patient / Service User Index / Management of Master Indexes | `tests/e2e/test_patient_index.py::test_unmerge_restores_both_records` |
 | 3.2.34 | 3.2 Patient / Service User Index / Management of Master Indexes | `tests/e2e/test_patient_index.py::test_search_by_nin_and_by_name` |
+| 3.5.5 | 3.5 Ordering and Results Reporting / Ordering | `tests/e2e/test_api03_vertical_slice.py::test_vertical_slice` |
+| 3.5.21 | 3.5 Ordering and Results Reporting / Results Reporting | `tests/e2e/test_api03_vertical_slice.py::test_amended_result_reopens_exactly_one_review` |
+| 4.5.11 | 4.5 Information Governance / Maintain User Access Controls and Authentication | `tests/e2e/test_security_and_errors.py::test_lapsed_or_inactive_membership_is_rejected` |
+| 4.5.14 | 4.5 Information Governance / Maintain User Access Controls and Authentication | `tests/e2e/test_api03_vertical_slice.py::test_nurse_reads_through_workgroup_with_identifiers_masked` |
+| 4.5.15 | 4.5 Information Governance / Maintain User Access Controls and Authentication | `tests/e2e/test_api03_vertical_slice.py::test_access_is_concealed_and_denials_are_audited` |
+| 4.5.19 | 4.5 Information Governance / Maintain User Access Controls and Authentication | `tests/e2e/test_staff_session.py::test_me_names_the_person_their_tenant_and_what_they_may_do` |
+| 4.5.38 | 4.5 Information Governance / Data Quality and Audit | `tests/e2e/test_api03_vertical_slice.py::test_stale_or_missing_version_on_acknowledge` |
+| 4.5.40 | 4.5 Information Governance / Data Quality and Audit | `tests/e2e/test_safeguards.py::test_access_report_shows_who_touched_the_record` |
+| 5.4.69 | 5.4 Acute Care / Accident & Emergency | `tests/e2e/test_security_and_errors.py::test_ae_detail_is_returned_with_the_encounter` |
+| 5.5.7 | 5.5 Mental Health / Service User Index | `tests/e2e/test_security_and_errors.py::test_sensitive_records_are_withheld_without_a_grant` |
+| 5.5.9 | 5.5 Mental Health / Service User Index | `tests/e2e/test_safeguards.py::test_legal_status_has_history_expiry_and_shows_on_the_chart` |

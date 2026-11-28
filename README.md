@@ -183,6 +183,12 @@ or retired codes are refused (CAT-03/04).
 | `POST /v1/control/services/{id}/retire` | Retire a service. Needs `If-Match` |
 | `GET /v1/services` | Search by name or alias, with `facility_id`, `age` and `care_setting` filters |
 
+## Plan
+
+[docs/PROGRAMME.md](docs/PROGRAMME.md) places every CEDA workflow and ICRS
+module in a phase, with dependencies, acceptance tests, risks and the
+decisions needed. [docs/STATUS.md](docs/STATUS.md) lists what is built.
+
 ## Run it
 
 Start MySQL 26.10, migrate, and serve:
