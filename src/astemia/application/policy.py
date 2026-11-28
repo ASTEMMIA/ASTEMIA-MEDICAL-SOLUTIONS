@@ -67,6 +67,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "note:write",
             "note:sign",
             "note:sign_nursing",
+            # Correspondence (UG04): review documents filed to them.
+            "document:review",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -88,6 +90,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
+    # Records clerks (UG04) index inbound correspondence and link it to the
+    # right patient. They open quarantined files but hold no chart access.
+    "records_clerk": frozenset({"document:index", "patient:search", "catalogue:read"}),
     # Safeguarding leads review every restrictive intervention and concern, see
     # who accessed a patient's records, and appoint advocates. No chart access.
     "safeguarding_lead": frozenset(
@@ -115,6 +120,7 @@ RELATIONSHIP_BOUND = frozenset(
         "note:write",
         "note:sign",
         "note:sign_nursing",
+        "document:review",
     }
 )
 

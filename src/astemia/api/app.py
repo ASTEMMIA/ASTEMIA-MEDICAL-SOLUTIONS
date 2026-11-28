@@ -20,6 +20,7 @@ from astemia.adapters.identity.tokens import TokenVerifier
 from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
+from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
 from astemia.application.identity_review import IdentityReview
@@ -46,10 +47,12 @@ from astemia.application.schemas import (
     CreateEntry,
     CreateSlots,
     DecideReferral,
+    DocumentOut,
     DuplicateGroup,
     EmergencyGrantOut,
     EndIntervention,
     EntryOut,
+    FileDocument,
     InterventionOut,
     LegalStatusOut,
     MatchOut,
@@ -59,16 +62,19 @@ from astemia.application.schemas import (
     PlaceOrder,
     ProvisionCatalogue,
     RaiseConcern,
+    ReceiveDocument,
     RecordAttendance,
     RecordIntervention,
     ReferralOut,
     ReferralRecordsOut,
     RegisterPatient,
+    ReindexDocument,
     ReleaseReport,
     RequestEmergencyAccess,
     RescheduleAppointment,
     ResolveReview,
     RetireService,
+    ReviewDocument,
     ReviewEmergencyAccess,
     ReviewIntervention,
     ReviewTaskOut,
@@ -81,6 +87,7 @@ from astemia.application.schemas import (
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
+from astemia.domain.documents import DocumentStatus
 from astemia.domain.safeguards import ConcernStatus
 from astemia.domain.scheduling import ReferralStatus, SlotType
 
@@ -104,6 +111,7 @@ def create_app(
     scheduling = Scheduling(write_path, factory, policy)
     safeguards = Safeguards(write_path, factory, policy)
     notes = Notes(write_path, factory, policy)
+    documents = Documents(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -364,6 +372,75 @@ def create_app(
         if_match: Annotated[str | None, Header(alias="If-Match")] = None,
     ) -> dict[str, Any]:
         result = notes.amend(ctx, key, entry_id, version_of(if_match), body)
+        return respond(result, response)
+
+    # --- clinical correspondence (SA-12; UG04) --------------------------------
+
+    @app.post("/v1/documents", status_code=201)
+    def receive_document(
+        body: ReceiveDocument, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(documents.receive(ctx, key, body), response)
+
+    @app.get("/v1/documents", response_model=list[DocumentOut])
+    def document_worklist(
+        ctx: Ctx,
+        status: DocumentStatus = DocumentStatus.QUARANTINED,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ) -> list[DocumentOut]:
+        return documents.worklist(ctx, status=status, limit=limit)
+
+    @app.get("/v1/documents/{document_id}", response_model=DocumentOut)
+    def read_document(document_id: uuid.UUID, ctx: Ctx) -> DocumentOut:
+        return documents.get(ctx, document_id)
+
+    @app.get("/v1/documents/{document_id}/content")
+    def document_content(document_id: uuid.UUID, ctx: Ctx) -> Response:
+        media_type, content = documents.content(ctx, document_id)
+        return Response(
+            content=content,
+            media_type=media_type,
+            headers={
+                "Content-Disposition": f'attachment; filename="{document_id}"',
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "no-store",
+            },
+        )
+
+    @app.post("/v1/documents/{document_id}/file")
+    def file_document(
+        document_id: uuid.UUID,
+        body: FileDocument,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = documents.file(ctx, key, document_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/documents/{document_id}/reindex")
+    def reindex_document(
+        document_id: uuid.UUID,
+        body: ReindexDocument,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = documents.reindex(ctx, key, document_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/documents/{document_id}/review")
+    def review_document(
+        document_id: uuid.UUID,
+        body: ReviewDocument,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = documents.review(ctx, key, document_id, version_of(if_match), body)
         return respond(result, response)
 
     # --- mental health safeguards (HS13, B11; ICRS 5.5.9) ----------------------

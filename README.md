@@ -70,6 +70,13 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/entries/{id}/draft` | Edit your draft. Needs `If-Match` |
   | `POST /v1/entries/{id}/sign` | Sign your draft; it can never change after this. Needs `If-Match` |
   | `POST /v1/entries/{id}/amendments` | Start a correction: a new revision that references the signed one. Needs `If-Match` |
+  | `POST /v1/documents` | Receive inbound correspondence (base64 content); quarantined, checked and matched (records clerk) |
+  | `GET /v1/documents` | Records clerk worklist by `status` (quarantined by default) |
+  | `GET /v1/documents/{id}` | A document with its versions (and match candidates while quarantined) |
+  | `GET /v1/documents/{id}/content` | The original bytes; never for a file that failed its checks |
+  | `POST /v1/documents/{id}/file` | File to a patient and route to a reviewer; `adjudication` needed for an ambiguous match. Needs `If-Match` |
+  | `POST /v1/documents/{id}/reindex` | Correct the indexing; the original digest is kept. Needs `If-Match` |
+  | `POST /v1/documents/{id}/review` | The named reviewer signs the document off. Needs `If-Match` |
   | `POST /v1/restrictive-interventions` | Log a restraint, seclusion or rapid tranquillisation (care team) |
   | `POST /v1/restrictive-interventions/{id}/end` | Record the end time, debrief and any injury, once. Needs `If-Match` |
   | `GET /v1/restrictive-interventions` | Review queue, oldest deadline first; `reviewed=true` for the history (safeguarding lead) |

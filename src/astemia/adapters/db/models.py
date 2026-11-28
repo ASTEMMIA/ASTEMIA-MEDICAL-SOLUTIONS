@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     Index,
     Integer,
+    LargeBinary,
     MetaData,
     Numeric,
     String,
@@ -23,7 +24,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.mysql import INTEGER, TINYINT
+from sqlalchemy.dialects.mysql import INTEGER, LONGBLOB, TINYINT
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from astemia.adapters.db.types import BinaryUUID, UTCDateTime
@@ -1014,6 +1015,80 @@ class EntryRevision(Envelope, Base):
     signed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     signed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
     draft_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+
+
+class DocumentObject(Base):
+    """The original bytes of a document, stored once per tenant and digest and
+    never changed (UG04: original bytes immutable by digest). The pilot keeps
+    them in MySQL; protected object storage is planned."""
+
+    __tablename__ = "document_object"
+    __table_args__ = (TABLE_OPTS,)
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    media_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    content: Mapped[bytes] = mapped_column(LargeBinary().with_variant(LONGBLOB, "mysql"))
+    stored_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+
+
+class Document(Envelope, Base):
+    """CEDA SA-12 Document (UG04): inbound correspondence, quarantined until
+    its content passes checks and its patient link is accepted. The indexing
+    columns mirror the current version."""
+
+    __tablename__ = "document"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        fk(["tenant_id", "reviewer_id"], "practitioner"),
+        Index(None, "tenant_id", "status", "received_at"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    sender: Mapped[str] = mapped_column(String(200), nullable=False)
+    received_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    document_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str | None] = mapped_column(String(200))
+    media_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    scan: Mapped[str] = mapped_column(String(16), nullable=False)
+    scan_reason: Mapped[str | None] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    # Patients the sender's details could match, with score and reasons.
+    candidates: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    adjudication: Mapped[str | None] = mapped_column(String(500))
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    encounter_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    review_note: Mapped[str | None] = mapped_column(String(1000))
+    current_version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class DocumentVersion(Envelope, Base):
+    """CEDA SA-12 DocumentVersion: each indexing of a document, all pointing
+    at the same original bytes by digest."""
+
+    __tablename__ = "document_version"
+    __table_args__ = (
+        fk(["tenant_id", "document_id"], "document"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        UniqueConstraint("tenant_id", "document_id", "version_number"),
+        TABLE_OPTS,
+    )
+
+    document_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    version_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    encounter_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    title: Mapped[str | None] = mapped_column(String(200))
+    document_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str] = mapped_column(String(500), nullable=False)
 
 
 class DemographicTransaction(Base):
