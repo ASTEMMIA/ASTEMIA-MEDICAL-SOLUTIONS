@@ -66,7 +66,7 @@ export function NotesSection({ chart, onChange }: { chart: ChartOut; onChange: (
         />
       )}
       {(drafts.data ?? []).map((d) => (
-        <Draft key={d.id} entry={d} mayEditSign={canSign(can, d.note_type)} onChange={changed} />
+        <Draft key={`${d.id}-${d.version}`} entry={d} mayEditSign={canSign(can, d.note_type)} onChange={changed} />
       ))}
       {signed.length === 0 && !(drafts.data ?? []).length ? (
         <Empty>No signed notes.</Empty>
@@ -125,15 +125,22 @@ function WriteForm({ chart, encounters, onDone, onCancel }: { chart: ChartOut; e
   );
 }
 
-function Draft({ entry, mayEditSign, onChange }: { entry: EntryOut; mayEditSign: boolean; onChange: (m: string) => void }) {
+function Draft({ entry: loaded, mayEditSign, onChange }: { entry: EntryOut; mayEditSign: boolean; onChange: (m: string) => void }) {
+  // Each save returns the note with its new version: keep it, so signing
+  // straight after an edit never sends a stale version.
+  const [entry, setEntry] = useState(loaded);
+  // Once signed, the draft leaves the list at once rather than lingering,
+  // signable but stale, until the list reloads.
+  const [gone, setGone] = useState(false);
   const draft = entry.revisions.at(-1);
   const [editing, setEditing] = useState(false);
   const [body, setBody] = useState(draft?.body ?? "");
   const save = useAction(
-    useCallback((key: string, b: string) => api(`/v1/entries/${entry.id}/draft`, { body: { body: b }, version: entry.version, key }), [entry]),
+    useCallback((key: string, b: string) => api<EntryOut>(`/v1/entries/${entry.id}/draft`, { body: { body: b }, version: entry.version, key }), [entry]),
   );
   const sign = useAction(useCallback((key: string) => api(`/v1/entries/${entry.id}/sign`, { body: {}, version: entry.version, key }), [entry]));
   const label = entry.title ?? words(entry.note_type);
+  if (gone) return null;
   return (
     <article className="note draft" aria-label={`Draft: ${label}`}>
       <h3>
@@ -144,7 +151,9 @@ function Draft({ entry, mayEditSign, onChange }: { entry: EntryOut; mayEditSign:
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            if (await save.run(body)) {
+            const saved = await save.run(body);
+            if (saved) {
+              setEntry(saved);
               setEditing(false);
               onChange("Draft updated.");
             }
@@ -168,7 +177,15 @@ function Draft({ entry, mayEditSign, onChange }: { entry: EntryOut; mayEditSign:
               Edit draft<span className="visually-hidden">: {label}</span>
             </Button>
             {mayEditSign && (
-              <Button busy={sign.busy} onClick={async () => (await sign.run()) && onChange("Note signed. It can no longer be changed, only corrected.")}>
+              <Button
+                busy={sign.busy}
+                onClick={async () => {
+                  if (await sign.run()) {
+                    setGone(true);
+                    onChange("Note signed. It can no longer be changed, only corrected.");
+                  }
+                }}
+              >
                 Sign note<span className="visually-hidden">: {label}</span>
               </Button>
             )}
