@@ -134,6 +134,19 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
+    # Radiology (HS07): radiologists vet requests and sign reports and addenda;
+    # radiographers schedule, record studies and reconcile those kept off the
+    # chart. Neither reads the wider chart; the viewer needs chart access.
+    "radiologist": frozenset({"imaging:read", "imaging:vet", "imaging:report", "catalogue:read"}),
+    "radiographer": frozenset(
+        {
+            "imaging:read",
+            "imaging:schedule",
+            "imaging:perform",
+            "imaging:reconcile",
+            "catalogue:read",
+        }
+    ),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     # They also set up wards and beds, and open and close them (HS03).
     "tenant_admin": frozenset(

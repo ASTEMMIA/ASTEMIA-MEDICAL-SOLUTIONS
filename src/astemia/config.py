@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     jwt_issuer: str = "https://identity.astemia.local"
     jwt_audience: str = "astemia-api"
 
+    # PACS viewer (HS07, WF05): the viewer's address, and the key that signs
+    # the short-lived, patient-bound tokens the viewer opens a study with.
+    pacs_viewer_url: str = "https://pacs.astemia.local/viewer"
+    pacs_token_key: SecretStr = SecretStr(DEV_JWT_KEY)
+    pacs_token_seconds: int = Field(default=300, ge=30, le=3600)
+
     policy_version: str = "policy-2026.11-pilot"
     # The staff web app: served at /app/ from this directory (the built web/dist).
     web_dir: str | None = None
@@ -54,6 +60,12 @@ class Settings(BaseSettings):
         if key == DEV_JWT_KEY or len(key) < 32:
             raise ValueError(
                 f"ASTEMIA_JWT_KEY must be set to a secret of at least 32 characters "
+                f"in {self.environment}"
+            )
+        pacs = self.pacs_token_key.get_secret_value()
+        if pacs == DEV_JWT_KEY or len(pacs) < 32:
+            raise ValueError(
+                f"ASTEMIA_PACS_TOKEN_KEY must be set to a secret of at least 32 characters "
                 f"in {self.environment}"
             )
         if self.dev_sign_in:

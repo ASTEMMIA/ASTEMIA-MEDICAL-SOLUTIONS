@@ -46,6 +46,8 @@ ROLES = [
     "advocate",
     "clerk",
     "supervisor",
+    "radiologist",
+    "radiographer",
 ]
 
 
@@ -145,6 +147,47 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         },
     )
     assert case.status_code == 201, case.text
+    imaging = api.post(
+        "clinician",
+        "/v1/imaging-requests",
+        {
+            "patient_id": pid,
+            "encounter_id": enc["id"],
+            "code_system": "http://loinc.org",
+            "code": "36643-5",
+            "display": "XR Chest",
+            "modality": "DX",
+            "body_site": "Chest",
+            "laterality": "not_applicable",
+            "clinical_note": "Cough",
+        },
+    ).json()
+    api.post(
+        "radiologist",
+        f"/v1/imaging-requests/{imaging['id']}/vet",
+        {"decision": "accepted", "protocol": "PA"},
+        **{"If-Match": '"1"'},
+    )
+    exam = api.post(
+        "radiographer",
+        f"/v1/imaging-requests/{imaging['id']}/schedule",
+        {"scheduled_at": NOW.isoformat()},
+        **{"If-Match": '"2"'},
+    ).json()
+    arrived = api.post(
+        "radiographer",
+        "/v1/imaging-studies",
+        {
+            "study_instance_uid": "1.2.826.0.1.42",
+            "accession_number": exam["accession_number"],
+            "modality": "DX",
+            "performed_at": NOW.isoformat(),
+            "pacs_reference": "pacs://x",
+            "patient_identifier": {"issuer": "NG-NIN", "value": "12345678901"},
+            "birth_date": "1984-03-09",
+        },
+    )
+    assert arrived.json()["status"] == "linked", arrived.text
     with factory() as s:
         link = s.scalar(select(MergeLink.id).where(MergeLink.prior_id == uuid.UUID(prior["id"])))
     return {
@@ -172,6 +215,8 @@ def _world(api: Api, factory: sessionmaker[Session]) -> dict[str, str]:
         "theatre_id": t["id"],
         "session_id": slot["id"],
         "case_id": case.json()["id"],
+        "request_id": imaging["id"],
+        "study_id": arrived.json()["id"],
     }
 
 
@@ -268,6 +313,12 @@ def _body(path: str, a: dict[str, str]) -> dict[str, Any]:
         "/theatre-cases/{case_id}/complete": {"procedure_note": "Done", "override_reason": "x"},
         "/theatre-cases/{case_id}/cancel": {"reason": "Unwell"},
         "/theatre-cases/{case_id}/handover": {"recipient_id": a["practitioner_id"]},
+        "/imaging-requests/{request_id}/vet": {"decision": "rejected", "reason": "No"},
+        "/imaging-requests/{request_id}/schedule": {"scheduled_at": NOW.isoformat()},
+        "/imaging-requests/{request_id}/report": {"findings": "F", "conclusion": "C"},
+        "/imaging-requests/{request_id}/addenda": {"text": "A"},
+        "/imaging-studies/{study_id}/link": {"imaging_request_id": a["request_id"], "reason": "x"},
+        "/imaging-studies/{study_id}/viewer": {},
     }
     for suffix, body in bodies.items():
         if path.endswith(suffix):

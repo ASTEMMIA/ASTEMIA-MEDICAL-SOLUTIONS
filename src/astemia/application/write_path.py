@@ -50,6 +50,7 @@ CONSTRAINT_CONFLICTS = {
     "uq_bed_occupancy_tenant_id_bed_id_active_marker": "bed_occupied",
     "uq_bed_occupancy_tenant_id_encounter_id_active_marker": "already_in_bed",
     "uq_theatre_tenant_id_code": "theatre_code_exists",
+    "uq_imaging_study_tenant_id_study_instance_uid": "study_exists",
 }
 
 

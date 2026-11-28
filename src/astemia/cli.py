@@ -106,6 +106,8 @@ def seed_dev(
             "clerk": ("Records Clerk One", ["records_clerk"]),
             "privacy": ("Privacy Officer One", ["privacy_officer"]),
             "scheduler": ("Scheduler One", ["scheduler"]),
+            "radiologist": ("Dr Radiologist One", ["radiologist"]),
+            "radiographer": ("Radiographer One", ["radiographer"]),
         }
         for subject, (name, roles) in people.items():
             pid = party("person")

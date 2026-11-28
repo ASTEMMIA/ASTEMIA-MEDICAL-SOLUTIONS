@@ -37,6 +37,11 @@ export type ActorSummary = {
   flagged: number;
 };
 
+export type AddendumIn = {
+  text: string;
+  needs_review?: boolean;
+};
+
 export type AddressChangeReason = "moved" | "correction" | "identified";
 
 export type AddressHistoryOut = {
@@ -650,6 +655,53 @@ export type IdentifierOut = {
   verification_status: string;
 };
 
+/** DICOM modality codes (PS3.3 C.7.3.1.1.1) in common use. */
+export type ImagingModality = "CR" | "DX" | "CT" | "MR" | "US" | "NM" | "PT" | "MG" | "XA" | "RF";
+
+export type ImagingRequestOut = {
+  id: string;
+  version: number;
+  service_request_id: string;
+  patient_id: string;
+  encounter_id: string;
+  code: string;
+  display: string;
+  priority: OrderPriority;
+  clinical_note: string | null;
+  modality: ImagingModality;
+  body_site: string;
+  laterality: Laterality;
+  state: ImagingState;
+  protocol: string | null;
+  vetting_note: string | null;
+  vetted_by_id: string | null;
+  scheduled_at: string | null;
+  accession_number: string | null;
+  studies: ImagingStudyOut[];
+  reports: ReportOut[];
+};
+
+export type ImagingState = "requested" | "vetted" | "rejected" | "scheduled" | "performed" | "reported";
+
+export type ImagingStudyOut = {
+  id: string;
+  version: number;
+  study_instance_uid: string;
+  accession_number: string;
+  modality: ImagingModality;
+  performed_at: string;
+  status: StudyStatus;
+  conflicts: string[];
+  imaging_request_id: string | null;
+  patient_id: string | null;
+  linked_by_id: string | null;
+  linked_at: string | null;
+  link_reason: string | null;
+  received_issuer?: string | null;
+  received_identifier?: string | null;
+  received_birth_date?: string | null;
+};
+
 export type InterventionOut = {
   id: string;
   version: number;
@@ -705,6 +757,11 @@ export type LegalStatusOut = {
   current: boolean;
   lapsed: boolean;
   expiring: boolean;
+};
+
+export type LinkStudy = {
+  imaging_request_id: string;
+  reason: string;
 };
 
 export type MatchOut = {
@@ -830,6 +887,17 @@ export type OutstandingItem = {
 
 export type OutstandingKind = "medication" | "referral" | "follow_up";
 
+export type PacsCheck = {
+  token: string;
+  study_instance_uid: string;
+};
+
+export type PacsCheckOut = {
+  study_instance_uid: string;
+  patient_id: string;
+  practitioner_id: string;
+};
+
 export type Pathway = "diabetes" | "renal" | "cardiovascular" | "oncology" | "older_person";
 
 /** Who the sender says the document is about, for matching. */
@@ -839,6 +907,11 @@ export type PatientHint = {
   birth_date: string;
   administrative_sex: AdministrativeSex;
   nin?: string | null;
+};
+
+export type PatientIdentifierIn = {
+  issuer: string;
+  value: string;
 };
 
 export type PatientOut = {
@@ -940,6 +1013,17 @@ export type ReceiveDocument = {
   media_type: string;
   content_base64: string;
   patient_hint?: PatientHint | null;
+};
+
+/** A study arriving from the modality or PACS, with the identity it carries. */
+export type ReceiveStudy = {
+  study_instance_uid: string;
+  accession_number: string;
+  modality: ImagingModality;
+  performed_at: string;
+  pacs_reference: string;
+  patient_identifier: PatientIdentifierIn;
+  birth_date: string;
 };
 
 export type RecordAttendance = {
@@ -1053,6 +1137,11 @@ export type ReleaseReport = {
   observations: ObservationIn[];
 };
 
+export type ReportImaging = {
+  findings: string;
+  conclusion: string;
+};
+
 export type ReportOut = {
   id: string;
   version: number;
@@ -1062,6 +1151,8 @@ export type ReportOut = {
   released_at: string;
   prior_report_id?: string | null;
   review_id?: string | null;
+  conclusion?: string | null;
+  presented_form?: string | null;
   observations?: ObservationOut[];
 };
 
@@ -1071,6 +1162,20 @@ export type RequestEmergencyAccess = {
   patient_id: string;
   /** Why the chart is needed now; read by the privacy reviewer. */
   purpose: string;
+};
+
+export type RequestImaging = {
+  patient_id: string;
+  encounter_id: string;
+  code_system: string;
+  code: string;
+  display: string;
+  modality: ImagingModality;
+  body_site: string;
+  laterality: Laterality;
+  priority?: OrderPriority;
+  clinical_note: string;
+  result_owner_id?: string | null;
 };
 
 export type RescheduleAppointment = {
@@ -1164,6 +1269,10 @@ export type RevisionOut = {
   amendment_reason: string | null;
 };
 
+export type ScheduleImaging = {
+  scheduled_at: string;
+};
+
 export type Sensitivity = "normal" | "restricted" | "mental_health" | "sexual_health" | "safeguarding" | "genetics";
 
 export type ServiceOut = {
@@ -1227,6 +1336,8 @@ export type SlotType = "new" | "follow_up" | "urgent";
 export type StartCase = {
   override_reason?: string | null;
 };
+
+export type StudyStatus = "linked" | "unmatched" | "identity_conflict";
 
 export type SubmitReferral = {
   patient_id: string;
@@ -1333,6 +1444,22 @@ export type ValidationError = {
 };
 
 export type ValueType = "quantity" | "string" | "coded";
+
+export type VetDecision = "accepted" | "rejected";
+
+export type VetImaging = {
+  decision: VetDecision;
+  protocol?: string | null;
+  reason?: string | null;
+};
+
+/** Short-lived, patient-bound access to one study in the PACS viewer. */
+export type ViewerAccessOut = {
+  study_instance_uid: string;
+  url: string;
+  token: string;
+  expires_at: string;
+};
 
 export type WardOut = {
   id: string;

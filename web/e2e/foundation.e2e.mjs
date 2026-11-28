@@ -13,6 +13,8 @@ const PEOPLE = [
   ["Records Clerk One", "Records clerk", "Receive and file correspondence"],
   ["Privacy Officer One", "Privacy officer", "Review emergency access"],
   ["Scheduler One", "Scheduler", "Book, reschedule and cancel appointments"],
+  ["Dr Radiologist One", "Radiologist", "Sign radiology reports and addenda"],
+  ["Radiographer One", "Radiographer", "Record imaging studies"],
 ];
 
 await run("foundation", async (page, context) => {
