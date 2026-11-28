@@ -7,6 +7,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
+from astemia.domain.careplans import Certainty, Pathway, SessionType
 from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.discharge import Disposition, OutstandingKind
@@ -308,6 +309,10 @@ class ChartOut(BaseModel):
     discharges: list[DischargeSummaryOut] = Field(
         default_factory=list, description="Signed discharge summaries, newest first."
     )
+    conditions: list[ConditionOut] = Field(
+        default_factory=list, description="The problem list, refuted conditions excluded."
+    )
+    care_plans: list[CarePlanSummary] = Field(default_factory=list)
 
 
 class DuplicateGroup(BaseModel):
@@ -1003,6 +1008,121 @@ class DischargeSummaryOut(BaseModel):
     tasks: list[uuid.UUID] = Field(
         default_factory=list, description="Tasks opened for the outstanding items."
     )
+
+
+# --- conditions and care plans (HS12; SA-08) -------------------------------------------
+
+
+class RecordCondition(Strict):
+    code_system: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    code: Code
+    display: Annotated[str, StringConstraints(min_length=1, max_length=255)]
+    certainty: Certainty = Certainty.CONFIRMED
+    onset_date: date | None = None
+    register_code: Pathway | None = Field(
+        default=None, description="Puts the patient on this condition register."
+    )
+
+
+class ConditionOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    code_system: str
+    code: str
+    display: str
+    certainty: str
+    onset_date: date | None
+    register_code: str | None
+    recorded_at: datetime
+    author_id: uuid.UUID | None
+
+
+class RevisionIn(Strict):
+    effective_from: AwareDatetime
+    session_type: SessionType
+    interval_days: int = Field(description="Days between sessions, 1 to 365.")
+    sessions: int = Field(description="How many sessions to schedule, 1 to 52.")
+    instructions: NoteBody
+    protocol_code: str | None = Field(default=None, max_length=64)
+
+
+class CreatePlan(Strict):
+    patient_id: uuid.UUID
+    condition_id: uuid.UUID | None = None
+    pathway: Pathway
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]
+    owner_id: uuid.UUID
+    review_date: date
+    revision: RevisionIn
+
+
+class RevisePlan(RevisionIn):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class CompleteCycle(Strict):
+    note: str | None = Field(default=None, max_length=1000)
+
+
+class ReleaseCycle(Strict):
+    note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class DiscontinuePlan(Strict):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class PlanRevisionOut(BaseModel):
+    id: uuid.UUID
+    revision_number: int
+    effective_from: datetime
+    session_type: str
+    interval_days: int
+    instructions: str
+    protocol_code: str | None
+    authorised_by_id: uuid.UUID
+    reason: str
+    recorded_at: datetime
+
+
+class PlanCycleOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    plan_revision_id: uuid.UUID
+    revision_number: int
+    scheduled_at: datetime
+    status: str
+    completed_at: datetime | None
+    completed_by_id: uuid.UUID | None
+    outcome_note: str | None
+
+
+class CarePlanOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    condition_id: uuid.UUID | None
+    pathway: str
+    title: str
+    owner_id: uuid.UUID
+    status: str
+    review_date: date
+    current_revision: int
+    discontinuation_reason: str | None
+    revisions: list[PlanRevisionOut]
+    cycles: list[PlanCycleOut]
+
+
+class CarePlanSummary(BaseModel):
+    id: uuid.UUID
+    pathway: str
+    title: str
+    owner_id: uuid.UUID
+    status: str
+    review_date: date
+    current_revision: int
+    next_session: datetime | None
 
 
 ChartOut.model_rebuild()

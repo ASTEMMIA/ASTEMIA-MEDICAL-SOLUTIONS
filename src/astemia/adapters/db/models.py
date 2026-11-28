@@ -1185,6 +1185,96 @@ class DischargeSummary(Envelope, Base):
     signed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
 
 
+class Condition(Envelope, Coded, Base):
+    """CEDA Condition: a coded problem with its certainty and onset, and the
+    condition register it puts the patient on (HS12)."""
+
+    __tablename__ = "condition"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        Index(None, "tenant_id", "patient_id"),
+        Index(None, "tenant_id", "register_code", "certainty"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    certainty: Mapped[str] = mapped_column(String(16), nullable=False)
+    onset_date: Mapped[date | None] = mapped_column(Date)
+    register_code: Mapped[str | None] = mapped_column(String(32))
+
+
+class CarePlan(Envelope, Base):
+    """CEDA SA-08 CarePlan (HS12): one pathway for one patient, with an owner,
+    a review date and its revisions."""
+
+    __tablename__ = "care_plan"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "condition_id"], "condition"),
+        fk(["tenant_id", "owner_id"], "practitioner"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    condition_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    pathway: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    review_date: Mapped[date] = mapped_column(Date, nullable=False)
+    current_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    discontinuation_reason: Mapped[str | None] = mapped_column(String(500))
+
+
+class PlanRevision(Envelope, Base):
+    """CEDA SA-08 PlanRevision: an authorised version of the plan's
+    instructions, from its effective time. Never changed once written."""
+
+    __tablename__ = "plan_revision"
+    __table_args__ = (
+        fk(["tenant_id", "care_plan_id"], "care_plan"),
+        fk(["tenant_id", "authorised_by_id"], "practitioner"),
+        UniqueConstraint("tenant_id", "care_plan_id", "revision_number"),
+        TABLE_OPTS,
+    )
+
+    care_plan_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    effective_from: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    session_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    interval_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    instructions: Mapped[str] = mapped_column(Text, nullable=False)
+    protocol_code: Mapped[str | None] = mapped_column(String(64))
+    authorised_by_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    reason: Mapped[str] = mapped_column(String(500), nullable=False)
+
+
+class PlanCycle(Envelope, Base):
+    """CEDA PlanCycle: one session of a plan, linked to the exact revision it
+    is (or was) delivered under."""
+
+    __tablename__ = "plan_cycle"
+    __table_args__ = (
+        fk(["tenant_id", "care_plan_id"], "care_plan"),
+        fk(["tenant_id", "plan_revision_id"], "plan_revision"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "completed_by_id"], "practitioner"),
+        Index(None, "tenant_id", "patient_id", "scheduled_at"),
+        Index(None, "tenant_id", "care_plan_id", "scheduled_at"),
+        TABLE_OPTS,
+    )
+
+    care_plan_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    plan_revision_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    scheduled_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    completed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    completed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    outcome_note: Mapped[str | None] = mapped_column(String(1000))
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""

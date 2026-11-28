@@ -75,6 +75,10 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "task:assign",
             # Discharge (HS05, ST08): authorised sign-off.
             "discharge:sign",
+            # Conditions and care plans (HS12).
+            "condition:record",
+            "careplan:manage",
+            "careplan:deliver",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -92,6 +96,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "note:write",
             "note:sign_nursing",
             "task:assign",
+            # Nurses deliver plan sessions such as dialysis (HS12).
+            "careplan:deliver",
         }
     ),
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
@@ -133,6 +139,9 @@ RELATIONSHIP_BOUND = frozenset(
         "note:sign_nursing",
         "document:review",
         "discharge:sign",
+        "condition:record",
+        "careplan:manage",
+        "careplan:deliver",
     }
 )
 

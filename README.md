@@ -79,6 +79,13 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/documents/{id}/review` | The named reviewer signs the document off. Needs `If-Match` |
   | `POST /v1/encounters/{id}/discharge-summary` | Draft or redraft the discharge summary (`If-Match` when redrafting) |
   | `POST /v1/encounters/{id}/discharge` | Sign off the discharge: summary signed, encounter finished, an owned task for every outstanding item. Needs `If-Match` (encounter version) |
+  | `POST /v1/patients/{id}/conditions` | Record a coded condition, optionally on a condition register |
+  | `POST /v1/care-plans` | Create a care plan with its first revision and scheduled sessions |
+  | `GET /v1/care-plans/{id}` | A plan with its revisions and sessions |
+  | `POST /v1/care-plans/{id}/revisions` | Revise from an effective time; later sessions are rescheduled, completed ones keep their revision. Needs `If-Match` |
+  | `POST /v1/care-plans/{id}/discontinue` | End the plan and its remaining sessions. Needs `If-Match` |
+  | `POST /v1/plan-cycles/{id}/complete` | Record a delivered session. Needs `If-Match` |
+  | `POST /v1/plan-cycles/{id}/release` | The plan owner resolves a held clash. Needs `If-Match` |
   | `POST /v1/tasks` | Create a Daybook task for a named owner or a queue (a role) |
   | `GET /v1/tasks` | `view=mine` (mine and my queues) or `view=all` (team supervisor), earliest due first |
   | `POST /v1/tasks/{id}/acknowledge` | Acknowledge; claims a queue task. Needs `If-Match` |
