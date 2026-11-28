@@ -1161,6 +1161,30 @@ class TaskNotification(Base):
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
 
 
+class DischargeSummary(Envelope, Base):
+    """CEDA DischargeSummary (HS05, ST08). One per encounter, so a duplicate or
+    misdirected completion cannot make a second discharge."""
+
+    __tablename__ = "discharge_summary"
+    __table_args__ = (
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "signed_by_id"], "practitioner"),
+        UniqueConstraint("tenant_id", "encounter_id"),
+        TABLE_OPTS,
+    )
+
+    encounter_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    disposition: Mapped[str] = mapped_column(String(32), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    follow_up: Mapped[str | None] = mapped_column(String(2000))
+    discharged_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    signed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    signed_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""

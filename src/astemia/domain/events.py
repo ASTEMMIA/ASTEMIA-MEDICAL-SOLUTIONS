@@ -35,6 +35,7 @@ class EventType(StrEnum):
     TASK_COMPLETED = "task.completed"
     TASK_REMINDER = "task.reminder"
     TASK_ESCALATED = "task.escalated"
+    ENCOUNTER_DISCHARGED = "encounter.discharged"
     ENCOUNTER_ADMITTED = "encounter.admitted"
     ORDER_PLACED = "order.placed"
     RESULT_RELEASED = "result.released"

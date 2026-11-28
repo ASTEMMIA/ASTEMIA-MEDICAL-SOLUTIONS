@@ -14,6 +14,7 @@ from astemia.adapters.db.models import (
 )
 from astemia.application import views
 from astemia.application.context import RequestContext
+from astemia.application.discharge import signed_discharges
 from astemia.application.documents import filed_documents
 from astemia.application.errors import AccessDenied
 from astemia.application.notes import signed_entries
@@ -86,6 +87,7 @@ class Queries:
             ).scalars()
             entries = signed_entries(session, tid, ids, visible)
             documents = filed_documents(session, tid, ids, visible)
+            discharges = signed_discharges(session, tid, ids, visible)
             return ChartOut(
                 patient=views.patient(session, patient, masks=masks, at=ctx.now),
                 encounters=[views.encounter(session, e) for e in encounters],
@@ -94,6 +96,7 @@ class Queries:
                 open_reviews=[views.review(r) for r in reviews if visible(r.sensitivity)],
                 entries=entries,
                 documents=documents,
+                discharges=discharges,
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,

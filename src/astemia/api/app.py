@@ -21,6 +21,7 @@ from astemia.application.catalogue import Catalogue
 from astemia.application.commands import Commands
 from astemia.application.context import RequestContext
 from astemia.application.daybook import Daybook
+from astemia.application.discharge import Discharges
 from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
@@ -51,7 +52,9 @@ from astemia.application.schemas import (
     CreateSlots,
     CreateTask,
     DecideReferral,
+    Discharge,
     DocumentOut,
+    DraftDischarge,
     DuplicateGroup,
     EmergencyGrantOut,
     EndIntervention,
@@ -119,6 +122,7 @@ def create_app(
     notes = Notes(write_path, factory, policy)
     documents = Documents(write_path, factory, policy)
     daybook = Daybook(write_path, factory, policy)
+    discharges = Discharges(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -448,6 +452,32 @@ def create_app(
         if_match: Annotated[str | None, Header(alias="If-Match")] = None,
     ) -> dict[str, Any]:
         result = documents.review(ctx, key, document_id, version_of(if_match), body)
+        return respond(result, response)
+
+    # --- discharge (HS05, WF06 step 3, ST08) -----------------------------------
+
+    @app.post("/v1/encounters/{encounter_id}/discharge-summary")
+    def draft_discharge(
+        encounter_id: uuid.UUID,
+        body: DraftDischarge,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = discharges.draft(ctx, key, encounter_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/encounters/{encounter_id}/discharge")
+    def discharge_encounter(
+        encounter_id: uuid.UUID,
+        body: Discharge,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = discharges.discharge(ctx, key, encounter_id, version_of(if_match), body)
         return respond(result, response)
 
     # --- Daybook tasks (UG03) ----------------------------------------------------
