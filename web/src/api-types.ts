@@ -184,7 +184,22 @@ export type BookAppointment = {
   reason?: string | null;
 };
 
+export type BookTheatreCase = {
+  session_id: string;
+  encounter_id: string;
+  surgeon_id: string;
+  procedure: string;
+  procedure_code?: string | null;
+  laterality: Laterality;
+  estimated_minutes: number;
+  care_plan_id?: string | null;
+};
+
 export type CancelAppointment = {
+  reason: string;
+};
+
+export type CancelCase = {
   reason: string;
 };
 
@@ -235,6 +250,8 @@ export type CarePlanSummary = {
   next_session: string | null;
 };
 
+export type CaseStatus = "scheduled" | "in_theatre" | "completed" | "handed_over" | "cancelled";
+
 export type Certainty = "provisional" | "confirmed" | "refuted";
 
 /** A new home address. The current one is ended and kept as history. */
@@ -268,6 +285,14 @@ export type ChartOut = {
   care_plans?: CarePlanSummary[];
 };
 
+export type ChecklistEntry = {
+  step: ChecklistStep;
+  by_id: string | null;
+  at: string;
+};
+
+export type ChecklistStep = "sign_in" | "time_out" | "sign_out";
+
 /** An appointment on a clinic list, with the patient it is for. */
 export type ClinicAppointmentOut = {
   appointment: AppointmentOut;
@@ -297,6 +322,11 @@ export type ClosureItem = {
 };
 
 export type ClosureReason = "death" | "moved_away" | "discharged";
+
+export type CompleteCase = {
+  procedure_note: string;
+  override_reason?: string | null;
+};
 
 export type CompleteCycle = {
   note?: string | null;
@@ -389,6 +419,17 @@ export type CreateTask = {
   assignee_id?: string | null;
   /** A role, e.g. nurse. */
   queue?: string | null;
+};
+
+export type CreateTheatre = {
+  facility_id: string;
+  code: string;
+  name: string;
+};
+
+export type CreateTheatreSession = {
+  starts_at: string;
+  ends_at: string;
 };
 
 export type CreateWard = {
@@ -590,6 +631,11 @@ export type HTTPValidationError = {
   detail?: ValidationError[];
 };
 
+export type HandOverCase = {
+  recipient_id: string;
+  note?: string | null;
+};
+
 export type IdentifierIn = {
   issuer: string;
   value: string;
@@ -638,6 +684,8 @@ export type LabOrderOut = {
   patient: PatientOut;
   ordered_at: string;
 };
+
+export type Laterality = "left" | "right" | "bilateral" | "not_applicable";
 
 /** The patient's legal status under mental health law (ICRS 5.5.9). */
 export type LegalStatus = "informal" | "emergency_holding" | "detained_assessment" | "detained_treatment" | "community_treatment";
@@ -900,6 +948,10 @@ export type RecordAttendance = {
   identity_verified?: boolean;
 };
 
+export type RecordChecklistStep = {
+  step: ChecklistStep;
+};
+
 export type RecordCondition = {
   code_system: string;
   code: string;
@@ -1129,6 +1181,8 @@ export type ServiceOut = {
   facilities?: string[];
 };
 
+export type SessionStatus = "open" | "unavailable";
+
 export type SessionType = "dialysis" | "treatment_cycle" | "monitoring" | "review";
 
 export type SetBedStatus = {
@@ -1144,6 +1198,11 @@ export type SetLegalStatus = {
   valid_until?: string | null;
   authorised_by_id: string;
   reason: string;
+};
+
+export type SetSessionStatus = {
+  status: SessionStatus;
+  reason?: string | null;
 };
 
 export type SetWardStatus = {
@@ -1164,6 +1223,10 @@ export type SlotOut = {
 };
 
 export type SlotType = "new" | "follow_up" | "urgent";
+
+export type StartCase = {
+  override_reason?: string | null;
+};
 
 export type SubmitReferral = {
   patient_id: string;
@@ -1201,7 +1264,57 @@ export type TaskOut = {
   history: AssignmentOut[];
 };
 
-export type TaskType = "recall" | "referral_follow_up" | "result_follow_up" | "document_review" | "discharge_follow_up" | "general";
+export type TaskType = "recall" | "referral_follow_up" | "result_follow_up" | "document_review" | "discharge_follow_up" | "plan_review" | "handover" | "general";
+
+export type TheatreCaseOut = {
+  id: string;
+  version: number;
+  session_id: string;
+  theatre_id: string;
+  encounter_id: string;
+  patient_id: string;
+  surgeon_id: string;
+  care_plan_id: string | null;
+  procedure: string;
+  procedure_code: string | null;
+  laterality: Laterality;
+  estimated_minutes: number;
+  status: CaseStatus;
+  checklist: ChecklistEntry[];
+  override_reason: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  procedure_note: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  handover_recipient_id: string | null;
+  handed_over_at: string | null;
+  handover_note: string | null;
+  tasks: string[];
+};
+
+export type TheatreOut = {
+  id: string;
+  version: number;
+  facility_id: string;
+  code: string;
+  name: string;
+  active: boolean;
+};
+
+export type TheatreSessionOut = {
+  id: string;
+  version: number;
+  theatre_id: string;
+  theatre_code: string;
+  starts_at: string;
+  ends_at: string;
+  status: SessionStatus;
+  status_reason: string | null;
+  capacity_minutes: number;
+  booked_minutes: number;
+  cases: string[];
+};
 
 export type UnmergePatient = {
   reason: string;

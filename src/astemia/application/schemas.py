@@ -30,6 +30,7 @@ from astemia.domain.scheduling import (
 )
 from astemia.domain.tasks import Priority as TaskPriority
 from astemia.domain.tasks import TaskType
+from astemia.domain.theatre import CaseStatus, ChecklistStep, Laterality, SessionStatus
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
@@ -1290,3 +1291,111 @@ class WardOut(BaseModel):
     beds: list[BedOut]
     available: int
     occupied: int
+
+
+# --- theatres (HS03, WF05 step 2) ----------------------------------------------------
+
+
+class CreateTheatre(Strict):
+    facility_id: uuid.UUID
+    code: Code
+    name: str = Field(min_length=1, max_length=200)
+
+
+class CreateTheatreSession(Strict):
+    starts_at: AwareDatetime
+    ends_at: AwareDatetime
+
+
+class SetSessionStatus(Strict):
+    status: SessionStatus
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class BookTheatreCase(Strict):
+    session_id: uuid.UUID
+    encounter_id: uuid.UUID
+    surgeon_id: uuid.UUID
+    procedure: str = Field(min_length=1, max_length=200)
+    procedure_code: Code | None = None
+    laterality: Laterality
+    estimated_minutes: int = Field(ge=5, le=24 * 60)
+    care_plan_id: uuid.UUID | None = None
+
+
+class RecordChecklistStep(Strict):
+    step: ChecklistStep
+
+
+class StartCase(Strict):
+    override_reason: str | None = Field(default=None, min_length=1, max_length=500)
+
+
+class CompleteCase(Strict):
+    procedure_note: str = Field(min_length=1, max_length=20000)
+    override_reason: str | None = Field(default=None, min_length=1, max_length=500)
+
+
+class CancelCase(Strict):
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class HandOverCase(Strict):
+    recipient_id: uuid.UUID
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class ChecklistEntry(BaseModel):
+    step: ChecklistStep
+    by_id: uuid.UUID | None
+    at: datetime
+
+
+class TheatreCaseOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    session_id: uuid.UUID
+    theatre_id: uuid.UUID
+    encounter_id: uuid.UUID
+    patient_id: uuid.UUID
+    surgeon_id: uuid.UUID
+    care_plan_id: uuid.UUID | None
+    procedure: str
+    procedure_code: str | None
+    laterality: Laterality
+    estimated_minutes: int
+    status: CaseStatus
+    checklist: list[ChecklistEntry]
+    override_reason: str | None
+    started_at: datetime | None
+    completed_at: datetime | None
+    procedure_note: str | None
+    cancelled_at: datetime | None
+    cancellation_reason: str | None
+    handover_recipient_id: uuid.UUID | None
+    handed_over_at: datetime | None
+    handover_note: str | None
+    tasks: list[uuid.UUID]
+
+
+class TheatreSessionOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    theatre_id: uuid.UUID
+    theatre_code: str
+    starts_at: datetime
+    ends_at: datetime
+    status: SessionStatus
+    status_reason: str | None
+    capacity_minutes: int
+    booked_minutes: int
+    cases: list[uuid.UUID]
+
+
+class TheatreOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    facility_id: uuid.UUID
+    code: str
+    name: str
+    active: bool

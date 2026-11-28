@@ -23,6 +23,8 @@ class TaskType(StrEnum):
     RESULT_FOLLOW_UP = "result_follow_up"
     DOCUMENT_REVIEW = "document_review"
     DISCHARGE_FOLLOW_UP = "discharge_follow_up"
+    PLAN_REVIEW = "plan_review"
+    HANDOVER = "handover"
     GENERAL = "general"
 
 

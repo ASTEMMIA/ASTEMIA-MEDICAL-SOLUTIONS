@@ -47,6 +47,11 @@ export const CAPABILITY_NAMES: Record<string, string> = {
   "bed:read": "See the bed board",
   "bed:assign": "Give patients beds and transfer them",
   "bed:manage": "Set up wards and beds",
+  "theatre:read": "See theatre lists",
+  "theatre:book": "Book and cancel theatre cases",
+  "theatre:checklist": "Record the theatre safety checklist",
+  "theatre:perform": "Operate and hand over from recovery",
+  "theatre:manage": "Set up theatres and sessions",
 };
 
 export function Account() {
