@@ -5,6 +5,7 @@ an authorised principal and an unused Idempotency-Key.
 """
 
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -125,9 +126,17 @@ def open_encounter(
     return encounter
 
 
-def create_order(u: Unit, cmd: PlaceOrder, author_role: str = "clinician") -> ServiceRequest:
+def create_order(
+    u: Unit,
+    cmd: PlaceOrder,
+    author_role: str = "clinician",
+    *,
+    requester: uuid.UUID | None = None,
+    placer: tuple[str, str] | None = None,
+) -> ServiceRequest:
     """A new order on an open encounter of the patient (or of a record merged
-    into theirs). Shared by laboratory orders and imaging requests."""
+    into theirs). Shared by laboratory orders, imaging requests and orders that
+    arrive by interface, which name their requester and placer number."""
     encounter = u.get(Encounter, cmd.encounter_id, lock=True)
     # The open encounter of a record merged into this one still takes orders.
     if encounter.patient_id not in (
@@ -139,8 +148,8 @@ def create_order(u: Unit, cmd: PlaceOrder, author_role: str = "clinician") -> Se
         )
     if enc.EncounterState(encounter.state) not in enc.OPEN_STATES:
         raise Conflict("encounter is not open for orders", code="encounter_closed")
-    requester = u.ctx.principal.practitioner_id
-    assert requester is not None  # guaranteed by the relationship-bound policy
+    requester = requester or u.ctx.principal.practitioner_id
+    assert requester is not None  # the policy, or the interface, names one
     owner = cmd.result_owner_id or requester
     u.get(Practitioner, owner)
     if cmd.backup_owner_id:
@@ -167,8 +176,8 @@ def create_order(u: Unit, cmd: PlaceOrder, author_role: str = "clinician") -> Se
         requester_id=requester,
         result_owner_id=owner,
         backup_owner_id=cmd.backup_owner_id,
-        placer_authority="ASTEMIA",
-        placer_id=f"ORD-{uuid.uuid7().hex[-12:].upper()}",
+        placer_authority=placer[0] if placer else "ASTEMIA",
+        placer_id=placer[1] if placer else f"ORD-{uuid.uuid7().hex[-12:].upper()}",
         status=dx.ServiceRequestStatus.ACTIVE.value,
         priority=cmd.priority.value,
         clinical_note=cmd.clinical_note,
@@ -210,6 +219,165 @@ def open_review(u: Unit, order: ServiceRequest, report: DiagnosticReport) -> Res
     u.session.add(review)
     u.session.flush()
     return review
+
+
+@dataclass(slots=True)
+class Released:
+    order: ServiceRequest
+    report: DiagnosticReport
+    review: ResultReview
+    status: dx.ReportStatus
+    prior: DiagnosticReport | None
+    revisions: list[dict[str, str]]
+
+
+def record_release(
+    u: Unit, cmd: ReleaseReport, scientist: uuid.UUID, author_role: str = "lab_scientist"
+) -> Released:
+    """Record a released report and its observation revisions on the order,
+    complete the order and open its review. Shared by the laboratory API and
+    inbound HL7 results; the caller authorises, emits and audits."""
+    order = u.get(ServiceRequest, cmd.service_request_id, lock=True)
+    current = dx.ServiceRequestStatus(order.status)
+    if current not in (dx.ServiceRequestStatus.ACTIVE, dx.ServiceRequestStatus.COMPLETED):
+        raise Conflict(f"order is {current}", code="order_not_resultable")
+    values = [
+        (
+            o,
+            _domain(
+                lambda o=o: dx.ObservationValue(
+                    value_type=o.value_type,
+                    quantity=o.quantity,
+                    unit=o.unit,
+                    text=o.text,
+                    code=o.value_code,
+                    ref_low=o.ref_low,
+                    ref_high=o.ref_high,
+                )
+            ),
+        )
+        for o in cmd.observations
+    ]
+    if len({(o.code_system, o.code) for o, _ in values}) != len(values):
+        raise Unprocessable("an observation code appears twice", code="duplicate_observation")
+
+    prior = u.session.execute(
+        select(DiagnosticReport)
+        .where(
+            DiagnosticReport.tenant_id == u.ctx.tenant_id,
+            DiagnosticReport.service_request_id == order.id,
+        )
+        .order_by(DiagnosticReport.released_at.desc(), DiagnosticReport.id.desc())
+        .limit(1)
+        .with_for_update()
+    ).scalar_one_or_none()
+    status = _domain(
+        lambda: dx.release_status(dx.ReportStatus(prior.status) if prior else None, cmd.status)
+    )
+    report = DiagnosticReport(
+        tenant_id=u.ctx.tenant_id,
+        id=new_id(),
+        version=1,
+        recorded_at=u.ctx.now,
+        effective_at=cmd.effective_at,
+        effective_precision=EffectivePrecision.MINUTE.value,
+        author_id=scientist,
+        author_role=author_role,
+        sensitivity=order.sensitivity,
+        service_request_id=order.id,
+        patient_id=order.patient_id,
+        status=status.value,
+        released_by_id=scientist,
+        released_at=u.ctx.now,
+        portal_release="withheld",
+        prior_report_id=prior.id if prior else None,
+        conclusion=cmd.conclusion,
+    )
+    u.session.add(report)
+    u.session.flush()
+
+    revisions: list[dict[str, str]] = []
+    for obs_in, value in values:
+        obs = u.session.execute(
+            select(Observation)
+            .where(
+                Observation.tenant_id == u.ctx.tenant_id,
+                Observation.service_request_id == order.id,
+                Observation.code_system == obs_in.code_system,
+                Observation.code == obs_in.code,
+            )
+            .with_for_update()
+        ).scalar_one_or_none()
+        old_revision_id: uuid.UUID | None = None
+        if obs is None:
+            obs = Observation(
+                tenant_id=u.ctx.tenant_id,
+                id=new_id(),
+                version=1,
+                recorded_at=u.ctx.now,
+                effective_at=cmd.effective_at,
+                author_id=scientist,
+                sensitivity=order.sensitivity,
+                code_system=obs_in.code_system,
+                code=obs_in.code,
+                display=obs_in.display,
+                patient_id=order.patient_id,
+                service_request_id=order.id,
+                current_revision=1,
+            )
+            u.session.add(obs)
+            u.session.flush()
+            rev_no = 1
+        else:
+            old_revision_id = u.session.execute(
+                select(ObservationRevision.id).where(
+                    ObservationRevision.tenant_id == u.ctx.tenant_id,
+                    ObservationRevision.observation_id == obs.id,
+                    ObservationRevision.revision == obs.current_revision,
+                )
+            ).scalar_one()
+            rev_no = obs.current_revision + 1
+            obs.current_revision = rev_no
+            obs.version += 1
+        obs_status = (
+            dx.ObservationStatus.AMENDED if rev_no > 1 else dx.ObservationStatus(status.value)
+        )
+        flag = value.flag()
+        rev = ObservationRevision(
+            tenant_id=u.ctx.tenant_id,
+            observation_id=obs.id,
+            revision=rev_no,
+            id=new_id(),
+            report_id=report.id,
+            status=obs_status.value,
+            value_type=value.value_type.value,
+            value_quantity=value.quantity,
+            value_unit=value.unit,
+            value_text=value.text,
+            value_code=value.code,
+            ref_low=value.ref_low,
+            ref_high=value.ref_high,
+            flag=flag.value if flag else None,
+            original_value=obs_in.original_value,
+            effective_at=cmd.effective_at,
+            recorded_at=u.ctx.now,
+            author_id=scientist,
+        )
+        u.session.add(rev)
+        revisions.append(
+            {"observation_id": str(obs.id), "new_revision_id": str(rev.id)}
+            | ({"old_revision_id": str(old_revision_id)} if old_revision_id else {})
+        )
+
+    # Order completes on first release; it stays completed on amendment.
+    order.status = dx.move_order(current, dx.ServiceRequestStatus.COMPLETED).value
+    order.version += 1
+    if cmd.filler_id:
+        order.filler_authority = cmd.filler_authority or "LAB"
+        order.filler_id = cmd.filler_id
+
+    review = open_review(u, order, report)
+    return Released(order, report, review, status, prior, revisions)
 
 
 class Commands:
@@ -505,157 +673,13 @@ class Commands:
 
     def release_report(self, ctx: Any, key: str | None, cmd: ReleaseReport) -> CommandResult:
         def handle(u: Unit) -> CommandResult:
-            order = u.get(ServiceRequest, cmd.service_request_id, lock=True)
-            current = dx.ServiceRequestStatus(order.status)
-            if current not in (dx.ServiceRequestStatus.ACTIVE, dx.ServiceRequestStatus.COMPLETED):
-                raise Conflict(f"order is {current}", code="order_not_resultable")
-            values = [
-                (
-                    o,
-                    _domain(
-                        lambda o=o: dx.ObservationValue(
-                            value_type=o.value_type,
-                            quantity=o.quantity,
-                            unit=o.unit,
-                            text=o.text,
-                            code=o.value_code,
-                            ref_low=o.ref_low,
-                            ref_high=o.ref_high,
-                        )
-                    ),
-                )
-                for o in cmd.observations
-            ]
-            if len({(o.code_system, o.code) for o, _ in values}) != len(values):
-                raise Unprocessable(
-                    "an observation code appears twice", code="duplicate_observation"
-                )
-
-            prior = u.session.execute(
-                select(DiagnosticReport)
-                .where(
-                    DiagnosticReport.tenant_id == u.ctx.tenant_id,
-                    DiagnosticReport.service_request_id == order.id,
-                )
-                .order_by(DiagnosticReport.released_at.desc(), DiagnosticReport.id.desc())
-                .limit(1)
-                .with_for_update()
-            ).scalar_one_or_none()
-            status = _domain(
-                lambda: dx.release_status(
-                    dx.ReportStatus(prior.status) if prior else None, cmd.status
-                )
-            )
             scientist = u.ctx.principal.practitioner_id
             if scientist is None:
                 u.deny("no_practitioner")
             assert scientist is not None
-
-            report = DiagnosticReport(
-                tenant_id=u.ctx.tenant_id,
-                id=new_id(),
-                version=1,
-                recorded_at=u.ctx.now,
-                effective_at=cmd.effective_at,
-                effective_precision=EffectivePrecision.MINUTE.value,
-                author_id=scientist,
-                author_role="lab_scientist",
-                sensitivity=order.sensitivity,
-                service_request_id=order.id,
-                patient_id=order.patient_id,
-                status=status.value,
-                released_by_id=scientist,
-                released_at=u.ctx.now,
-                portal_release="withheld",
-                prior_report_id=prior.id if prior else None,
-                conclusion=cmd.conclusion,
-            )
-            u.session.add(report)
-            u.session.flush()
-
-            revisions: list[dict[str, str]] = []
-            for obs_in, value in values:
-                obs = u.session.execute(
-                    select(Observation)
-                    .where(
-                        Observation.tenant_id == u.ctx.tenant_id,
-                        Observation.service_request_id == order.id,
-                        Observation.code_system == obs_in.code_system,
-                        Observation.code == obs_in.code,
-                    )
-                    .with_for_update()
-                ).scalar_one_or_none()
-                old_revision_id: uuid.UUID | None = None
-                if obs is None:
-                    obs = Observation(
-                        tenant_id=u.ctx.tenant_id,
-                        id=new_id(),
-                        version=1,
-                        recorded_at=u.ctx.now,
-                        effective_at=cmd.effective_at,
-                        author_id=scientist,
-                        sensitivity=order.sensitivity,
-                        code_system=obs_in.code_system,
-                        code=obs_in.code,
-                        display=obs_in.display,
-                        patient_id=order.patient_id,
-                        service_request_id=order.id,
-                        current_revision=1,
-                    )
-                    u.session.add(obs)
-                    u.session.flush()
-                    rev_no = 1
-                else:
-                    old_revision_id = u.session.execute(
-                        select(ObservationRevision.id).where(
-                            ObservationRevision.tenant_id == u.ctx.tenant_id,
-                            ObservationRevision.observation_id == obs.id,
-                            ObservationRevision.revision == obs.current_revision,
-                        )
-                    ).scalar_one()
-                    rev_no = obs.current_revision + 1
-                    obs.current_revision = rev_no
-                    obs.version += 1
-                obs_status = (
-                    dx.ObservationStatus.AMENDED
-                    if rev_no > 1
-                    else dx.ObservationStatus(status.value)
-                )
-                flag = value.flag()
-                rev = ObservationRevision(
-                    tenant_id=u.ctx.tenant_id,
-                    observation_id=obs.id,
-                    revision=rev_no,
-                    id=new_id(),
-                    report_id=report.id,
-                    status=obs_status.value,
-                    value_type=value.value_type.value,
-                    value_quantity=value.quantity,
-                    value_unit=value.unit,
-                    value_text=value.text,
-                    value_code=value.code,
-                    ref_low=value.ref_low,
-                    ref_high=value.ref_high,
-                    flag=flag.value if flag else None,
-                    original_value=obs_in.original_value,
-                    effective_at=cmd.effective_at,
-                    recorded_at=u.ctx.now,
-                    author_id=scientist,
-                )
-                u.session.add(rev)
-                revisions.append(
-                    {"observation_id": str(obs.id), "new_revision_id": str(rev.id)}
-                    | ({"old_revision_id": str(old_revision_id)} if old_revision_id else {})
-                )
-
-            # Order completes on first release; it stays completed on amendment.
-            order.status = dx.move_order(current, dx.ServiceRequestStatus.COMPLETED).value
-            order.version += 1
-            if cmd.filler_id:
-                order.filler_authority = cmd.filler_authority or "LAB"
-                order.filler_id = cmd.filler_id
-
-            review = open_review(u, order, report)
+            released = record_release(u, cmd, scientist)
+            order, report, review = released.order, released.report, released.review
+            status, prior, revisions = released.status, released.prior, released.revisions
 
             decision = u.authorize("result:release")
             event_type = (

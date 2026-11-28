@@ -59,6 +59,7 @@ UNLINKED = {
     "unlinked_clinician": ["clinician"],
     "unlinked_scientist": ["lab_scientist"],
     "unlinked_radiologist": ["radiologist"],
+    "interface": ["interface_engine"],
     "no_catalogue": ["sensitive_reader"],
     "unlinked_steward": ["identity_steward"],
     "unlinked_privacy": ["privacy_officer"],

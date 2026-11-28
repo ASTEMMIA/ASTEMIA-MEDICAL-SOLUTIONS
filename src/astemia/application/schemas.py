@@ -1524,3 +1524,43 @@ class PacsCheckOut(BaseModel):
     study_instance_uid: str
     patient_id: uuid.UUID
     practitioner_id: uuid.UUID
+
+
+# --- interfaces: HL7 v2 (CEDA section 6, WF03) -----------------------------------------
+
+
+MessageStatus = Literal["processed", "held", "rejected"]
+
+
+class Hl7In(Strict):
+    message: str = Field(min_length=8, max_length=1_000_000)
+
+
+class Hl7Out(BaseModel):
+    message_id: uuid.UUID | None
+    control_id: str | None
+    message_type: str | None
+    status: str  # processed, held or rejected
+    ack_code: str  # AA accepted, AE application error, AR rejected
+    error_code: str | None
+    detail: str | None
+    resource_type: str | None = None
+    resource_id: uuid.UUID | None = None
+    ack: str | None  # the HL7 ACK message, for engines that want it verbatim
+
+
+class InterfaceMessageOut(BaseModel):
+    id: uuid.UUID
+    sender: str
+    control_id: str
+    message_type: str
+    status: str
+    ack_code: str
+    error_code: str | None
+    detail: str | None
+    placer_key: str | None
+    patient_id: uuid.UUID | None
+    resource_type: str | None
+    resource_id: uuid.UUID | None
+    recorded_at: datetime
+    processed_at: datetime | None

@@ -31,6 +31,7 @@ from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
 from astemia.application.errors import AccessDenied, ApplicationError
 from astemia.application.identity_review import IdentityReview
+from astemia.application.interfaces import Interfaces
 from astemia.application.notes import Notes
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
@@ -84,8 +85,11 @@ from astemia.application.schemas import (
     FacilityOut,
     FileDocument,
     HandOverCase,
+    Hl7In,
+    Hl7Out,
     ImagingRequestOut,
     ImagingStudyOut,
+    InterfaceMessageOut,
     InterventionOut,
     LabOrderOut,
     LegalStatusOut,
@@ -93,6 +97,7 @@ from astemia.application.schemas import (
     MatchOut,
     MatchQuery,
     MergePatient,
+    MessageStatus,
     OccupancyOut,
     PacsCheck,
     PacsCheckOut,
@@ -186,6 +191,7 @@ def create_app(
     beds = Beds(write_path, factory, policy)
     theatres = Theatres(write_path, factory, policy)
     radiology = Radiology(write_path, factory, policy, ViewerTokens(settings))
+    interfaces = Interfaces(write_path, factory, policy)
     care_plans = CarePlans(write_path, factory, policy)
     directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
@@ -863,6 +869,19 @@ def create_app(
         """For the PACS: may this viewer token open this study? Authenticated by
         the token itself, which only this service signs."""
         return radiology.pacs_check(body)
+
+    # --- interfaces: HL7 v2 (CEDA section 6, WF03) -------------------------------
+
+    @app.post("/v1/interfaces/hl7", response_model=Hl7Out)
+    def receive_hl7(body: Hl7In, ctx: Ctx, response: Response) -> dict[str, Any]:
+        """One HL7 v2 message. The message is its own idempotency key."""
+        return respond(interfaces.receive(ctx, body), response)
+
+    @app.get("/v1/interfaces/messages", response_model=list[InterfaceMessageOut])
+    def interface_messages(
+        ctx: Ctx, status: MessageStatus | None = None
+    ) -> list[InterfaceMessageOut]:
+        return interfaces.messages(ctx, status)
 
     # --- conditions and care plans (HS12) ---------------------------------------
 

@@ -641,6 +641,23 @@ export type HandOverCase = {
   note?: string | null;
 };
 
+export type Hl7In = {
+  message: string;
+};
+
+export type Hl7Out = {
+  message_id: string | null;
+  control_id: string | null;
+  message_type: string | null;
+  status: string;
+  ack_code: string;
+  error_code: string | null;
+  detail: string | null;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  ack: string | null;
+};
+
 export type IdentifierIn = {
   issuer: string;
   value: string;
@@ -700,6 +717,23 @@ export type ImagingStudyOut = {
   received_issuer?: string | null;
   received_identifier?: string | null;
   received_birth_date?: string | null;
+};
+
+export type InterfaceMessageOut = {
+  id: string;
+  sender: string;
+  control_id: string;
+  message_type: string;
+  status: string;
+  ack_code: string;
+  error_code: string | null;
+  detail: string | null;
+  placer_key: string | null;
+  patient_id: string | null;
+  resource_type: string | null;
+  resource_id: string | null;
+  recorded_at: string;
+  processed_at: string | null;
 };
 
 export type InterventionOut = {
