@@ -15,6 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
+from astemia.adapters import fhir
 from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import TokenVerifier
 from astemia.adapters.pacs import ViewerTokens
@@ -29,7 +30,7 @@ from astemia.application.directory import Directory
 from astemia.application.discharge import Discharges
 from astemia.application.documents import Documents
 from astemia.application.emergency_access import EmergencyAccess
-from astemia.application.errors import AccessDenied, ApplicationError
+from astemia.application.errors import AccessDenied, ApplicationError, Unprocessable
 from astemia.application.identity_review import IdentityReview
 from astemia.application.interfaces import Interfaces
 from astemia.application.notes import Notes
@@ -161,6 +162,15 @@ log = logging.getLogger("astemia.api")
 _CORRELATION = re.compile(r"^[A-Za-z0-9._-]{8,64}$")
 
 
+FHIR = "/fhir/r4"
+# Application error codes as FHIR issue types.
+FHIR_ERRORS = {
+    "not_found": "not_found",
+    "invalid_input": "invalid",
+    "unauthenticated": "unauthenticated",
+    "missing_capability": "forbidden",
+}
+
 API_HEADERS = {
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",
@@ -207,7 +217,7 @@ def create_app(
         request.state.correlation_id = cid
         response = await call_next(request)
         response.headers["X-Correlation-ID"] = cid
-        if request.url.path.startswith(("/v1/", "/health")):
+        if request.url.path.startswith(("/v1/", "/fhir/", "/health")):
             # Patient data is never cached, sniffed or sent on as a referrer;
             # browsers keep to HTTPS once they have seen it (security review).
             for name, value in API_HEADERS.items():
@@ -215,6 +225,14 @@ def create_app(
         return response
 
     def error(request: Request, status: int, code: str, message: str) -> JSONResponse:
+        if request.url.path.startswith(f"{FHIR}/"):
+            # FHIR clients expect an OperationOutcome (CEDA section 6.2).
+            return JSONResponse(
+                status_code=status,
+                content=fhir.outcome(FHIR_ERRORS.get(code, code), message),
+                media_type=fhir.MEDIA_TYPE,
+                headers={"X-Correlation-ID": request.state.correlation_id},
+            )
         return JSONResponse(
             status_code=status,
             content={
@@ -882,6 +900,48 @@ def create_app(
         ctx: Ctx, status: MessageStatus | None = None
     ) -> list[InterfaceMessageOut]:
         return interfaces.messages(ctx, status)
+
+    # --- FHIR R4 read API (CEDA section 6.2) -------------------------------------
+    # The same scoped, masked and audited chart read as the staff API, shaped
+    # as FHIR resources for partner systems acting for a signed-in user.
+
+    def fhir_json(body: dict[str, Any]) -> JSONResponse:
+        return JSONResponse(content=body, media_type=fhir.MEDIA_TYPE)
+
+    def fhir_base(request: Request) -> str:
+        return str(request.base_url).rstrip("/") + FHIR
+
+    @app.get(f"{FHIR}/metadata", response_class=JSONResponse)
+    def fhir_metadata(request: Request) -> JSONResponse:
+        return fhir_json(fhir.capability_statement(fhir_base(request)))
+
+    @app.get(f"{FHIR}/Patient/{{patient_id}}", response_class=JSONResponse)
+    def fhir_patient(patient_id: uuid.UUID, ctx: Ctx) -> JSONResponse:
+        chart = queries.chart(ctx, patient_id)
+        return fhir_json(fhir.patient(chart.patient, chart.masked_fields))
+
+    def fhir_search(kind: str) -> Callable[..., JSONResponse]:
+        def search(request: Request, ctx: Ctx, patient: str | None = None) -> JSONResponse:
+            ref = (patient or "").removeprefix("Patient/")
+            try:
+                patient_id = uuid.UUID(ref)
+            except ValueError:
+                raise Unprocessable(
+                    "search by patient: ?patient=Patient/{id}", code="invalid_input"
+                ) from None
+            chart = queries.chart(ctx, patient_id)
+            return fhir_json(fhir.bundle(fhir_base(request), fhir.search(kind, chart)))
+
+        return search
+
+    for kind in fhir.SEARCHABLE:
+        app.add_api_route(
+            f"{FHIR}/{kind}",
+            fhir_search(kind),
+            methods=["GET"],
+            name=f"fhir_search_{kind.lower()}",
+            response_class=JSONResponse,
+        )
 
     # --- conditions and care plans (HS12) ---------------------------------------
 

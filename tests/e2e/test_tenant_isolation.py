@@ -351,15 +351,19 @@ def test_no_route_reaches_another_tenants_records(
     routes = [
         r
         for r in api.client.app.routes  # type: ignore[attr-defined]
-        if isinstance(r, APIRoute) and r.path.startswith("/v1")
+        if isinstance(r, APIRoute) and r.path.startswith(("/v1", "/fhir"))
     ]
     leaks: list[str] = []
     for route in routes:
         method = sorted(route.methods - {"HEAD"})[0]
-        templated = "{" in route.path
+        # A FHIR search is scoped to a patient, like a route with an id in it.
+        fhir_search = route.path.startswith("/fhir") and not route.path.endswith("/metadata")
+        templated = "{" in route.path or fhir_search
         if not templated and method == "POST":
             continue  # creations: their foreign ids are covered by the bodies above
-        path = _ids(route.path, a) if templated else route.path
+        path = _ids(route.path, a) if "{" in route.path else route.path
+        if fhir_search and "{" not in route.path:
+            path += f"?patient=Patient/{a['patient_id']}"
         body = _body(route.path, a) if method == "POST" else None
         for who in ROLES:
             if method == "POST":
