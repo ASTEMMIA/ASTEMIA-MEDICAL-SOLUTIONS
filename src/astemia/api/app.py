@@ -10,6 +10,7 @@ from typing import Annotated, Any
 from fastapi import Depends, FastAPI, Header, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import AwareDatetime
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
@@ -25,13 +26,18 @@ from astemia.application.identity_review import IdentityReview
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
 from astemia.application.queries import Queries
+from astemia.application.scheduling import Scheduling
 from astemia.application.schemas import (
     Acknowledge,
     ActivateService,
     AdmitEncounter,
+    BookAppointment,
+    CancelAppointment,
     ChartOut,
     CloseBatch,
     ClosePatient,
+    CreateSlots,
+    DecideReferral,
     DuplicateGroup,
     EmergencyGrantOut,
     MatchOut,
@@ -40,18 +46,25 @@ from astemia.application.schemas import (
     PatientOut,
     PlaceOrder,
     ProvisionCatalogue,
+    RecordAttendance,
+    ReferralOut,
+    ReferralRecordsOut,
     RegisterPatient,
     ReleaseReport,
     RequestEmergencyAccess,
+    RescheduleAppointment,
     ResolveReview,
     RetireService,
     ReviewEmergencyAccess,
     ReviewTaskOut,
     ServiceOut,
+    SlotOut,
+    SubmitReferral,
     UnmergePatient,
 )
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
+from astemia.domain.scheduling import ReferralStatus, SlotType
 
 log = logging.getLogger("astemia.api")
 _CORRELATION = re.compile(r"^[A-Za-z0-9._-]{8,64}$")
@@ -70,6 +83,7 @@ def create_app(
     index = PatientIndex(write_path, factory, policy)
     review = IdentityReview(write_path, factory, policy)
     emergency = EmergencyAccess(write_path, factory, policy)
+    scheduling = Scheduling(write_path, factory, policy)
     verifier = TokenVerifier(settings, factory)
 
     app = FastAPI(title="ASTEMIA Intelligence Health Platform API", version="0.1.0")
@@ -134,6 +148,10 @@ def create_app(
             response.headers["Idempotent-Replay"] = "true"
         return result.body
 
+    def version_of(if_match: str | None) -> int | None:
+        tag = (if_match or "").removeprefix("W/").strip('"')
+        return int(tag) if tag.isdigit() else None
+
     @app.get("/health/live", include_in_schema=False)
     def live() -> dict[str, str]:
         return {"status": "ok"}
@@ -164,6 +182,119 @@ def create_app(
     @app.get("/v1/patients/{patient_id}/chart", response_model=ChartOut)
     def chart(patient_id: uuid.UUID, ctx: Ctx) -> ChartOut:
         return queries.chart(ctx, patient_id)
+
+    # --- scheduling and referral (UG01, HS04, HS05) ---------------------------
+
+    @app.post("/v1/slots", status_code=201)
+    def create_slots(
+        body: CreateSlots, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(scheduling.create_slots(ctx, key, body), response)
+
+    @app.get("/v1/slots", response_model=list[SlotOut])
+    def search_slots(
+        ctx: Ctx,
+        facility_id: uuid.UUID | None = None,
+        service: Annotated[str | None, Query(max_length=64)] = None,
+        practitioner_id: uuid.UUID | None = None,
+        slot_type: SlotType | None = None,
+        start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+        end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+        available_only: bool = False,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ) -> list[SlotOut]:
+        return scheduling.search(
+            ctx,
+            facility_id=facility_id,
+            service=service,
+            practitioner_id=practitioner_id,
+            slot_type=slot_type,
+            start=start,
+            end=end,
+            available_only=available_only,
+            limit=limit,
+        )
+
+    @app.post("/v1/slots/{slot_id}/hold", status_code=201)
+    def hold_slot(
+        slot_id: uuid.UUID, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(scheduling.hold(ctx, key, slot_id), response)
+
+    @app.post("/v1/appointments", status_code=201)
+    def book_appointment(
+        body: BookAppointment, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(scheduling.book(ctx, key, body), response)
+
+    @app.post("/v1/appointments/{appointment_id}/reschedule")
+    def reschedule_appointment(
+        appointment_id: uuid.UUID,
+        body: RescheduleAppointment,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = scheduling.reschedule(ctx, key, appointment_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/appointments/{appointment_id}/cancel")
+    def cancel_appointment(
+        appointment_id: uuid.UUID,
+        body: CancelAppointment,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = scheduling.cancel(ctx, key, appointment_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/appointments/{appointment_id}/attendance")
+    def record_attendance(
+        appointment_id: uuid.UUID,
+        body: RecordAttendance,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = scheduling.attendance(ctx, key, appointment_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/referrals", status_code=201)
+    def submit_referral(
+        body: SubmitReferral, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(scheduling.refer(ctx, key, body), response)
+
+    @app.get("/v1/referrals", response_model=list[ReferralOut])
+    def referral_worklist(
+        ctx: Ctx,
+        receiving_service: Annotated[str | None, Query(max_length=64)] = None,
+        status: ReferralStatus = ReferralStatus.SUBMITTED,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ) -> list[ReferralOut]:
+        return scheduling.referrals(
+            ctx, receiving_service=receiving_service, status=status, limit=limit
+        )
+
+    @app.get("/v1/referrals/{referral_id}/records", response_model=ReferralRecordsOut)
+    def referral_records(referral_id: uuid.UUID, ctx: Ctx) -> ReferralRecordsOut:
+        return scheduling.records(ctx, referral_id)
+
+    @app.post("/v1/referrals/{referral_id}/decision")
+    def decide_referral(
+        referral_id: uuid.UUID,
+        body: DecideReferral,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = scheduling.decide(ctx, key, referral_id, version_of(if_match), body)
+        return respond(result, response)
 
     # --- emergency access (SEC-04, WF02 step 4) -------------------------------
 

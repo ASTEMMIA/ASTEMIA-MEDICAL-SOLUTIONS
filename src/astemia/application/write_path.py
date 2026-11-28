@@ -41,6 +41,9 @@ CONSTRAINT_CONFLICTS = {
     "uq_service_request_tenant_id_placer_authority_placer_id": "placer_id_exists",
     "uq_service_request_tenant_id_filler_authority_filler_id": "filler_id_exists",
     "uq_ae_attendance_tenant_id_attendance_number": "ae_attendance_number_exists",
+    "uq_slot_tenant_id_practitioner_id_starts_at": "slot_exists",
+    "uq_slot_hold_tenant_id_slot_id_live_marker": "slot_held",
+    "uq_appointment_tenant_id_slot_id_booked_marker": "slot_booked",
 }
 
 

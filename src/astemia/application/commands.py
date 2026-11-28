@@ -5,6 +5,7 @@ an authorised principal and an unused Idempotency-Key.
 """
 
 import uuid
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import select, update
@@ -52,6 +53,75 @@ def _domain(fn: Any) -> Any:
         return fn()
     except DomainError as exc:
         raise Unprocessable(str(exc), code=exc.code) from None
+
+
+def open_encounter(
+    u: Unit,
+    *,
+    patient_id: uuid.UUID,
+    facility_id: uuid.UUID,
+    practitioner_id: uuid.UUID,
+    visit_authority: str,
+    visit_number: str,
+    encounter_class: enc.EncounterClass,
+    service: str,
+    clinical_service_id: uuid.UUID | None,
+    started_at: datetime,
+    sensitivity: str,
+    admission_route: str | None,
+) -> Encounter:
+    """Open an encounter with the responsible clinician's care relationship
+    and care provision (admission, and attendance at an appointment)."""
+    encounter = Encounter(
+        tenant_id=u.ctx.tenant_id,
+        id=new_id(),
+        version=1,
+        recorded_at=u.ctx.now,
+        effective_at=started_at,
+        effective_precision=EffectivePrecision.MINUTE.value,
+        author_id=u.ctx.principal.practitioner_id,
+        sensitivity=sensitivity,
+        patient_id=patient_id,
+        facility_id=facility_id,
+        responsible_practitioner_id=practitioner_id,
+        visit_authority=visit_authority,
+        visit_number=visit_number,
+        encounter_class=encounter_class.value,
+        service=service,
+        clinical_service_id=clinical_service_id,
+        state=enc.admission_state(encounter_class).value,
+        admission_route=admission_route,
+        period_start=started_at,
+    )
+    u.session.add(encounter)
+    u.session.flush()
+    lr = LegitimateRelationship(
+        tenant_id=u.ctx.tenant_id,
+        id=new_id(),
+        recorded_at=u.ctx.now,
+        author_id=u.ctx.principal.practitioner_id,
+        patient_id=patient_id,
+        practitioner_id=practitioner_id,
+        encounter_id=encounter.id,
+        start_at=started_at,
+        creation_reason_code="responsible_clinician",
+        created_by_id=u.ctx.principal.practitioner_id,
+    )
+    u.session.add(lr)
+    u.session.flush()
+    u.session.add(
+        CareProvision(
+            tenant_id=u.ctx.tenant_id,
+            id=new_id(),
+            recorded_at=u.ctx.now,
+            patient_id=patient_id,
+            practitioner_id=practitioner_id,
+            legitimate_relationship_id=lr.id,
+            specialist_area=service,
+            start_at=started_at,
+        )
+    )
+    return encounter
 
 
 class Commands:
@@ -213,55 +283,19 @@ class Commands:
             u.get(Practitioner, cmd.responsible_practitioner_id)
             if cmd.admitted_at > u.ctx.now:
                 raise Unprocessable("admission time is in the future", code="future_admission")
-            state = enc.admission_state(cmd.encounter_class)
-            encounter = Encounter(
-                tenant_id=u.ctx.tenant_id,
-                id=new_id(),
-                version=1,
-                recorded_at=u.ctx.now,
-                effective_at=cmd.admitted_at,
-                effective_precision=EffectivePrecision.MINUTE.value,
-                author_id=u.ctx.principal.practitioner_id,
-                sensitivity=cmd.sensitivity.value,
+            encounter = open_encounter(
+                u,
                 patient_id=patient.id,
                 facility_id=cmd.facility_id,
-                responsible_practitioner_id=cmd.responsible_practitioner_id,
+                practitioner_id=cmd.responsible_practitioner_id,
                 visit_authority=cmd.visit_authority,
                 visit_number=cmd.visit_number,
-                encounter_class=cmd.encounter_class.value,
+                encounter_class=cmd.encounter_class,
                 service=cmd.service,
                 clinical_service_id=clinical_service_id,
-                state=state.value,
+                started_at=cmd.admitted_at,
+                sensitivity=cmd.sensitivity.value,
                 admission_route=cmd.admission_route,
-                period_start=cmd.admitted_at,
-            )
-            u.session.add(encounter)
-            u.session.flush()
-            lr = LegitimateRelationship(
-                tenant_id=u.ctx.tenant_id,
-                id=new_id(),
-                recorded_at=u.ctx.now,
-                author_id=u.ctx.principal.practitioner_id,
-                patient_id=patient.id,
-                practitioner_id=cmd.responsible_practitioner_id,
-                encounter_id=encounter.id,
-                start_at=cmd.admitted_at,
-                creation_reason_code="responsible_clinician",
-                created_by_id=u.ctx.principal.practitioner_id,
-            )
-            u.session.add(lr)
-            u.session.flush()
-            u.session.add(
-                CareProvision(
-                    tenant_id=u.ctx.tenant_id,
-                    id=new_id(),
-                    recorded_at=u.ctx.now,
-                    patient_id=patient.id,
-                    practitioner_id=cmd.responsible_practitioner_id,
-                    legitimate_relationship_id=lr.id,
-                    specialist_area=cmd.service,
-                    start_at=cmd.admitted_at,
-                )
             )
             if cmd.ae is not None:
                 if cmd.encounter_class is not enc.EncounterClass.EMERGENCY:

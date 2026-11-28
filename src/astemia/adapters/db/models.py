@@ -745,6 +745,141 @@ class EmergencyGrant(Envelope, Base):
     review_note: Mapped[str | None] = mapped_column(String(500))
 
 
+class Slot(Envelope, Base):
+    """CEDA SA-05 Slot (UG01): a bookable period for one clinician, service and
+    site. Available, held or booked is derived from its holds and appointments."""
+
+    __tablename__ = "slot"
+    __table_args__ = (
+        fk(["tenant_id", "facility_id"], "organisation_site"),
+        fk(["tenant_id", "practitioner_id"], "practitioner"),
+        fk(["tenant_id", "clinical_service_id"], "clinical_service"),
+        UniqueConstraint("tenant_id", "practitioner_id", "starts_at"),
+        Index(None, "tenant_id", "facility_id", "starts_at"),
+        Index(None, "tenant_id", "service", "starts_at"),
+        TABLE_OPTS,
+    )
+
+    facility_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    practitioner_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    service: Mapped[str] = mapped_column(String(64), nullable=False)
+    clinical_service_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    slot_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    modality: Mapped[str] = mapped_column(String(16), nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    timezone: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class SlotHold(Envelope, Base):
+    """CEDA SA-05 SlotHold: a short reservation that expires on the server.
+    live_marker is 1 until the hold is confirmed, released or found expired,
+    so the unique key allows one live hold per slot."""
+
+    __tablename__ = "slot_hold"
+    __table_args__ = (
+        fk(["tenant_id", "slot_id"], "slot"),
+        UniqueConstraint("tenant_id", "slot_id", "live_marker"),
+        TABLE_OPTS,
+    )
+
+    slot_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    holder_subject: Mapped[str] = mapped_column(String(255), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    released_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    outcome: Mapped[str | None] = mapped_column(String(16))
+    live_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+
+
+class Referral(Envelope, Base):
+    """CEDA SA-05 Referral (HS05, WF06): submitted, accepted or rejected,
+    scheduled and closed. Booking is a separate record linked to it."""
+
+    __tablename__ = "referral"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "referrer_id"], "practitioner"),
+        fk(["tenant_id", "decided_by_id"], "practitioner"),
+        fk(["tenant_id", "source_encounter_id"], "encounter"),
+        fk(["tenant_id", "referring_facility_id"], "organisation_site"),
+        fk(["tenant_id", "receiving_facility_id"], "organisation_site"),
+        Index(None, "tenant_id", "receiving_service", "status"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    referrer_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    # The care episode whose records go with the referral. A patient with no
+    # care records cannot be referred (CEDA revision 1.5, HS05).
+    source_encounter_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    requesting_service: Mapped[str | None] = mapped_column(String(64))
+    receiving_service: Mapped[str] = mapped_column(String(64), nullable=False)
+    priority: Mapped[str] = mapped_column(String(16), nullable=False)
+    reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    decided_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    decided_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    decision_reason: Mapped[str | None] = mapped_column(String(500))
+    # From where to where, and at what level of care (CEDA revision 1.5). Required
+    # by the API; nullable only so the columns could be added to a live table.
+    referring_facility_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    receiving_facility_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    referring_level: Mapped[str | None] = mapped_column(String(32))
+    receiving_level: Mapped[str | None] = mapped_column(String(32))
+    records_count: Mapped[int | None] = mapped_column(Integer)
+
+
+class ReferralRecord(Base):
+    """The patient's historical records that travel with a referral, fixed when
+    it is submitted. Mandatory: a referral always carries every encounter,
+    order and diagnostic report of the patient (CEDA revision 1.5)."""
+
+    __tablename__ = "referral_record"
+    __table_args__ = (
+        fk(["tenant_id", "referral_id"], "referral"),
+        UniqueConstraint("tenant_id", "referral_id", "record_type", "record_id"),
+        TABLE_OPTS,
+    )
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, primary_key=True)
+    referral_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    record_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    record_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+
+
+class Appointment(Envelope, Base):
+    """CEDA SA-05 Appointment (UG01, HS04). booked_marker is 1 while booked,
+    so the unique key allows one booked appointment per slot. A reschedule
+    ends this appointment and books a new one that points back to it."""
+
+    __tablename__ = "appointment"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "slot_id"], "slot"),
+        fk(["tenant_id", "referral_id"], "referral"),
+        fk(["tenant_id", "rescheduled_from_id"], "appointment"),
+        fk(["tenant_id", "encounter_id"], "encounter"),
+        UniqueConstraint("tenant_id", "slot_id", "booked_marker"),
+        Index(None, "tenant_id", "patient_id"),
+        TABLE_OPTS,
+    )
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    slot_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    referral_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    rescheduled_from_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    booked_marker: Mapped[int | None] = mapped_column(TINYINT)  # always set explicitly
+    reason: Mapped[str | None] = mapped_column(String(500))
+    cancel_reason: Mapped[str | None] = mapped_column(String(500))
+    encounter_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    outcome_recorded_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+
+
 class DemographicTransaction(Base):
     """ERD Transaction: provenance of every demographic change (source, delta,
     reason, validation level). Holds field names and codes, not clinical text."""

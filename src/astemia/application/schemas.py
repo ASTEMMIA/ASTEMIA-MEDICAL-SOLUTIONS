@@ -11,6 +11,12 @@ from astemia.domain.common import EffectivePrecision, Sensitivity
 from astemia.domain.diagnostics import OrderPriority, ReportStatus, ValueType
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.identity import AdministrativeSex, ClosureReason
+from astemia.domain.scheduling import (
+    AttendanceOutcome,
+    Modality,
+    ReferralPriority,
+    SlotType,
+)
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
@@ -425,3 +431,139 @@ class EmergencyGrantOut(BaseModel):
     reviewed_by_id: uuid.UUID | None
     review_outcome: str | None
     review_note: str | None
+
+
+# --- scheduling and referral (UG01, HS04, HS05) -------------------------------------
+
+
+class CreateSlots(Strict):
+    """A run of consecutive slots for one clinician, service and site."""
+
+    facility_id: uuid.UUID
+    practitioner_id: uuid.UUID
+    service: Code
+    starts_at: AwareDatetime
+    minutes: int = Field(default=15, description="Length of each slot, 5 to 240.")
+    count: int = Field(default=1, description="How many consecutive slots, 1 to 50.")
+    slot_type: SlotType = SlotType.NEW
+    modality: Modality = Modality.IN_PERSON
+    timezone: Annotated[str, StringConstraints(min_length=1, max_length=64)] = "Africa/Lagos"
+
+
+class SlotOut(BaseModel):
+    id: uuid.UUID
+    facility_id: uuid.UUID
+    practitioner_id: uuid.UUID
+    service: str
+    slot_type: str
+    modality: str
+    starts_at: datetime
+    ends_at: datetime
+    timezone: str
+    status: str
+
+
+class HoldOut(BaseModel):
+    id: uuid.UUID = Field(description="The hold token: confirm the booking with it.")
+    slot_id: uuid.UUID
+    expires_at: datetime
+
+
+class BookAppointment(Strict):
+    hold_id: uuid.UUID
+    patient_id: uuid.UUID
+    referral_id: uuid.UUID | None = None
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class RescheduleAppointment(Strict):
+    hold_id: uuid.UUID = Field(description="A live hold on the new slot.")
+
+
+class CancelAppointment(Strict):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class RecordAttendance(Strict):
+    outcome: AttendanceOutcome
+    identity_verified: bool = Field(
+        default=False,
+        description="Required for a video or phone consultation that took place (UG02).",
+    )
+
+
+class AppointmentOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    slot_id: uuid.UUID
+    status: str
+    facility_id: uuid.UUID
+    practitioner_id: uuid.UUID
+    service: str
+    modality: str
+    starts_at: datetime
+    ends_at: datetime
+    reason: str | None
+    cancel_reason: str | None
+    referral_id: uuid.UUID | None
+    rescheduled_from_id: uuid.UUID | None
+    encounter_id: uuid.UUID | None
+
+
+class SubmitReferral(Strict):
+    patient_id: uuid.UUID
+    referring_facility_id: uuid.UUID
+    receiving_facility_id: uuid.UUID = Field(
+        description="The general, teaching or specialist hospital (or other facility) "
+        "the patient is referred to. The patient's historical records always go with it."
+    )
+    encounter_id: uuid.UUID | None = Field(
+        default=None,
+        description="The care episode whose records go with the referral; defaults to "
+        "the patient's most recent one. A patient with no care records is refused.",
+    )
+    receiving_service: Code
+    requesting_service: Code | None = None
+    priority: ReferralPriority = ReferralPriority.ROUTINE
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=1000)]
+
+
+class DecideReferral(Strict):
+    decision: Literal["accepted", "rejected"]
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class ReferralOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    referrer_id: uuid.UUID
+    source_encounter_id: uuid.UUID
+    requesting_service: str | None
+    receiving_service: str
+    priority: str
+    reason: str
+    status: str
+    decided_by_id: uuid.UUID | None
+    decided_at: datetime | None
+    decision_reason: str | None
+    recorded_at: datetime
+    referring_facility_id: uuid.UUID | None
+    receiving_facility_id: uuid.UUID | None
+    referring_level: str | None
+    receiving_level: str | None
+    records_count: int | None
+
+
+class ReferralRecordsOut(BaseModel):
+    """The patient's historical records that travel with a referral, as the
+    receiving team may see them: masked and with sensitive records withheld."""
+
+    referral: ReferralOut
+    patient: PatientOut
+    encounters: list[EncounterOut]
+    orders: list[OrderOut]
+    reports: list[ReportOut]
+    masked_fields: list[str]
+    withheld_records: int
