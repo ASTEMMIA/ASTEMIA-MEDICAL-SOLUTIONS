@@ -51,6 +51,8 @@ CONSTRAINT_CONFLICTS = {
     "uq_bed_occupancy_tenant_id_encounter_id_active_marker": "already_in_bed",
     "uq_theatre_tenant_id_code": "theatre_code_exists",
     "uq_imaging_study_tenant_id_study_instance_uid": "study_exists",
+    # The same sender and control id with different content: never applied twice.
+    "uq_interface_message_tenant_id_sender_control_id": "control_id_reused",
 }
 
 

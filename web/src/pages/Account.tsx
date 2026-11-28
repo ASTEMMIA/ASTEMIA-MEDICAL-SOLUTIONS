@@ -58,6 +58,8 @@ export const CAPABILITY_NAMES: Record<string, string> = {
   "imaging:perform": "Record imaging studies",
   "imaging:reconcile": "Reconcile studies kept off the chart",
   "imaging:report": "Sign radiology reports and addenda",
+  "interface:submit": "Send HL7 messages from other systems",
+  "interface:monitor": "Watch the interface message log",
 };
 
 export function Account() {

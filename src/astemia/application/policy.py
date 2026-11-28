@@ -157,8 +157,12 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "bed:manage",
             "theatre:read",
             "theatre:manage",
+            "interface:monitor",
         }
     ),
+    # The interface engine (CEDA section 6) is a service account: it submits
+    # HL7 v2 messages and watches their outcomes. It reads no chart.
+    "interface_engine": frozenset({"interface:submit", "interface:monitor"}),
     # Records clerks (UG04) index inbound correspondence and link it to the
     # right patient. They open quarantined files but hold no chart access.
     "records_clerk": frozenset(

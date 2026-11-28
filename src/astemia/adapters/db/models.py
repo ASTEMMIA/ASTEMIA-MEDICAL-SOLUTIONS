@@ -1385,6 +1385,36 @@ class ImagingStudy(Envelope, Base):
     link_reason: Mapped[str | None] = mapped_column(String(500))
 
 
+class InterfaceMessage(Envelope, Base):
+    """One inbound HL7 v2 message and what became of it (CEDA section 6, WF03).
+    Sender and control id are unique, so a message is applied once; a result
+    that arrives before its order is held under the order's placer number and
+    applied when the order arrives. The raw text is kept for replay and audit."""
+
+    __tablename__ = "interface_message"
+    __table_args__ = (
+        fk(["tenant_id", "patient_id"], "patient"),
+        UniqueConstraint("tenant_id", "sender", "control_id"),
+        Index(None, "tenant_id", "status", "placer_key"),
+        TABLE_OPTS,
+    )
+
+    sender: Mapped[str] = mapped_column(String(128), nullable=False)
+    control_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    message_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    raw: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    ack_code: Mapped[str] = mapped_column(String(2), nullable=False)
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    detail: Mapped[str | None] = mapped_column(String(500))
+    placer_key: Mapped[str | None] = mapped_column(String(160))
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    resource_type: Mapped[str | None] = mapped_column(String(32))
+    resource_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    processed_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+
+
 class Condition(Envelope, Coded, Base):
     """CEDA Condition: a coded problem with its certainty and onset, and the
     condition register it puts the patient on (HS12)."""
