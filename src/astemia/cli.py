@@ -32,7 +32,8 @@ def seed_dev(
     factory: sessionmaker[Session] | None = None, tenant_id: uuid.UUID = DEV_TENANT
 ) -> dict[str, str]:
     """A synthetic pilot tenant: one hospital, a registrar, two clinicians, a
-    laboratory scientist, a privacy officer and a scheduler. Synthetic data only (CEDA 11.2)."""
+    nurse, a laboratory scientist, an identity steward, a privacy officer and a
+    scheduler. Synthetic data only (CEDA 11.2)."""
     factory = factory or default_session_factory()
     now = datetime.now(UTC)
     ids: dict[str, str] = {"tenant_id": str(tenant_id)}
@@ -83,7 +84,9 @@ def seed_dev(
             "registrar": ("Registrar One", ["registrar"]),
             "clinician": ("Dr Clinician One", ["clinician"]),
             "clinician2": ("Dr Clinician Two", ["clinician"]),
+            "nurse": ("Nurse One", ["nurse"]),
             "scientist": ("Lab Scientist One", ["lab_scientist"]),
+            "steward": ("Identity Steward One", ["identity_steward"]),
             "privacy": ("Privacy Officer One", ["privacy_officer"]),
             "scheduler": ("Scheduler One", ["scheduler"]),
         }

@@ -247,6 +247,13 @@ uv run pytest
 uv run ruff check src tests tools && uv run mypy && uv run alembic check
 ```
 
+The web app's TypeScript types are generated from the API's OpenAPI schema; a
+test fails when they are stale. After changing a Pydantic model:
+
+```bash
+uv run python tools/web_types.py
+```
+
 The web app's types, unit tests and build:
 
 ```bash

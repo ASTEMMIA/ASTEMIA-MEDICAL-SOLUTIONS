@@ -31,3 +31,40 @@ export function date(iso: string | null | undefined): string {
 export function roleName(role: string): string {
   return role.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 }
+
+/** A code as words: "general_medicine" → "General medicine". */
+export const words = roleName;
+
+/** A person's name as records show it: "ADEYEMI, Folake Ngozi". */
+export function patientName(p: { family_name: string; given_names: string }): string {
+  return `${p.family_name.toUpperCase()}, ${p.given_names}`;
+}
+
+/** The NIN, as the server sent it (masked for roles without identifier:read). */
+export function nin(identifiers: { issuer: string; value: string }[] | undefined): string {
+  return identifiers?.find((i) => i.issuer === "NG-NIN")?.value ?? "—";
+}
+
+/** Today's date in the browser's zone, for date inputs (yyyy-mm-dd). */
+export function today(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** A datetime-local input's value as an ISO instant with the browser's offset. */
+export function localToIso(local: string): string {
+  return new Date(local).toISOString();
+}
+
+/** Now, for a datetime-local input. */
+export function nowLocal(): string {
+  const d = new Date();
+  d.setSeconds(0, 0);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+/** A decimal as people write it: "6.100000" → "6.1". Non-numbers unchanged. */
+export function num(value: string | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "";
+  return /^-?\d+(\.\d+)?$/.test(value) ? String(Number(value)) : value;
+}
