@@ -274,6 +274,10 @@ class ChartOut(BaseModel):
     masked_fields: list[str]
     withheld_records: int
     merged_from: list[uuid.UUID] = []
+    access_basis: str = Field(
+        default="care_relationship",
+        description="care_relationship, or emergency_grant for time-boxed emergency access",
+    )
 
 
 class DuplicateGroup(BaseModel):
@@ -387,3 +391,37 @@ class ReviewTaskOut(BaseModel):
     resolved_at: datetime | None
     resolved_by_id: uuid.UUID | None
     records: list[CandidateOut]
+
+
+# --- emergency access (SEC-04, WF02 step 4) -----------------------------------------
+
+
+class RequestEmergencyAccess(Strict):
+    patient_id: uuid.UUID
+    purpose: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=10, max_length=500)
+    ] = Field(description="Why the chart is needed now; read by the privacy reviewer.")
+
+
+class ReviewEmergencyAccess(Strict):
+    outcome: Literal["appropriate", "inappropriate"]
+    note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
+class EmergencyGrantOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    patient_id: uuid.UUID
+    practitioner_id: uuid.UUID
+    purpose: str
+    scope: str
+    starts_at: datetime
+    expires_at: datetime
+    live: bool
+    step_up: str
+    review_due_at: datetime
+    review_overdue: bool
+    reviewed_at: datetime | None
+    reviewed_by_id: uuid.UUID | None
+    review_outcome: str | None
+    review_note: str | None

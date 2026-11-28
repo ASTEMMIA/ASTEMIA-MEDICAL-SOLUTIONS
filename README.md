@@ -54,6 +54,9 @@ tests/           unit, db_integration, e2e (synthetic fixtures only)
   | `POST /v1/encounters` | Admit, with optional A&E detail |
   | `GET /v1/patients/{id}/chart` | Read the chart: masked, audited before return, concealed 404 without a legitimate relationship |
   | `POST /v1/orders` | Place an order |
+  | `POST /v1/emergency-grants` | Emergency access: state a purpose, get read-only chart access to one patient for 30 minutes (clinician) |
+  | `GET /v1/emergency-grants` | Privacy review queue, oldest deadline first; `reviewed=true` for the history (privacy officer) |
+  | `POST /v1/emergency-grants/{id}/review` | Record whether the access was appropriate. Needs `If-Match` |
   | `POST /v1/diagnostic-reports` | Release a result. A second release is an amendment that reopens exactly one review |
   | `POST /v1/result-reviews/{id}/acknowledge` | Acknowledge a result. Needs `If-Match` |
 

@@ -699,9 +699,11 @@ class Commands:
 
         return self.wp.run(
             ctx,
-            operation=f"result.acknowledge:{review_id}",
+            operation="result.acknowledge",
             capability="result:acknowledge",
             idempotency_key=key,
-            payload=cmd.model_dump(mode="json") | {"v": expected_version},
+            payload=cmd.model_dump(mode="json")
+            | {"review_id": str(review_id), "v": expected_version},
             handler=handle,
+            resource=("result_review", review_id),
         )

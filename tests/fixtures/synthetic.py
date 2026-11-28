@@ -40,6 +40,9 @@ ROLES = {
     "admin": ["tenant_admin"],
     "psychiatrist": ["clinician", "sensitive_reader"],
     "steward": ["identity_steward"],
+    "privacy": ["privacy_officer"],
+    # A clinician who is also a privacy officer may not review their own grant.
+    "dual": ["clinician", "privacy_officer"],
 }
 # Members with no practitioner record (e.g. service accounts) and one with no
 # catalogue access, for the negative authorisation paths.
@@ -48,6 +51,7 @@ UNLINKED = {
     "unlinked_scientist": ["lab_scientist"],
     "no_catalogue": ["sensitive_reader"],
     "unlinked_steward": ["identity_steward"],
+    "unlinked_privacy": ["privacy_officer"],
 }
 
 

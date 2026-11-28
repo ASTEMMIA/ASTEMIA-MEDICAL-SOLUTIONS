@@ -91,6 +91,11 @@ class Queries:
                 masked_fields=sorted(m for m in masks if not m.startswith("sensitivity:")),
                 withheld_records=withheld,
                 merged_from=merged,
+                access_basis=(
+                    "emergency_grant"
+                    if decision.reason == "emergency_grant"
+                    else "care_relationship"
+                ),
             )
 
         return read_path(

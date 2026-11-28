@@ -9,9 +9,14 @@ from typing import Protocol
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from astemia.adapters.db.models import LegitimateRelationship, WorkgroupTeamMembership
+from astemia.adapters.db.models import (
+    EmergencyGrant,
+    LegitimateRelationship,
+    WorkgroupTeamMembership,
+)
 from astemia.application.context import RequestContext
 from astemia.application.views import merged_from
+from astemia.domain.access import GRANT_SCOPE, is_live
 
 # Capability grants per role. Platform and tenant administrators get no
 # clinical capability: clinical access requires a separate approved grant.
@@ -28,6 +33,8 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
             "identifier:read",
             "patient:search",
             "catalogue:read",
+            # SEC-04: may ask for time-boxed, read-only emergency access.
+            "emergency:request",
         }
     ),
     # Patient index stewardship (ICRS 3.2.11-3.2.21): merge, unmerge and closure.
@@ -38,6 +45,9 @@ ROLE_CAPABILITIES: dict[str, frozenset[str]] = {
     "lab_scientist": frozenset({"result:release", "catalogue:read"}),
     # Tenant administrators configure the catalogue but hold no clinical capability.
     "tenant_admin": frozenset({"catalogue:read", "catalogue:manage"}),
+    # Privacy officers review every emergency access grant (SEC-04) and hold
+    # no clinical capability themselves.
+    "privacy_officer": frozenset({"emergency:review"}),
     "sensitive_reader": frozenset({"sensitive:mental_health", "sensitive:sexual_health"}),
 }
 
@@ -95,12 +105,16 @@ class PilotPolicy:
             return Decision(
                 False, did, self.version, "missing_capability", conceal=patient_id is not None
             )
+        reason, masks = "permit", set[str]()
         if capability in RELATIONSHIP_BOUND:
             if patient_id is None or ctx.principal.practitioner_id is None:
                 return Decision(False, did, self.version, "no_practitioner", conceal=True)
             if not self._has_relationship(session, ctx, patient_id):
-                return Decision(False, did, self.version, "no_care_relationship", conceal=True)
-        masks: set[str] = set()
+                if capability != GRANT_SCOPE or not self._has_grant(session, ctx, patient_id):
+                    return Decision(False, did, self.version, "no_care_relationship", conceal=True)
+                # Emergency access: read-only, and only what care needs now.
+                reason = "emergency_grant"
+                masks.add("identifier.value")
         if "identifier:read" not in caps:
             masks.add("identifier.value")
         for category in (
@@ -112,7 +126,24 @@ class PilotPolicy:
         ):
             if f"sensitive:{category}" not in caps:
                 masks.add(f"sensitivity:{category}")
-        return Decision(True, did, self.version, "permit", masks=frozenset(masks))
+        return Decision(True, did, self.version, reason, masks=frozenset(masks))
+
+    @staticmethod
+    def _has_grant(session: Session, ctx: RequestContext, patient_id: uuid.UUID) -> bool:
+        """A live emergency grant for this patient (or a record merged into it),
+        checked at every read so an expired grant denies the next one."""
+        grants = session.execute(
+            select(EmergencyGrant.starts_at, EmergencyGrant.expires_at).where(
+                EmergencyGrant.tenant_id == ctx.tenant_id,
+                EmergencyGrant.practitioner_id == ctx.principal.practitioner_id,
+                EmergencyGrant.patient_id.in_(
+                    [patient_id, *merged_from(session, ctx.tenant_id, patient_id)]
+                ),
+                EmergencyGrant.scope == GRANT_SCOPE,
+                EmergencyGrant.expires_at > ctx.now,
+            )
+        ).all()
+        return any(is_live(start, end, ctx.now) for start, end in grants)
 
     @staticmethod
     def _has_relationship(session: Session, ctx: RequestContext, patient_id: uuid.UUID) -> bool:

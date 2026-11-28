@@ -179,7 +179,8 @@ def audit_row(
         outcome=outcome,
         policy_version=decision.policy_version,
         decision_id=decision.decision_id,
-        reason_code=None if decision.allowed else decision.reason,
+        # A plain permit needs no reason; a denial or an emergency grant does.
+        reason_code=None if decision.allowed and decision.reason == "permit" else decision.reason,
         correlation_id=ctx.correlation_id,
         event_id=event_id,
     )
@@ -205,7 +206,12 @@ class WritePath:
         payload: Any,
         handler: Callable[[Unit], CommandResult],
         patient_id: uuid.UUID | None = None,
+        resource: tuple[str, uuid.UUID] | None = None,
     ) -> CommandResult:
+        """`operation` is a fixed action name: it names the audit action and
+        scopes the Idempotency-Key. The record a command acts on goes in
+        `payload` (so a key stays bound to it) and in `resource` (so a refusal
+        names it)."""
         if not idempotency_key:
             raise PreconditionRequired(
                 "Idempotency-Key header is required", code="idempotency_key_required"
@@ -235,7 +241,7 @@ class WritePath:
                 session.flush()
             return result
         except _Denied as denied:
-            self._audit_denial(ctx, denied, operation)
+            self._audit_denial(ctx, denied, operation, resource)
             raise AccessDenied(
                 denied.decision.reason, code=denied.decision.reason, conceal=denied.decision.conceal
             ) from None
@@ -268,11 +274,24 @@ class WritePath:
             raise NotFound("a referenced record does not exist in this tenant") from None
         raise exc
 
-    def _audit_denial(self, ctx: RequestContext, denied: _Denied, operation: str) -> None:
+    def _audit_denial(
+        self,
+        ctx: RequestContext,
+        denied: _Denied,
+        operation: str,
+        resource: tuple[str, uuid.UUID] | None,
+    ) -> None:
+        resource_type, resource_id = resource or ("capability", None)
         with self.factory() as session, session.begin():
             session.add(
                 audit_row(
-                    ctx, denied.decision, operation, "capability", None, denied.patient_id, "denied"
+                    ctx,
+                    denied.decision,
+                    operation,
+                    resource_type,
+                    resource_id,
+                    denied.patient_id,
+                    "denied",
                 )
             )
 
