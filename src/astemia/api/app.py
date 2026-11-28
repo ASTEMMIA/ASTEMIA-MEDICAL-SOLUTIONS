@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from astemia.adapters.db.session import default_session_factory
 from astemia.adapters.identity.tokens import TokenVerifier
+from astemia.adapters.pacs import ViewerTokens
 from astemia.api.staff import mount_staff
 from astemia.application.beds import Beds
 from astemia.application.careplans import CarePlans
@@ -34,12 +35,14 @@ from astemia.application.notes import Notes
 from astemia.application.patient_index import PatientIndex
 from astemia.application.policy import PilotPolicy
 from astemia.application.queries import Queries
+from astemia.application.radiology import Radiology
 from astemia.application.safeguards import Safeguards
 from astemia.application.scheduling import Scheduling
 from astemia.application.schemas import (
     AccessReportOut,
     Acknowledge,
     ActivateService,
+    AddendumIn,
     AddressHistoryOut,
     AdmitEncounter,
     AmendEntry,
@@ -81,13 +84,18 @@ from astemia.application.schemas import (
     FacilityOut,
     FileDocument,
     HandOverCase,
+    ImagingRequestOut,
+    ImagingStudyOut,
     InterventionOut,
     LabOrderOut,
     LegalStatusOut,
+    LinkStudy,
     MatchOut,
     MatchQuery,
     MergePatient,
     OccupancyOut,
+    PacsCheck,
+    PacsCheckOut,
     PatientOut,
     PlaceOrder,
     PractitionerOut,
@@ -95,6 +103,7 @@ from astemia.application.schemas import (
     RaiseConcern,
     ReassignTask,
     ReceiveDocument,
+    ReceiveStudy,
     RecordAttendance,
     RecordChecklistStep,
     RecordCondition,
@@ -105,7 +114,9 @@ from astemia.application.schemas import (
     ReindexDocument,
     ReleaseCycle,
     ReleaseReport,
+    ReportImaging,
     RequestEmergencyAccess,
+    RequestImaging,
     RescheduleAppointment,
     ResolveReview,
     RetireService,
@@ -114,6 +125,7 @@ from astemia.application.schemas import (
     ReviewIntervention,
     ReviewTaskOut,
     RevisePlan,
+    ScheduleImaging,
     ServiceOut,
     SetBedStatus,
     SetLegalStatus,
@@ -128,12 +140,15 @@ from astemia.application.schemas import (
     TheatreSessionOut,
     UnmergePatient,
     UpdateDraft,
+    VetImaging,
+    ViewerAccessOut,
     WardOut,
 )
 from astemia.application.theatre import Theatres
 from astemia.application.write_path import CommandResult, WritePath
 from astemia.config import Settings, get_settings
 from astemia.domain.documents import DocumentStatus
+from astemia.domain.radiology import ImagingState
 from astemia.domain.safeguards import ConcernStatus
 from astemia.domain.scheduling import ReferralStatus, SlotType
 
@@ -170,6 +185,7 @@ def create_app(
     discharges = Discharges(write_path, factory, policy)
     beds = Beds(write_path, factory, policy)
     theatres = Theatres(write_path, factory, policy)
+    radiology = Radiology(write_path, factory, policy, ViewerTokens(settings))
     care_plans = CarePlans(write_path, factory, policy)
     directory = Directory(factory, policy)
     verifier = TokenVerifier(settings, factory)
@@ -752,6 +768,101 @@ def create_app(
     ) -> dict[str, Any]:
         result = theatres.hand_over(ctx, key, case_id, version_of(if_match), body)
         return respond(result, response)
+
+    # --- radiology (HS07, WF05 step 1) -------------------------------------------
+
+    @app.post("/v1/imaging-requests", status_code=201)
+    def request_imaging(
+        body: RequestImaging, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(radiology.request(ctx, key, body), response)
+
+    @app.get("/v1/imaging-requests", response_model=list[ImagingRequestOut])
+    def imaging_worklist(ctx: Ctx, state: ImagingState) -> list[ImagingRequestOut]:
+        return radiology.worklist(ctx, state)
+
+    @app.get("/v1/imaging-requests/{request_id}", response_model=ImagingRequestOut)
+    def read_imaging_request(request_id: uuid.UUID, ctx: Ctx) -> ImagingRequestOut:
+        return radiology.get(ctx, request_id)
+
+    @app.post("/v1/imaging-requests/{request_id}/vet")
+    def vet_imaging(
+        request_id: uuid.UUID,
+        body: VetImaging,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        return respond(radiology.vet(ctx, key, request_id, version_of(if_match), body), response)
+
+    @app.post("/v1/imaging-requests/{request_id}/schedule")
+    def schedule_imaging(
+        request_id: uuid.UUID,
+        body: ScheduleImaging,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = radiology.schedule(ctx, key, request_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/imaging-requests/{request_id}/report", status_code=201)
+    def report_imaging(
+        request_id: uuid.UUID,
+        body: ReportImaging,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = radiology.report(ctx, key, request_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/imaging-requests/{request_id}/addenda", status_code=201)
+    def add_imaging_addendum(
+        request_id: uuid.UUID,
+        body: AddendumIn,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = radiology.addendum(ctx, key, request_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/imaging-studies", status_code=201)
+    def receive_imaging_study(
+        body: ReceiveStudy, ctx: Ctx, response: Response, key: IdemKey = None
+    ) -> dict[str, Any]:
+        return respond(radiology.receive_study(ctx, key, body), response)
+
+    @app.get("/v1/imaging-studies/unlinked", response_model=list[ImagingStudyOut])
+    def unlinked_imaging_studies(ctx: Ctx) -> list[ImagingStudyOut]:
+        return radiology.unlinked(ctx)
+
+    @app.post("/v1/imaging-studies/{study_id}/link")
+    def link_imaging_study(
+        study_id: uuid.UUID,
+        body: LinkStudy,
+        ctx: Ctx,
+        response: Response,
+        key: IdemKey = None,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> dict[str, Any]:
+        result = radiology.link(ctx, key, study_id, version_of(if_match), body)
+        return respond(result, response)
+
+    @app.post("/v1/imaging-studies/{study_id}/viewer", response_model=ViewerAccessOut)
+    def open_imaging_viewer(study_id: uuid.UUID, ctx: Ctx) -> ViewerAccessOut:
+        return radiology.viewer(ctx, study_id)
+
+    @app.post("/v1/pacs/check", response_model=PacsCheckOut)
+    def pacs_check(body: PacsCheck) -> PacsCheckOut:
+        """For the PACS: may this viewer token open this study? Authenticated by
+        the token itself, which only this service signs."""
+        return radiology.pacs_check(body)
 
     # --- conditions and care plans (HS12) ---------------------------------------
 

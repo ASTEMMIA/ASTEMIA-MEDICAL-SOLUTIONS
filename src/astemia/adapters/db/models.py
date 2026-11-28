@@ -1324,6 +1324,67 @@ class TheatreCase(Envelope, Base):
     handover_note: Mapped[str | None] = mapped_column(String(2000))
 
 
+class ImagingRequest(Envelope, Base):
+    """The radiology workflow of one imaging order (CEDA HS07): vetting,
+    scheduling, the accession number studies are matched by, and its state."""
+
+    __tablename__ = "imaging_request"
+    __table_args__ = (
+        fk(["tenant_id", "service_request_id"], "service_request"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "vetted_by_id"], "practitioner"),
+        UniqueConstraint("tenant_id", "service_request_id"),
+        UniqueConstraint("tenant_id", "accession_number"),
+        Index(None, "tenant_id", "state"),
+        TABLE_OPTS,
+    )
+
+    service_request_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    patient_id: Mapped[uuid.UUID] = mapped_column(BinaryUUID, nullable=False)
+    modality: Mapped[str] = mapped_column(String(8), nullable=False)
+    body_site: Mapped[str] = mapped_column(String(100), nullable=False)
+    laterality: Mapped[str] = mapped_column(String(16), nullable=False)
+    state: Mapped[str] = mapped_column(String(16), nullable=False)
+    protocol: Mapped[str | None] = mapped_column(String(200))
+    vetting_note: Mapped[str | None] = mapped_column(String(1000))
+    vetted_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    vetted_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    scheduled_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    accession_number: Mapped[str | None] = mapped_column(String(32))
+
+
+class ImagingStudy(Envelope, Base):
+    """CEDA ImagingStudy: a DICOM study held in PACS, referenced by its study
+    instance UID. It reaches the chart only once linked to its order's patient;
+    until then the identity it arrived with is kept for reconciliation."""
+
+    __tablename__ = "imaging_study"
+    __table_args__ = (
+        fk(["tenant_id", "imaging_request_id"], "imaging_request"),
+        fk(["tenant_id", "patient_id"], "patient"),
+        fk(["tenant_id", "linked_by_id"], "practitioner"),
+        UniqueConstraint("tenant_id", "study_instance_uid"),
+        Index(None, "tenant_id", "status"),
+        TABLE_OPTS,
+    )
+
+    study_instance_uid: Mapped[str] = mapped_column(String(64), nullable=False)
+    accession_number: Mapped[str] = mapped_column(String(32), nullable=False)
+    modality: Mapped[str] = mapped_column(String(8), nullable=False)
+    performed_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False)
+    pacs_reference: Mapped[str] = mapped_column(String(255), nullable=False)
+    received_issuer: Mapped[str] = mapped_column(String(32), nullable=False)
+    received_identifier: Mapped[str] = mapped_column(String(64), nullable=False)
+    received_birth_date: Mapped[date] = mapped_column(Date, nullable=False)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    conflicts: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    imaging_request_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    patient_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    linked_by_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
+    linked_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    link_reason: Mapped[str | None] = mapped_column(String(500))
+
+
 class Condition(Envelope, Coded, Base):
     """CEDA Condition: a coded problem with its certainty and onset, and the
     condition register it puts the patient on (HS12)."""
@@ -1812,6 +1873,9 @@ class DiagnosticReport(Envelope, Base):
     portal_release: Mapped[str] = mapped_column(String(16), nullable=False, default="withheld")
     prior_report_id: Mapped[uuid.UUID | None] = mapped_column(BinaryUUID)
     conclusion: Mapped[str | None] = mapped_column(String(2000))
+    # The full signed report text, for narrative reports such as radiology
+    # (FHIR presentedForm). Laboratory reports carry observations instead.
+    presented_form: Mapped[str | None] = mapped_column(Text)
 
 
 class Observation(Envelope, Coded, Base):

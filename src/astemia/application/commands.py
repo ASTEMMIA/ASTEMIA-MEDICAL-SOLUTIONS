@@ -125,6 +125,93 @@ def open_encounter(
     return encounter
 
 
+def create_order(u: Unit, cmd: PlaceOrder, author_role: str = "clinician") -> ServiceRequest:
+    """A new order on an open encounter of the patient (or of a record merged
+    into theirs). Shared by laboratory orders and imaging requests."""
+    encounter = u.get(Encounter, cmd.encounter_id, lock=True)
+    # The open encounter of a record merged into this one still takes orders.
+    if encounter.patient_id not in (
+        cmd.patient_id,
+        *views.merged_from(u.session, u.ctx.tenant_id, cmd.patient_id),
+    ):
+        raise Unprocessable(
+            "encounter does not belong to this patient", code="encounter_patient_mismatch"
+        )
+    if enc.EncounterState(encounter.state) not in enc.OPEN_STATES:
+        raise Conflict("encounter is not open for orders", code="encounter_closed")
+    requester = u.ctx.principal.practitioner_id
+    assert requester is not None  # guaranteed by the relationship-bound policy
+    owner = cmd.result_owner_id or requester
+    u.get(Practitioner, owner)
+    if cmd.backup_owner_id:
+        u.get(Practitioner, cmd.backup_owner_id)
+    order = ServiceRequest(
+        tenant_id=u.ctx.tenant_id,
+        id=new_id(),
+        version=1,
+        recorded_at=u.ctx.now,
+        effective_at=u.ctx.now,
+        effective_precision=EffectivePrecision.SECOND.value,
+        author_id=requester,
+        author_role=author_role,
+        sensitivity=encounter.sensitivity,
+        code_system=cmd.code_system,
+        code=cmd.code,
+        display=cmd.display,
+        original_system=cmd.original_system,
+        original_code=cmd.original_code,
+        # The order stays with its encounter's record, so an unmerge
+        # takes both back together.
+        patient_id=encounter.patient_id,
+        encounter_id=encounter.id,
+        requester_id=requester,
+        result_owner_id=owner,
+        backup_owner_id=cmd.backup_owner_id,
+        placer_authority="ASTEMIA",
+        placer_id=f"ORD-{uuid.uuid7().hex[-12:].upper()}",
+        status=dx.ServiceRequestStatus.ACTIVE.value,
+        priority=cmd.priority.value,
+        clinical_note=cmd.clinical_note,
+    )
+    u.session.add(order)
+    u.session.flush()
+    return order
+
+
+def open_review(u: Unit, order: ServiceRequest, report: DiagnosticReport) -> ResultReview:
+    """A new report supersedes the order's open reviews and opens exactly one
+    for its result owner."""
+    u.session.execute(
+        update(ResultReview)
+        .where(
+            ResultReview.tenant_id == u.ctx.tenant_id,
+            ResultReview.report_id.in_(
+                select(DiagnosticReport.id).where(
+                    DiagnosticReport.tenant_id == u.ctx.tenant_id,
+                    DiagnosticReport.service_request_id == order.id,
+                    DiagnosticReport.id != report.id,
+                )
+            ),
+            ResultReview.state.in_([dx.ReviewState.OPEN.value, dx.ReviewState.ESCALATED.value]),
+        )
+        .values(state=dx.ReviewState.SUPERSEDED.value, version=ResultReview.version + 1)
+    )
+    review = ResultReview(
+        tenant_id=u.ctx.tenant_id,
+        id=new_id(),
+        version=1,
+        recorded_at=u.ctx.now,
+        sensitivity=order.sensitivity,
+        report_id=report.id,
+        patient_id=order.patient_id,
+        assignee_id=order.result_owner_id,
+        state=dx.ReviewState.OPEN.value,
+    )
+    u.session.add(review)
+    u.session.flush()
+    return review
+
+
 class Commands:
     def __init__(self, write_path: WritePath) -> None:
         self.wp = write_path
@@ -376,53 +463,7 @@ class Commands:
 
     def place_order(self, ctx: Any, key: str | None, cmd: PlaceOrder) -> CommandResult:
         def handle(u: Unit) -> CommandResult:
-            encounter = u.get(Encounter, cmd.encounter_id, lock=True)
-            # The open encounter of a record merged into this one still takes orders.
-            if encounter.patient_id not in (
-                cmd.patient_id,
-                *views.merged_from(u.session, u.ctx.tenant_id, cmd.patient_id),
-            ):
-                raise Unprocessable(
-                    "encounter does not belong to this patient", code="encounter_patient_mismatch"
-                )
-            if enc.EncounterState(encounter.state) not in enc.OPEN_STATES:
-                raise Conflict("encounter is not open for orders", code="encounter_closed")
-            requester = u.ctx.principal.practitioner_id
-            assert requester is not None  # guaranteed by the relationship-bound policy
-            owner = cmd.result_owner_id or requester
-            u.get(Practitioner, owner)
-            if cmd.backup_owner_id:
-                u.get(Practitioner, cmd.backup_owner_id)
-            order = ServiceRequest(
-                tenant_id=u.ctx.tenant_id,
-                id=new_id(),
-                version=1,
-                recorded_at=u.ctx.now,
-                effective_at=u.ctx.now,
-                effective_precision=EffectivePrecision.SECOND.value,
-                author_id=requester,
-                author_role="clinician",
-                sensitivity=encounter.sensitivity,
-                code_system=cmd.code_system,
-                code=cmd.code,
-                display=cmd.display,
-                original_system=cmd.original_system,
-                original_code=cmd.original_code,
-                # The order stays with its encounter's record, so an unmerge
-                # takes both back together.
-                patient_id=encounter.patient_id,
-                encounter_id=encounter.id,
-                requester_id=requester,
-                result_owner_id=owner,
-                backup_owner_id=cmd.backup_owner_id,
-                placer_authority="ASTEMIA",
-                placer_id=f"ORD-{uuid.uuid7().hex[-12:].upper()}",
-                status=dx.ServiceRequestStatus.ACTIVE.value,
-                priority=cmd.priority.value,
-                clinical_note=cmd.clinical_note,
-            )
-            u.session.add(order)
-            u.session.flush()
+            order = create_order(u, cmd)
             decision = u.authorize("order:create", patient_id=cmd.patient_id)
             event = u.emit(
                 EventType.ORDER_PLACED,
@@ -614,37 +655,7 @@ class Commands:
                 order.filler_authority = cmd.filler_authority or "LAB"
                 order.filler_id = cmd.filler_id
 
-            # An amendment supersedes open reviews and reopens exactly one.
-            u.session.execute(
-                update(ResultReview)
-                .where(
-                    ResultReview.tenant_id == u.ctx.tenant_id,
-                    ResultReview.report_id.in_(
-                        select(DiagnosticReport.id).where(
-                            DiagnosticReport.tenant_id == u.ctx.tenant_id,
-                            DiagnosticReport.service_request_id == order.id,
-                            DiagnosticReport.id != report.id,
-                        )
-                    ),
-                    ResultReview.state.in_(
-                        [dx.ReviewState.OPEN.value, dx.ReviewState.ESCALATED.value]
-                    ),
-                )
-                .values(state=dx.ReviewState.SUPERSEDED.value, version=ResultReview.version + 1)
-            )
-            review = ResultReview(
-                tenant_id=u.ctx.tenant_id,
-                id=new_id(),
-                version=1,
-                recorded_at=u.ctx.now,
-                sensitivity=order.sensitivity,
-                report_id=report.id,
-                patient_id=order.patient_id,
-                assignee_id=order.result_owner_id,
-                state=dx.ReviewState.OPEN.value,
-            )
-            u.session.add(review)
-            u.session.flush()
+            review = open_review(u, order, report)
 
             decision = u.authorize("result:release")
             event_type = (

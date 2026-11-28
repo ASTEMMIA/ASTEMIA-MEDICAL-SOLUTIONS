@@ -15,6 +15,7 @@ from astemia.domain.discharge import Disposition, OutstandingKind
 from astemia.domain.encounter import EncounterClass
 from astemia.domain.identity import AddressChangeReason, AdministrativeSex, ClosureReason
 from astemia.domain.notes import NoteType
+from astemia.domain.radiology import ImagingModality, ImagingState, StudyStatus, VetDecision
 from astemia.domain.safeguards import (
     ConcernCategory,
     InterventionType,
@@ -332,6 +333,8 @@ class ReportOut(Resource):
     released_at: datetime
     prior_report_id: uuid.UUID | None = None
     review_id: uuid.UUID | None = None
+    conclusion: str | None = None
+    presented_form: str | None = None  # the signed text of a narrative report
     observations: list[ObservationOut] = []
 
 
@@ -1399,3 +1402,125 @@ class TheatreOut(BaseModel):
     code: str
     name: str
     active: bool
+
+
+# --- radiology (HS07, WF05 step 1) ----------------------------------------------------
+
+
+class RequestImaging(Strict):
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID
+    code_system: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    code: Code
+    display: Annotated[str, StringConstraints(min_length=1, max_length=255)]
+    modality: ImagingModality
+    body_site: str = Field(min_length=1, max_length=100)
+    laterality: Laterality
+    priority: OrderPriority = OrderPriority.ROUTINE
+    clinical_note: str = Field(min_length=1, max_length=1000)  # the radiologist vets on it
+    result_owner_id: uuid.UUID | None = None
+
+
+class VetImaging(Strict):
+    decision: VetDecision
+    protocol: str | None = Field(default=None, max_length=200)
+    reason: str | None = Field(default=None, max_length=1000)
+
+
+class ScheduleImaging(Strict):
+    scheduled_at: AwareDatetime
+
+
+class PatientIdentifierIn(Strict):
+    issuer: Code
+    value: Code
+
+
+class ReceiveStudy(Strict):
+    """A study arriving from the modality or PACS, with the identity it carries."""
+
+    study_instance_uid: str = Field(pattern=r"^[0-9]+(\.[0-9]+)*$", max_length=64)
+    accession_number: Code
+    modality: ImagingModality
+    performed_at: AwareDatetime
+    pacs_reference: str = Field(min_length=1, max_length=255)
+    patient_identifier: PatientIdentifierIn
+    birth_date: date
+
+
+class LinkStudy(Strict):
+    imaging_request_id: uuid.UUID
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class ReportImaging(Strict):
+    findings: str = Field(min_length=1, max_length=20000)
+    conclusion: str = Field(min_length=1, max_length=2000)
+
+
+class AddendumIn(Strict):
+    text: str = Field(min_length=1, max_length=20000)
+    needs_review: bool = True
+
+
+class ImagingStudyOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    study_instance_uid: str
+    accession_number: str
+    modality: ImagingModality
+    performed_at: datetime
+    status: StudyStatus
+    conflicts: list[str]
+    imaging_request_id: uuid.UUID | None
+    patient_id: uuid.UUID | None
+    linked_by_id: uuid.UUID | None
+    linked_at: datetime | None
+    link_reason: str | None
+    # The identity the study arrived with: on the reconciliation list only.
+    received_issuer: str | None = None
+    received_identifier: str | None = None
+    received_birth_date: date | None = None
+
+
+class ImagingRequestOut(BaseModel):
+    id: uuid.UUID
+    version: int
+    service_request_id: uuid.UUID
+    patient_id: uuid.UUID
+    encounter_id: uuid.UUID
+    code: str
+    display: str
+    priority: OrderPriority
+    clinical_note: str | None
+    modality: ImagingModality
+    body_site: str
+    laterality: Laterality
+    state: ImagingState
+    protocol: str | None
+    vetting_note: str | None
+    vetted_by_id: uuid.UUID | None
+    scheduled_at: datetime | None
+    accession_number: str | None
+    studies: list[ImagingStudyOut]
+    reports: list[ReportOut]
+
+
+class ViewerAccessOut(BaseModel):
+    """Short-lived, patient-bound access to one study in the PACS viewer."""
+
+    study_instance_uid: str
+    url: str
+    token: str
+    expires_at: datetime
+
+
+class PacsCheck(Strict):
+    token: str = Field(min_length=1, max_length=4096)
+    study_instance_uid: str = Field(max_length=64)
+
+
+class PacsCheckOut(BaseModel):
+    study_instance_uid: str
+    patient_id: uuid.UUID
+    practitioner_id: uuid.UUID

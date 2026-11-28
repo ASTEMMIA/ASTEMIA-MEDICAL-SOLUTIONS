@@ -48,6 +48,8 @@ ROLES = {
     "advocate": ["patient_advocate"],
     "clerk": ["records_clerk"],
     "supervisor": ["team_supervisor"],
+    "radiologist": ["radiologist"],
+    "radiographer": ["radiographer"],
     # A clinician who is also a privacy officer may not review their own grant.
     "dual": ["clinician", "privacy_officer"],
 }
@@ -56,6 +58,7 @@ ROLES = {
 UNLINKED = {
     "unlinked_clinician": ["clinician"],
     "unlinked_scientist": ["lab_scientist"],
+    "unlinked_radiologist": ["radiologist"],
     "no_catalogue": ["sensitive_reader"],
     "unlinked_steward": ["identity_steward"],
     "unlinked_privacy": ["privacy_officer"],

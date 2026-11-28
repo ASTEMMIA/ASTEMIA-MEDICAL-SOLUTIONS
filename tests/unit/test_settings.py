@@ -21,9 +21,13 @@ def test_real_secrets_outside_development(env: str) -> None:
         Settings(environment=env)  # the shared development key
     with pytest.raises(ValidationError, match="ASTEMIA_JWT_KEY"):
         Settings(environment=env, jwt_key=SecretStr("short"))
+    with pytest.raises(ValidationError, match="ASTEMIA_PACS_TOKEN_KEY"):
+        Settings(environment=env, jwt_key=STRONG)  # the viewer key is still the default
+    with pytest.raises(ValidationError, match="ASTEMIA_PACS_TOKEN_KEY"):
+        Settings(environment=env, jwt_key=STRONG, pacs_token_key=SecretStr("short"))
     with pytest.raises(ValidationError, match="development sign-in"):
-        Settings(environment=env, jwt_key=STRONG, dev_sign_in=True)
-    ok = Settings(environment=env, jwt_key=STRONG)
+        Settings(environment=env, jwt_key=STRONG, pacs_token_key=STRONG, dev_sign_in=True)
+    ok = Settings(environment=env, jwt_key=STRONG, pacs_token_key=STRONG)
     assert not ok.is_development
 
 

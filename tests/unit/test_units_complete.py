@@ -80,7 +80,8 @@ def test_settings_are_cached() -> None:
 def test_development_tokens_are_refused_in_production() -> None:
     import uuid
 
-    strong = Settings(environment="production", jwt_key=SecretStr("k" * 32))
+    key = SecretStr("k" * 32)
+    strong = Settings(environment="production", jwt_key=key, pacs_token_key=key)
     with pytest.raises(RuntimeError, match="disabled in production"):
         issue_dev_token(strong, "x@y", uuid.uuid7())
 

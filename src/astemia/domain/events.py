@@ -44,6 +44,7 @@ class EventType(StrEnum):
     THEATRE_CASE_COMPLETED = "theatre_case.completed"
     THEATRE_CASE_CANCELLED = "theatre_case.cancelled"
     THEATRE_CASE_HANDED_OVER = "theatre_case.handed_over"
+    IMAGING_STUDY_LINKED = "imaging_study.linked"
     CONDITION_RECORDED = "condition.recorded"
     CARE_PLAN_REVISED = "care_plan.revised"
     CARE_PLAN_DISCONTINUED = "care_plan.discontinued"

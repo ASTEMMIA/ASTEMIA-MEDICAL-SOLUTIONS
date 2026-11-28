@@ -52,6 +52,12 @@ export const CAPABILITY_NAMES: Record<string, string> = {
   "theatre:checklist": "Record the theatre safety checklist",
   "theatre:perform": "Operate and hand over from recovery",
   "theatre:manage": "Set up theatres and sessions",
+  "imaging:read": "See the radiology worklist",
+  "imaging:vet": "Vet imaging requests",
+  "imaging:schedule": "Schedule imaging examinations",
+  "imaging:perform": "Record imaging studies",
+  "imaging:reconcile": "Reconcile studies kept off the chart",
+  "imaging:report": "Sign radiology reports and addenda",
 };
 
 export function Account() {
